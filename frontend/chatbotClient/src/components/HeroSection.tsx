@@ -19,22 +19,25 @@ const HeroSection = () => (
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
         >
-          <span className="inline-block px-3 py-1 rounded-full bg-accent text-accent-foreground text-xs font-medium mb-4">
-            Trusted Healthcare Since 1985
+          <span className="inline-block px-3 py-1 rounded-full bg-cyan-100 text-cyan-700 text-xs font-medium mb-4">
+            Thessaloniki's Healthcare Since 1985
           </span>
           <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6">
-            Your Health,{" "}
-            <span className="text-gradient-primary">Our Priority</span>
+            Your Health, <span className="text-cyan-700">Our Priority</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-md mb-8">
             Experience world-class healthcare with compassionate doctors,
             cutting-edge technology, and personalized treatment plans.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Button size="lg">
+            <Button size="lg" className="bg-cyan-700">
               Book Appointment <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-            <Button size="lg" variant="outline">
+            <Button
+              size="lg"
+              variant="outline"
+              className="text-cyan-700 hover:text-cyan-700"
+            >
               Our Services
             </Button>
           </div>
@@ -67,7 +70,7 @@ const HeroSection = () => (
             key={s.label}
             className="flex flex-col items-center text-center p-4 rounded-xl bg-card shadow-sm border border-border"
           >
-            <s.icon className="h-6 w-6 text-primary mb-2" />
+            <s.icon className="h-6 w-6 text-cyan-700 mb-2" />
             <span className="text-2xl font-bold text-foreground">
               {s.value}
             </span>

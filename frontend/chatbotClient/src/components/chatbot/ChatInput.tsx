@@ -1,7 +1,7 @@
 import type { KeyboardEvent } from "react";
 import { useForm } from "react-hook-form";
 import { FaArrowUp } from "react-icons/fa";
-import { Button } from "../../components/ui/button";
+import { Button } from "../ui/button";
 
 export type ChatFormData = {
   prompt: string;
@@ -30,19 +30,22 @@ const ChatInput = ({ onSubmit }: Props) => {
     <form
       onSubmit={submit}
       onKeyDown={handleKeyDown}
-      className="flex flex-col gap-2 items-end border-2 p-4 rounded-3xl"
+      className="flex items-center gap-2 border p-2 rounded-2xl"
     >
       <textarea
+        rows={1}
         {...register("prompt", {
           required: true,
           validate: (data) => data.trim().length > 0,
         })}
-        autoFocus
-        className="w-full border-0 focus:outline-0 resize-none"
+        className="flex-1 resize-none border-0 focus:outline-none leading-tight h-10"
         placeholder="Ask about our services..."
-        maxLength={1000}
       />
-      <Button disabled={!formState.isValid} className="rounded-full w-9 h-9">
+
+      <Button
+        disabled={!formState.isValid}
+        className="self-end rounded-full w-9 h-9 bg-cyan-700"
+      >
         <FaArrowUp />
       </Button>
     </form>

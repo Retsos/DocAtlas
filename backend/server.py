@@ -2,7 +2,8 @@ from fastapi import Depends, FastAPI, HTTPException, UploadFile, File
 from fastapi.concurrency import run_in_threadpool
 from config.chromaClient import get_chroma_collection
 from chromadb.api.models.Collection import Collection
-from services.documentProcessing import prepare_document_for_chroma
+from chromadb import Search, K, Knn, Rrf
+from services.documentProcessing import prepare_document_for_chroma, normalize_greek_text
 from models.RequestBody import RequestBody
 
 app = FastAPI()
@@ -41,15 +42,34 @@ def query(
     col: Collection = Depends(get_chroma_collection)
 ):
     try:
-        #Queries chroma for relevant documents
-        results = col.query(
-            query_texts=[body.prompt],
-            n_results=body.top_k
+        clean_prompt = normalize_greek_text(body.prompt)
+
+        hybrid_rank = Rrf(
+            ranks=[
+                #Semantic search
+                Knn(
+                    query=clean_prompt,
+                    return_rank=True,
+                    limit=15,
+                ),
+                #Exact keyword/date matching
+                Knn(
+                    query=clean_prompt,
+                    key="sparse_embedding",
+                    return_rank=True,
+                    limit=15,
+                )
+            ],
+            weights=[1.0, 1.0],
+            k=60
         )
 
-        retrieved_docs = results['documents'][0] if results['documents'] else []
-        
-        return {
+        search_query = Search().rank(hybrid_rank).limit(body.top_k).select(K.DOCUMENT)
+        results = col.search(search_query)
+
+        retrieved_docs = results.get('documents', [[]])[0] if results else []
+
+        return{
             "query": body.prompt,
             "results": retrieved_docs
         }

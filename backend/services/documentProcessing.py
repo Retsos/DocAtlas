@@ -2,9 +2,26 @@ import uuid
 import io
 import pandas as pd
 import requests
+import unicodedata
 from bs4 import BeautifulSoup
 from pypdf import PdfReader
 import docx2txt
+
+#Normalizes Greek text by removing accents and converting to lowercase to help in hybrid search
+def normalize_greek_text(text: str) -> str:
+    if not text:
+        return ""
+    
+    text = text.lower()
+
+    #Decomposes characters
+    text = unicodedata.normalize('NFD', text)
+
+    #Filters out the accent marks
+    text = "".join(char for char in text if unicodedata.category(char) != 'Mn')
+
+    return text
+
 
 def extract_text_from_pdf(file_content: bytes) -> str:
     reader = PdfReader(io.BytesIO(file_content))
@@ -69,8 +86,10 @@ def chunk_text(text: str, chunk_size: int = 500, overlap: int = 50) -> list[str]
 #Extracts text, chunks it, and prepares the arrays for ChromaDB.
 def prepare_document_for_chroma(file_name: str = None, file_content: bytes = None, url: str = None):
     raw_text = get_raw_text(file_name, file_content, url)
+
+    cleanded_text = normalize_greek_text(raw_text)
     
-    chunks = chunk_text(raw_text)
+    chunks = chunk_text(cleanded_text)
     
     #Prepares the metadata for chroma
     #TODO Add hospital id to link with front end

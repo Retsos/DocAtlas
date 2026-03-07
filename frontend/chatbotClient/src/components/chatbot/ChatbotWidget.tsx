@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { MessageCircle, X, Send, Bot, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "./ui/button";
-import TypingIndicator from "./chatbot/TypingIndicator";
+import { Button } from "../ui/button";
+import TypingIndicator from "./TypingIndicator";
 
 interface Message {
   id: string;

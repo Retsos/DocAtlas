@@ -1,4 +1,4 @@
-﻿import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom'
+import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 
 import { useAuth } from '@/app/providers/auth-provider'
 import { ProtectedRoute } from '@/app/routes/protected-route'
@@ -6,6 +6,7 @@ import { AuthPage } from '@/features/auth/pages/auth-page'
 import { DashboardLayout } from '@/features/dashboard/layouts/dashboard-layout'
 import { AppointmentsPage, PatientsPage, SettingsPage } from '@/features/dashboard/pages/dashboard-pages'
 import { KnowledgeBasePage } from '@/features/knowledge-base/pages/knowledge-base-page'
+import { WebsiteRouter } from '@/website/routes/website-router'
 
 function RootRedirect() {
   const { isAuthenticated, isLoading } = useAuth()
@@ -21,7 +22,9 @@ export function AppRouter() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<RootRedirect />} />
+        <Route path="/" element={<Navigate to="/website" replace />} />
+        <Route path="/website/*" element={<WebsiteRouter />} />
+        <Route path="/redirect" element={<RootRedirect />} />
         <Route path="/auth" element={<AuthPage />} />
 
         <Route element={<ProtectedRoute />}>

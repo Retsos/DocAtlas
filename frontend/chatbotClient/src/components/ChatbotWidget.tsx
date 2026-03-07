@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { MessageCircle, X, Send, Bot, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "./ui/button";
+import TypingIndicator from "./chatbot/TypingIndicator";
 
 interface Message {
   id: string;
@@ -22,7 +23,7 @@ const BOT_RESPONSES: Record<string, string> = {
   appointment:
     "To book an appointment, you can call us at (555) 123-4567 or visit our front desk. Would you like me to help with anything else?",
   hours:
-    "Our regular hours are Mon–Fri 8 AM–8 PM and Sat 9 AM–5 PM. Our Emergency department is open 24/7.",
+    "Our regular hours are Mon-Fri 8 AM-8 PM and Sat 9 AM-5 PM. Our Emergency department is open 24/7.",
   services:
     "We offer Cardiology, Neurology, Pediatrics, Orthopedics, Ophthalmology, and General Medicine. Which service interests you?",
   doctors:
@@ -165,27 +166,7 @@ const ChatbotWidget = () => {
                 </div>
               ))}
 
-              {typing && (
-                <div className="flex gap-2 items-start">
-                  <div className="w-7 h-7 rounded-full bg-accent flex items-center justify-center shrink-0">
-                    <Bot className="h-4 w-4 text-accent-foreground" />
-                  </div>
-                  <div className="bg-chat-bot rounded-2xl rounded-bl-md px-4 py-3 flex gap-1">
-                    <span
-                      className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-chat-bounce"
-                      style={{ animationDelay: "0ms" }}
-                    />
-                    <span
-                      className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-chat-bounce"
-                      style={{ animationDelay: "200ms" }}
-                    />
-                    <span
-                      className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-chat-bounce"
-                      style={{ animationDelay: "400ms" }}
-                    />
-                  </div>
-                </div>
-              )}
+              {typing && <TypingIndicator />}
             </div>
 
             {/* Quick suggestions */}

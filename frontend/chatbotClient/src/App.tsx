@@ -1,10 +1,20 @@
 import "./App.css";
-import ChatBot from "./components/ChatBox";
+import ChatbotWidget from "./components/ChatBotWidget";
+import DoctorsSection from "./components/DoctorSection";
+import FooterSection from "./components/FooterSection";
+import HeroSection from "./components/HeroSection";
+import HospitalNav from "./components/HospitalNav";
+import ServicesSection from "./components/ServicesSection";
 
 function App() {
   return (
-    <div className="p-20 h-screen w-full">
-      <ChatBot />
+    <div className="min-h-screen">
+      <HospitalNav />
+      <HeroSection />
+      <ServicesSection />
+      <DoctorsSection />
+      <FooterSection />
+      <ChatbotWidget />
     </div>
   );
 }

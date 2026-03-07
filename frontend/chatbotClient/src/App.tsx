@@ -1,7 +1,8 @@
 import "./App.css";
+import ChatBot from "./components/ChatBox";
 
 function App() {
-  return <div className="flex flex-col h-48 w-48 bg-blue-700"></div>;
+  return <ChatBot />;
 }
 
 export default App;

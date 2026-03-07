@@ -152,8 +152,8 @@ const ChatbotWidget = () => {
                   <div
                     className={`max-w-[75%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
                       m.role === "user"
-                        ? "bg-primary text-primary-foreground rounded-br-md"
-                        : "bg-chat-bot text-chat-bot-foreground rounded-bl-md"
+                        ? "bg-cyan-600 text-primary-foreground rounded-br-md"
+                        : "bg-gray-100 text-chat-bot-foreground rounded-bl-md"
                     }`}
                   >
                     {m.content}
@@ -168,44 +168,6 @@ const ChatbotWidget = () => {
 
               {typing && <TypingIndicator />}
             </div>
-
-            {/* Quick suggestions */}
-            {messages.length <= 1 && (
-              <div className="px-4 pb-2 flex flex-wrap gap-1.5">
-                {["Services", "Doctors", "Appointment", "Hours"].map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => {
-                      setInput(s);
-                      setTimeout(() => {
-                        setInput("");
-                        const userMsg: Message = {
-                          id: Date.now().toString(),
-                          role: "user",
-                          content: s,
-                        };
-                        setMessages((m) => [...m, userMsg]);
-                        setTyping(true);
-                        setTimeout(() => {
-                          setMessages((m) => [
-                            ...m,
-                            {
-                              id: (Date.now() + 1).toString(),
-                              role: "bot",
-                              content: getBotResponse(s),
-                            },
-                          ]);
-                          setTyping(false);
-                        }, 800);
-                      }, 50);
-                    }}
-                    className="px-3 py-1.5 text-xs rounded-full border border-border bg-secondary text-secondary-foreground hover:bg-accent transition-colors"
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            )}
 
             {/* Input */}
             <div className="p-3 border-t border-border">

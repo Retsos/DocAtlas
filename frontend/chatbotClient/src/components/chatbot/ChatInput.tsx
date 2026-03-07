@@ -39,7 +39,7 @@ const ChatInput = ({ onSubmit }: Props) => {
         })}
         autoFocus
         className="w-full border-0 focus:outline-0 resize-none"
-        placeholder="Ask anything"
+        placeholder="Ask about our services..."
         maxLength={1000}
       />
       <Button disabled={!formState.isValid} className="rounded-full w-9 h-9">

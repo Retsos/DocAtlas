@@ -43,13 +43,6 @@ export function AppRouter() {
             <Route path="/instructions" element={<InstructionsPage />} />
           </Route>
         </Route>
-        <Route path="/app" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/app/dashboard" element={<Navigate to="/dashboard" replace />} />
-        <Route
-          path="/app/instructions"
-          element={<Navigate to="/instructions" replace />}
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

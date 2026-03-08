@@ -1,4 +1,4 @@
-﻿import { AppRouter } from "@/app/app-router";
+﻿import { AppRouter } from "@/routes";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { LanguageProvider } from "@/providers/LanguageProvider";
 

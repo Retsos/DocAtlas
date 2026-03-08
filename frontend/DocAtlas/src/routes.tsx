@@ -5,11 +5,16 @@ import {
   RouterProvider,
   useLocation,
 } from "react-router-dom";
+
 import { useAuth } from "@/providers/AuthProvider";
 import { Layout } from "@/components/website/Layout";
 import { AuthPage } from "@/pages/AuthPage";
-import { DashboardLayout } from "@/features/dashboard/layouts/dashboard-layout";
-import { KnowledgeBasePage } from "@/features/knowledge-base/pages/knowledge-base-page";
+import { DashboardLayout } from "@/components/DashboardLayout";
+import { KnowledgeBasePage } from "@/pages/KnowledgeBasePage";
+import InstructionsPage from "@/pages/InstructionsPage";
+import { Home } from "@/pages/HomePage";
+import { Features } from "@/pages/FeaturesPage";
+import { About } from "@/pages/AboutPage";
 
 function AuthGuard() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -30,6 +35,17 @@ function AuthGuard() {
   );
 }
 
+function RootRedirect() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return null;
+  }
+
+  return <Navigate to={isAuthenticated ? "/dashboard" : "/auth"} replace />;
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -41,26 +57,24 @@ export const router = createBrowserRouter([
     ],
   },
   { path: "/auth", element: <AuthPage /> },
+  { path: "/redirect", element: <RootRedirect /> },
 
-  // PROTECTED SECTION
   {
-    element: <AuthGuard />, // All children here are now protected
+    element: <AuthGuard />,
     children: [
       {
-        path: "/",
         element: <DashboardLayout />,
         children: [
-          { index: true, element: <Navigate to="dashboard" replace /> },
-          { path: "dashboard", element: <KnowledgeBasePage /> },
-          { path: "patients", element: <PatientsPage /> },
-          { path: "appointments", element: <AppointmentsPage /> },
-          { path: "settings", element: <SettingsPage /> },
+          { path: "/dashboard", element: <KnowledgeBasePage /> },
+          { path: "/instructions", element: <InstructionsPage /> },
         ],
       },
     ],
   },
-
-  { path: "*", element: <Navigate to="/" replace /> },
+  {
+    path: "*",
+    element: <Navigate to="/" replace />,
+  },
 ]);
 
 export function AppRouter() {

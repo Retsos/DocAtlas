@@ -14,6 +14,7 @@ import { KnowledgeBasePage } from "@/pages/KnowledgeBasePage";
 import { About } from "@/pages/AboutPage";
 import { Features } from "@/pages/FeaturesPage";
 import { Home } from "@/pages/HomePage";
+import InstructionsPage from "@/pages/InstructionsPage";
 
 function RootRedirect() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -22,7 +23,7 @@ function RootRedirect() {
     return null;
   }
 
-  return <Navigate to={isAuthenticated ? "/app/dashboard" : "/auth"} replace />;
+  return <Navigate to={isAuthenticated ? "/dashboard" : "/auth"} replace />;
 }
 
 export function AppRouter() {
@@ -36,37 +37,18 @@ export function AppRouter() {
         </Route>
         <Route path="/redirect" element={<RootRedirect />} />
         <Route path="/auth" element={<AuthPage />} />
-        <Route
-          path="/dashboard"
-          element={<Navigate to="/app/dashboard" replace />}
-        />
-        <Route path="/patients" element={<Navigate to="/app/patients" replace />} />
-        <Route
-          path="/appointments"
-          element={<Navigate to="/app/appointments" replace />}
-        />
-        <Route
-          path="/settings"
-          element={<Navigate to="/app/settings" replace />}
-        />
-
-        <Route
-          path="/app"
-          element={
-            <ProtectedRoute>
-              <DashboardLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<KnowledgeBasePage />} />
-          <Route path="patients" element={<Navigate to="../dashboard" replace />} />
-          <Route
-            path="appointments"
-            element={<Navigate to="../dashboard" replace />}
-          />
-          <Route path="settings" element={<Navigate to="../dashboard" replace />} />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<DashboardLayout />}>
+            <Route path="/dashboard" element={<KnowledgeBasePage />} />
+            <Route path="/instructions" element={<InstructionsPage />} />
+          </Route>
         </Route>
+        <Route path="/app" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/app/dashboard" element={<Navigate to="/dashboard" replace />} />
+        <Route
+          path="/app/instructions"
+          element={<Navigate to="/instructions" replace />}
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

@@ -1,14 +1,12 @@
 ﻿import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Users, CalendarDays, Settings } from "lucide-react";
+import { LayoutDashboard, Settings } from "lucide-react";
 
 import { useAuth } from "@/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
-  { to: "/app/dashboard", label: "Knowledge Base", icon: LayoutDashboard },
-  { to: "/app/patients", label: "Patients", icon: Users },
-  { to: "/app/appointments", label: "Appointments", icon: CalendarDays },
-  { to: "/app/settings", label: "Settings", icon: Settings },
+  { to: "/dashboard", label: "Knowledge Base", icon: LayoutDashboard },
+  { to: "/instructions", label: "Instructions", icon: Settings },
 ];
 
 export function Sidebar() {

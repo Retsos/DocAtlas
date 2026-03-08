@@ -9,7 +9,7 @@ import {
   subscribeToDocumentSources,
   uploadStorageSources,
 } from "@/services/storage-sources-service";
-import type { KnowledgeSource } from "@/types/knowledge-source";
+import type { KnowledgeSource } from "@/types/knowledgeSource";
 
 function formatDate(date?: Date) {
   if (!date) {

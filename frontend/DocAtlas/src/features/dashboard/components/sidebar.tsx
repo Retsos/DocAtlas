@@ -1,24 +1,26 @@
-﻿import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Users, CalendarDays, Settings } from 'lucide-react'
+﻿import { NavLink } from "react-router-dom";
+import { LayoutDashboard, Users, CalendarDays, Settings } from "lucide-react";
 
-import { useAuth } from '@/app/providers/auth-provider'
-import { Button } from '@/components/ui/button'
+import { useAuth } from "@/providers/AuthProvider";
+import { Button } from "@/components/ui/button";
 
 const navItems = [
-  { to: '/app/dashboard', label: 'Knowledge Base', icon: LayoutDashboard },
-  { to: '/app/patients', label: 'Patients', icon: Users },
-  { to: '/app/appointments', label: 'Appointments', icon: CalendarDays },
-  { to: '/app/settings', label: 'Settings', icon: Settings },
-]
+  { to: "/app/dashboard", label: "Knowledge Base", icon: LayoutDashboard },
+  { to: "/app/patients", label: "Patients", icon: Users },
+  { to: "/app/appointments", label: "Appointments", icon: CalendarDays },
+  { to: "/app/settings", label: "Settings", icon: Settings },
+];
 
 export function Sidebar() {
-  const { user, logout } = useAuth()
+  const { user, logout } = useAuth();
 
   return (
     <aside className="flex w-64 flex-col border-r bg-background p-4">
       <div className="mb-6">
         <p className="text-lg font-semibold">DocAtlas Admin</p>
-        <p className="text-xs text-muted-foreground">{user?.hospitalName ?? 'Hospital'}</p>
+        <p className="text-xs text-muted-foreground">
+          {user?.hospitalName ?? "Hospital"}
+        </p>
       </div>
 
       <nav className="flex-1 space-y-1">
@@ -28,11 +30,11 @@ export function Sidebar() {
             to={to}
             className={({ isActive }) =>
               [
-                'flex items-center gap-2 rounded-md px-3 py-2 text-sm transition',
+                "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition",
                 isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-              ].join(' ')
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              ].join(" ")
             }
           >
             <Icon className="size-4" />
@@ -48,5 +50,5 @@ export function Sidebar() {
         </Button>
       </div>
     </aside>
-  )
+  );
 }

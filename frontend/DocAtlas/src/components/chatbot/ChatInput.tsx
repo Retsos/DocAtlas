@@ -1,7 +1,7 @@
 import type { KeyboardEvent } from "react";
 import { useForm } from "react-hook-form";
 import { ArrowUp } from "lucide-react";
-import { Button } from "../components/ui/button";
+import { Button } from "../ui/button";
 
 export type ChatFormData = {
   prompt: string;

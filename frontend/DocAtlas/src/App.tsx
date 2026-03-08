@@ -1,6 +1,6 @@
-﻿import { AppRouter } from '@/app/app-router'
-import { AuthProvider } from '@/app/providers/auth-provider'
-import { LanguageProvider } from '@/app/providers/language-provider'
+﻿import { AppRouter } from "@/routes";
+import { AuthProvider } from "@/providers/AuthProvider";
+import { LanguageProvider } from "@/providers/LanguageProvider";
 
 function App() {
   return (
@@ -9,7 +9,7 @@ function App() {
         <AppRouter />
       </AuthProvider>
     </LanguageProvider>
-  )
+  );
 }
 
-export default App
+export default App;

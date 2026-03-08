@@ -1,14 +1,14 @@
-﻿import { useEffect, useRef, useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+﻿import { useEffect, useRef, useState } from "react";
+import { Link, NavLink } from "react-router-dom";
 
-import { useLanguage } from '@/app/providers/language-provider'
-import docAtlasLogo from '@/assets/DocAtlasLogo.png'
+import { useLanguage } from "@/providers/LanguageProvider";
+import docAtlasLogo from "@/assets/DocAtlasLogo.png";
 
 const navLinks = [
-  { key: 'website.nav.home', to: '/', end: true },
-  { key: 'website.nav.features', to: '/features' },
-  { key: 'website.nav.about', to: '/about' },
-]
+  { key: "website.nav.home", to: "/", end: true },
+  { key: "website.nav.features", to: "/features" },
+  { key: "website.nav.about", to: "/about" },
+];
 
 function GreeceFlagIcon() {
   return (
@@ -22,7 +22,7 @@ function GreeceFlagIcon() {
       <rect x="4.44" width="1.78" height="8.89" fill="#fff" />
       <rect y="3.56" width="10.67" height="1.78" fill="#fff" />
     </svg>
-  )
+  );
 }
 
 function UKFlagIcon() {
@@ -34,29 +34,29 @@ function UKFlagIcon() {
       <path d="M12 0v16M0 8h24" stroke="#fff" strokeWidth="5" />
       <path d="M12 0v16M0 8h24" stroke="#C8102E" strokeWidth="3" />
     </svg>
-  )
+  );
 }
 
 export function Navbar() {
-  const { language, setLanguage, t } = useLanguage()
-  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false)
-  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
-  const menuRef = useRef<HTMLLIElement | null>(null)
+  const { language, setLanguage, t } = useLanguage();
+  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const menuRef = useRef<HTMLLIElement | null>(null);
 
   useEffect(() => {
     function onDocumentClick(event: MouseEvent) {
       if (!menuRef.current) {
-        return
+        return;
       }
 
       if (!menuRef.current.contains(event.target as Node)) {
-        setIsLangMenuOpen(false)
+        setIsLangMenuOpen(false);
       }
     }
 
-    document.addEventListener('click', onDocumentClick)
-    return () => document.removeEventListener('click', onDocumentClick)
-  }, [])
+    document.addEventListener("click", onDocumentClick);
+    return () => document.removeEventListener("click", onDocumentClick);
+  }, []);
 
   return (
     <header className="sticky top-0 z-30 border-b border-emerald-100/70 bg-white/95 backdrop-blur">
@@ -71,7 +71,9 @@ export function Navbar() {
             alt="DocAtlas logo"
             className="h-10 w-10 object-contain drop-shadow-[0_8px_14px_rgba(5,150,105,0.32)] sm:h-12 sm:w-12 md:h-14 md:w-14"
           />
-          <span className="text-lg font-semibold tracking-tight text-emerald-950 sm:text-xl">DocAtlas</span>
+          <span className="text-lg font-semibold tracking-tight text-emerald-950 sm:text-xl">
+            DocAtlas
+          </span>
         </NavLink>
 
         <nav aria-label="Website navigation" className="hidden md:block">
@@ -83,9 +85,9 @@ export function Navbar() {
                   end={item.end}
                   className={({ isActive }) =>
                     [
-                      'transition hover:text-emerald-600',
-                      isActive ? 'text-emerald-600' : 'text-emerald-900/90',
-                    ].join(' ')
+                      "transition hover:text-emerald-600",
+                      isActive ? "text-emerald-600" : "text-emerald-900/90",
+                    ].join(" ")
                   }
                 >
                   {t(item.key)}
@@ -99,7 +101,7 @@ export function Navbar() {
                 className="inline-flex items-center gap-1 rounded-md border border-black/60 px-2 py-1 text-sm text-emerald-900 transition hover:border-black"
                 aria-label="Switch language"
               >
-                {language === 'el' ? <GreeceFlagIcon /> : <UKFlagIcon />}
+                {language === "el" ? <GreeceFlagIcon /> : <UKFlagIcon />}
                 <span className="text-xs">▾</span>
               </button>
 
@@ -108,15 +110,15 @@ export function Navbar() {
                   <button
                     type="button"
                     onClick={() => {
-                      setLanguage('el')
-                      setIsLangMenuOpen(false)
+                      setLanguage("el");
+                      setIsLangMenuOpen(false);
                     }}
                     className={[
-                      'flex w-full items-center justify-between rounded px-2 py-1.5 text-sm transition',
-                      language === 'el'
-                        ? 'bg-emerald-50 text-emerald-700'
-                        : 'text-emerald-900 hover:bg-emerald-50',
-                    ].join(' ')}
+                      "flex w-full items-center justify-between rounded px-2 py-1.5 text-sm transition",
+                      language === "el"
+                        ? "bg-emerald-50 text-emerald-700"
+                        : "text-emerald-900 hover:bg-emerald-50",
+                    ].join(" ")}
                   >
                     <span>Ελληνικά</span>
                     <GreeceFlagIcon />
@@ -125,15 +127,15 @@ export function Navbar() {
                   <button
                     type="button"
                     onClick={() => {
-                      setLanguage('en')
-                      setIsLangMenuOpen(false)
+                      setLanguage("en");
+                      setIsLangMenuOpen(false);
                     }}
                     className={[
-                      'flex w-full items-center justify-between rounded px-2 py-1.5 text-sm transition',
-                      language === 'en'
-                        ? 'bg-emerald-50 text-emerald-700'
-                        : 'text-emerald-900 hover:bg-emerald-50',
-                    ].join(' ')}
+                      "flex w-full items-center justify-between rounded px-2 py-1.5 text-sm transition",
+                      language === "en"
+                        ? "bg-emerald-50 text-emerald-700"
+                        : "text-emerald-900 hover:bg-emerald-50",
+                    ].join(" ")}
                   >
                     <span>English</span>
                     <UKFlagIcon />
@@ -151,8 +153,18 @@ export function Navbar() {
             aria-label="Toggle navigation menu"
             className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-emerald-200 text-emerald-900 md:hidden"
           >
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
-              <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <svg
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M4 7h16M4 12h16M4 17h16"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
             </svg>
           </button>
 
@@ -160,7 +172,7 @@ export function Navbar() {
             to="/auth"
             className="hidden rounded-md bg-emerald-950 px-4 py-2 text-sm font-semibold text-emerald-50 transition hover:bg-emerald-900 md:inline-flex"
           >
-            {t('website.nav.signIn')}
+            {t("website.nav.signIn")}
           </Link>
         </div>
       </div>
@@ -176,9 +188,11 @@ export function Navbar() {
                   onClick={() => setIsMobileNavOpen(false)}
                   className={({ isActive }) =>
                     [
-                      'block rounded-md px-3 py-2 transition',
-                      isActive ? 'bg-emerald-50 text-emerald-700' : 'hover:bg-emerald-50',
-                    ].join(' ')
+                      "block rounded-md px-3 py-2 transition",
+                      isActive
+                        ? "bg-emerald-50 text-emerald-700"
+                        : "hover:bg-emerald-50",
+                    ].join(" ")
                   }
                 >
                   {t(item.key)}
@@ -191,12 +205,12 @@ export function Navbar() {
                 onClick={() => setIsMobileNavOpen(false)}
                 className="block rounded-md bg-emerald-950 px-3 py-2 text-center text-sm font-semibold text-emerald-50"
               >
-                {t('website.nav.signIn')}
+                {t("website.nav.signIn")}
               </Link>
             </li>
           </ul>
         </div>
       )}
     </header>
-  )
+  );
 }

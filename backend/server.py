@@ -32,6 +32,8 @@ async def upload_file(
             "chunks_inserted": len(ids)
         }
         
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
@@ -64,14 +66,18 @@ def query(
             k=60
         )
 
-        search_query = Search().rank(hybrid_rank).limit(body.top_k).select(K.DOCUMENT)
+        search_query = Search().rank(hybrid_rank).limit(body.top_k).select(K.DOCUMENT, K.METADATA, K.ID)
         results = col.search(search_query)
 
         retrieved_docs = results.get('documents', [[]])[0] if results else []
+        retrieved_metadatas = results.get('metadatas', [[]])[0] if results else []
+        retrieved_ids = results.get('ids', [[]])[0] if results else []
 
         return{
             "query": body.prompt,
-            "results": retrieved_docs
+            "results": retrieved_docs,
+            "metadatas": retrieved_metadatas,
+            "ids": retrieved_ids
         }
         
     except Exception as e:

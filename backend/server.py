@@ -1,12 +1,32 @@
-from fastapi import Depends, FastAPI, HTTPException, UploadFile, File
+from fastapi import Depends, FastAPI, HTTPException, UploadFile, File, Request
 from fastapi.concurrency import run_in_threadpool
+from fastapi.middleware.cors import CORSMiddleware
 from config.chromaClient import get_chroma_collection
 from chromadb.api.models.Collection import Collection
 from chromadb import Search, K, Knn, Rrf
 from services.documentProcessing import prepare_document_for_chroma, normalize_greek_text
 from models.RequestBody import RequestBody
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 app = FastAPI()
+
+limiter = Limiter(key_func=get_remote_address)  #Fetches the client's IP address for rate limiting
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://doc-atlas-taupe.vercel.app",
+        "http://localhost:5173",
+        "http://localhost:5174"
+        ],
+    allow_methods=["*"],
+    allow_headers=["*"],
+    allow_credentials=True,
+)
 
 @app.post("/upload-file")
 async def upload_file(
@@ -39,7 +59,9 @@ async def upload_file(
     
 
 @app.post("/query")
+@limiter.limit("100/minute")  #Rate limits to 100 requests per minute per IP
 def query(
+    request: Request,
     body: RequestBody,
     col: Collection = Depends(get_chroma_collection)
 ):

@@ -5,9 +5,9 @@ import { useLanguage } from '@/app/providers/language-provider'
 import docAtlasLogo from '@/assets/DocAtlasLogo.png'
 
 const navLinks = [
-  { key: 'website.nav.home', to: '/website', end: true },
-  { key: 'website.nav.features', to: '/website/features' },
-  { key: 'website.nav.about', to: '/website/about' },
+  { key: 'website.nav.home', to: '/', end: true },
+  { key: 'website.nav.features', to: '/features' },
+  { key: 'website.nav.about', to: '/about' },
 ]
 
 function GreeceFlagIcon() {
@@ -37,9 +37,10 @@ function UKFlagIcon() {
   )
 }
 
-export function WebsiteNavbar() {
+export function Navbar() {
   const { language, setLanguage, t } = useLanguage()
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false)
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
   const menuRef = useRef<HTMLLIElement | null>(null)
 
   useEffect(() => {
@@ -59,14 +60,18 @@ export function WebsiteNavbar() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-emerald-100/70 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex h-[4.5rem] w-full max-w-6xl items-center justify-between px-5 py-2">
-        <NavLink to="/website" className="flex items-center gap-3">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-5 md:h-[4.5rem] md:py-2">
+        <NavLink
+          to="/"
+          className="flex items-center gap-2 sm:gap-3"
+          onClick={() => setIsMobileNavOpen(false)}
+        >
           <img
             src={docAtlasLogo}
             alt="DocAtlas logo"
-            className="h-14 w-14 object-contain drop-shadow-[0_8px_14px_rgba(5,150,105,0.32)]"
+            className="h-10 w-10 object-contain drop-shadow-[0_8px_14px_rgba(5,150,105,0.32)] sm:h-12 sm:w-12 md:h-14 md:w-14"
           />
-          <span className="text-xl font-semibold tracking-tight text-emerald-950">DocAtlas</span>
+          <span className="text-lg font-semibold tracking-tight text-emerald-950 sm:text-xl">DocAtlas</span>
         </NavLink>
 
         <nav aria-label="Website navigation" className="hidden md:block">
@@ -139,13 +144,59 @@ export function WebsiteNavbar() {
           </ul>
         </nav>
 
-        <Link
-          to="/auth"
-          className="rounded-md bg-emerald-950 px-4 py-2 text-sm font-semibold text-emerald-50 transition hover:bg-emerald-900"
-        >
-          {t('website.nav.signIn')}
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsMobileNavOpen((open) => !open)}
+            aria-label="Toggle navigation menu"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-emerald-200 text-emerald-900 md:hidden"
+          >
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
+              <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </button>
+
+          <Link
+            to="/auth"
+            className="hidden rounded-md bg-emerald-950 px-4 py-2 text-sm font-semibold text-emerald-50 transition hover:bg-emerald-900 md:inline-flex"
+          >
+            {t('website.nav.signIn')}
+          </Link>
+        </div>
       </div>
+
+      {isMobileNavOpen && (
+        <div className="border-t border-emerald-100 bg-white px-4 py-4 md:hidden">
+          <ul className="space-y-1 text-sm font-semibold text-emerald-900">
+            {navLinks.map((item) => (
+              <li key={item.to}>
+                <NavLink
+                  to={item.to}
+                  end={item.end}
+                  onClick={() => setIsMobileNavOpen(false)}
+                  className={({ isActive }) =>
+                    [
+                      'block rounded-md px-3 py-2 transition',
+                      isActive ? 'bg-emerald-50 text-emerald-700' : 'hover:bg-emerald-50',
+                    ].join(' ')
+                  }
+                >
+                  {t(item.key)}
+                </NavLink>
+              </li>
+            ))}
+            <li className="pt-2">
+              <Link
+                to="/auth"
+                onClick={() => setIsMobileNavOpen(false)}
+                className="block rounded-md bg-emerald-950 px-3 py-2 text-center text-sm font-semibold text-emerald-50"
+              >
+                {t('website.nav.signIn')}
+              </Link>
+            </li>
+          </ul>
+        </div>
+      )}
     </header>
   )
 }

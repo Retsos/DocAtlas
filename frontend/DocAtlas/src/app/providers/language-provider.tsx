@@ -47,6 +47,33 @@ const translations: Record<Language, TranslationTree> = {
       pages: {
         featuresTitle: 'Λειτουργίες',
         aboutTitle: 'Σχετικά',
+        featuresIntro:
+          'Το DocAtlas είναι μια AI πλατφόρμα που λειτουργεί ως institution-specific administrative assistant για οργανισμούς υγείας.',
+        ideaTitle: 'Τι είναι η ιδέα',
+        ideaParagraphOne:
+          'Κάθε οργανισμός φορτώνει τα δικά του έγγραφα, οδηγίες και διαδικασίες, και το σύστημα απαντά με βάση αυτά και όχι με γενικές απαντήσεις από το διαδίκτυο ή από τη μνήμη ενός γενικού LLM.',
+        ideaParagraphTwo:
+          'Ο πυρήνας βασίζεται σε document ingestion, vector search και RAG: τα αρχεία μετατρέπονται σε δομημένα κομμάτια γνώσης, ανακτώνται τα πιο σχετικά αποσπάσματα και συντίθενται grounded απαντήσεις με αναφορά στις πηγές.',
+        capabilitiesTitle: 'Βασικές δυνατότητες',
+        capabilities: {
+          one: 'Document ingestion από PDF, Word, Excel και εσωτερικά αρχεία',
+          two: 'Vector search για ανάκτηση των πιο σχετικών αποσπασμάτων',
+          three: 'RAG απαντήσεις προσαρμοσμένες στις διαδικασίες του οργανισμού',
+          four: 'Αναφορές πηγών για διαφάνεια και έλεγχο',
+        },
+        aboutIntro:
+          'Το προϊόν σχεδιάστηκε για να λύσει την καθημερινή δυσκολία πρόσβασης σε αξιόπιστη διοικητική και λειτουργική γνώση.',
+        problemTitle: 'Ποιο πρόβλημα λύνει',
+        problemParagraphOne:
+          'Στους οργανισμούς υγείας η γνώση είναι διάσπαρτη σε PDFs, Word αρχεία, Excel λίστες, εσωτερικά έγγραφα, portals, emails, FAQs και άτυπη γνώση προσωπικού.',
+        problemParagraphTwo:
+          'Ασθενείς και εργαζόμενοι χάνουν χρόνο μέχρι να βρουν τι χρειάζονται και συχνά λαμβάνουν διαφορετικές απαντήσεις ανάλογα με το ποιον ρωτούν.',
+        frictionsTitle: 'Οι βασικές τριβές που μειώνει',
+        frictions: {
+          one: 'Αβεβαιότητα για τα απαιτούμενα δικαιολογητικά',
+          two: 'Σύγχυση γύρω από τις ακριβείς διαδικασίες του οργανισμού',
+          three: 'Καθυστερήσεις όταν το προσωπικό ψάχνει πληροφορίες σε διάσπαρτα αρχεία',
+        },
       },
     },
     auth: {
@@ -128,6 +155,33 @@ const translations: Record<Language, TranslationTree> = {
       pages: {
         featuresTitle: 'Features',
         aboutTitle: 'About',
+        featuresIntro:
+          'DocAtlas is an AI platform that acts as an institution-specific administrative assistant for healthcare organizations.',
+        ideaTitle: 'What the idea is',
+        ideaParagraphOne:
+          'Each organization uploads its own documents, guidelines, and procedures, and the system answers based on those sources instead of generic web responses or a general LLM memory.',
+        ideaParagraphTwo:
+          'The core combines document ingestion, vector search, and RAG: files become structured knowledge chunks, the most relevant passages are retrieved, and grounded answers are generated with source references.',
+        capabilitiesTitle: 'Core capabilities',
+        capabilities: {
+          one: 'Document ingestion from PDF, Word, Excel, and internal files',
+          two: 'Vector search to retrieve the most relevant passages',
+          three: 'RAG responses tailored to each institution process',
+          four: 'Source citations for transparency and verification',
+        },
+        aboutIntro:
+          'The product is designed to solve the daily challenge of finding reliable administrative and operational knowledge fast.',
+        problemTitle: 'What problem it solves',
+        problemParagraphOne:
+          'In healthcare organizations, knowledge is scattered across PDFs, Word files, Excel lists, internal docs, portals, emails, FAQs, and informal staff know-how.',
+        problemParagraphTwo:
+          'Patients and staff lose time finding what they need, and often receive different answers depending on who they ask.',
+        frictionsTitle: 'The main frictions it reduces',
+        frictions: {
+          one: 'Uncertainty around required supporting documents',
+          two: 'Confusion about institution-specific procedures',
+          three: 'Delays when staff search through fragmented files',
+        },
       },
     },
     auth: {

@@ -13,7 +13,7 @@ export function Sidebar() {
   const { user, logout } = useAuth();
 
   return (
-    <aside className="flex w-64 flex-col border-r bg-background p-4">
+    <aside className="flex h-screen w-64 shrink-0 flex-col overflow-hidden border-r bg-background p-4">
       <div className="mb-6">
         <p className="text-lg font-semibold">DocAtlas Admin</p>
         <p className="text-xs text-muted-foreground">

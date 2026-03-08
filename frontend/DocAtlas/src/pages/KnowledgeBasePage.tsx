@@ -8,8 +8,8 @@ import {
   deleteDocumentSource,
   subscribeToDocumentSources,
   uploadStorageSources,
-} from "@/features/knowledge-base/services/storage-sources-service";
-import type { KnowledgeSource } from "@/features/knowledge-base/types/knowledge-source";
+} from "@/services/storage-sources-service";
+import type { KnowledgeSource } from "@/types/knowledge-source";
 
 function formatDate(date?: Date) {
   if (!date) {

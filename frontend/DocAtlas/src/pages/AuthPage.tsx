@@ -61,10 +61,10 @@ export function AuthPage() {
 
   const redirectTo =
     (location.state as { from?: { pathname?: string } } | undefined)?.from
-      ?.pathname ?? "/app/dashboard";
+      ?.pathname ?? "/dashboard";
 
   if (isAuthenticated) {
-    return <Navigate to="/app/dashboard" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {

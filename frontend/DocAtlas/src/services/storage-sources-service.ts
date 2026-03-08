@@ -17,7 +17,7 @@ import {
 } from "firebase/storage";
 
 import { db, storage } from "@/lib/firebase";
-import type { KnowledgeSource } from "@/features/knowledge-base/types/knowledge-source";
+import type { KnowledgeSource } from "@/types/knowledge-source";
 
 const DOCUMENTS_COLLECTION = "documents";
 

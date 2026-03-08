@@ -1,6 +1,6 @@
-﻿import { Outlet } from 'react-router-dom'
+﻿import { Outlet } from "react-router-dom";
 
-import { Sidebar } from '@/features/dashboard/components/sidebar'
+import { Sidebar } from "../components/Sidebar";
 
 export function DashboardLayout() {
   return (
@@ -10,5 +10,5 @@ export function DashboardLayout() {
         <Outlet />
       </main>
     </div>
-  )
+  );
 }

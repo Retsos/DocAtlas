@@ -8,17 +8,12 @@ import {
 import { useAuth } from "@/providers/AuthProvider";
 import { ProtectedRoute } from "@/app/routes/protected-route";
 import { Layout } from "@/components/website/Layout";
-import { AuthPage } from "@/features/auth/pages/auth-page";
-import { DashboardLayout } from "@/features/dashboard/layouts/dashboard-layout";
-import {
-  AppointmentsPage,
-  PatientsPage,
-  SettingsPage,
-} from "@/features/dashboard/pages/dashboard-pages";
-import { KnowledgeBasePage } from "@/features/knowledge-base/pages/knowledge-base-page";
-import { About } from "@/pages/About";
-import { Features } from "@/pages/Features";
-import { Home } from "@/pages/Home";
+import { AuthPage } from "@/pages/AuthPage";
+import { DashboardLayout } from "@/components/DashboardLayout";
+import { KnowledgeBasePage } from "@/pages/KnowledgeBasePage";
+import { About } from "@/pages/AboutPage";
+import { Features } from "@/pages/FeaturesPage";
+import { Home } from "@/pages/HomePage";
 
 function RootRedirect() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -41,17 +36,37 @@ export function AppRouter() {
         </Route>
         <Route path="/redirect" element={<RootRedirect />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route
+          path="/dashboard"
+          element={<Navigate to="/app/dashboard" replace />}
+        />
+        <Route path="/patients" element={<Navigate to="/app/patients" replace />} />
+        <Route
+          path="/appointments"
+          element={<Navigate to="/app/appointments" replace />}
+        />
+        <Route
+          path="/settings"
+          element={<Navigate to="/app/settings" replace />}
+        />
 
-        <Route element={<ProtectedRoute />}>
-          <Route path="/app" element={<DashboardLayout />}>
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<KnowledgeBasePage />} />
-            <Route path="patients" element={<PatientsPage />} />
-            <Route path="appointments" element={<AppointmentsPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-          </Route>
+        <Route
+          path="/app"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<KnowledgeBasePage />} />
+          <Route path="patients" element={<Navigate to="../dashboard" replace />} />
+          <Route
+            path="appointments"
+            element={<Navigate to="../dashboard" replace />}
+          />
+          <Route path="settings" element={<Navigate to="../dashboard" replace />} />
         </Route>
-
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

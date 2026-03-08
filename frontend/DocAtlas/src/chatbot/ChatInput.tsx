@@ -1,7 +1,7 @@
 import type { KeyboardEvent } from "react";
 import { useForm } from "react-hook-form";
-import { FaArrowUp } from "react-icons/fa";
-import { Button } from "../ui/button";
+import { ArrowUp } from "lucide-react";
+import { Button } from "../components/ui/button";
 
 export type ChatFormData = {
   prompt: string;
@@ -12,7 +12,10 @@ type Props = {
 };
 
 const ChatInput = ({ onSubmit }: Props) => {
-  const { register, handleSubmit, reset, formState } = useForm<ChatFormData>();
+  const { register, handleSubmit, reset, formState } = useForm<ChatFormData>({
+    mode: "onChange",
+    defaultValues: { prompt: "" },
+  });
 
   const submit = handleSubmit((data) => {
     reset({ prompt: "" });
@@ -43,10 +46,11 @@ const ChatInput = ({ onSubmit }: Props) => {
       />
 
       <Button
+        type="submit"
         disabled={!formState.isValid}
         className="self-end rounded-full w-9 h-9 bg-cyan-700"
       >
-        <FaArrowUp />
+        <ArrowUp className="h-4 w-4" />
       </Button>
     </form>
   );

@@ -4,7 +4,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import ChatBot from "./ChatBox";
 import ChatbotHeader from "./ChatbotHeader";
 
-const ChatbotWidget = () => {
+interface ChatbotWidgetProps {
+  uid?: string;
+}
+
+const ChatbotWidget = ({ uid = "local-preview" }: ChatbotWidgetProps) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -34,7 +38,7 @@ const ChatbotWidget = () => {
             <ChatbotHeader setOpen={setOpen} />
 
             <div className="flex-1 p-4 overflow-hidden">
-              <ChatBot />
+              <ChatBot uid={uid} />
             </div>
           </motion.div>
         )}

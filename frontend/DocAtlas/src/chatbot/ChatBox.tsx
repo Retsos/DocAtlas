@@ -4,23 +4,27 @@ import ChatMessages, { type Message } from "./ChatMessages";
 import TypingIndicator from "./TypingIndicator";
 
 const INITIAL_MESSAGE: Message = {
-  content:
-    "👋 Hi! I'm the MediCarePlus AI assistant. Ask me about appointments, doctors, services, or location.",
+  content: "👋 Γεια σας! Είμαι ο Ψηφιακός Βοηθός. Ρωτήστε με για διαδικασίες, έγγραφα ή τοποθεσίες του οργανισμού.",
   role: "bot",
 };
 
-/* Mock API */
-const mockChatApi = (prompt: string): Promise<{ message: string }> => {
+/* Ο Ψεύτικος Αγγελιοφόρος - Τώρα κουβαλάει και τη σφραγίδα (uid) */
+const mockChatApi = (prompt: string, uid: string): Promise<{ message: string }> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
-        message: `You said: "${prompt}". This is a mock AI response.`,
+        message: `[Διαβάζω τα αρχεία του Νοσοκομείου με ID: ${uid}]... Απάντηση: Έλαβες την πληροφορία για το "${prompt}".`,
       });
     }, 1500);
   });
 };
 
-const ChatBot = () => {
+/* 1. Ορίζουμε αυστηρά ότι το ChatBot ΑΠΑΙΤΕΙ το uid */
+interface ChatBotProps {
+  uid: string;
+}
+
+const ChatBot = ({ uid }: ChatBotProps) => {
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
   const [isBotTyping, setIsBotTyping] = useState(false);
   const [error, setError] = useState("");
@@ -31,12 +35,13 @@ const ChatBot = () => {
       setIsBotTyping(true);
       setError("");
 
-      const data = await mockChatApi(prompt);
+      // 2. Στέλνουμε την ερώτηση ΜΑΖΙ με το ιερό βουλοκέρι
+      const data = await mockChatApi(prompt, uid);
 
       setMessages((prev) => [...prev, { content: data.message, role: "bot" }]);
     } catch (err) {
       console.error(err);
-      setError("Something went wrong.");
+      setError("Το δίκτυο λύγισε. Δοκιμάστε ξανά.");
     } finally {
       setIsBotTyping(false);
     }

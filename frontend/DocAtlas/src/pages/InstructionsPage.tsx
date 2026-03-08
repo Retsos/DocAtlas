@@ -9,8 +9,20 @@ export default function InstructionsPage() {
   const tenantUid = user?.id ?? "YOUR_TENANT_UID_FROM_STEP_1";
   const [copied, setCopied] = useState(false);
 
-  const embedSnippet = `<link rel="stylesheet" href="https://[YOUR_VERCEL_CDN_URL]/widget.css">
-<script src="https://[YOUR_VERCEL_CDN_URL]/widget.js" data-tenant-uid="${tenantUid}" defer></script>`;
+  const embedSnippet = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Website</title>
+  <link rel="stylesheet" href="https://[YOUR_VERCEL_CDN_URL]/widget.css" />
+</head>
+<body>
+  <!-- Your page content -->
+
+  <script src="https://[YOUR_VERCEL_CDN_URL]/widget.js" data-tenant-uid="${tenantUid}"></script>
+</body>
+</html>`;
 
   async function handleCopySnippet() {
     await navigator.clipboard.writeText(embedSnippet);
@@ -46,10 +58,11 @@ export default function InstructionsPage() {
       <article className="rounded-lg border bg-card p-4">
         <h2 className="text-base font-semibold">Step 2: Insert the Code</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Copy the code below and paste it into your website HTML. Ideally,
-          place it right before the closing <code>&lt;/body&gt;</code> tag.
+          Copy the highlited code below and paste it into your website HTML.
+          Ideally, place it right before the closing <code>&lt;/body&gt;</code>{" "}
+          tag.
         </p>
-        <div className="mt-4 overflow-hidden rounded-2xl border border-slate-700">
+        <div className="mt-4 w-full max-w-3xl overflow-hidden rounded-2xl border border-slate-700">
           <div className="flex items-center justify-between border-b bg-gray-900 border-slate-800 px-4 py-3">
             <p className="text-xs font-medium tracking-wide text-slate-400">
               HTML
@@ -70,36 +83,62 @@ export default function InstructionsPage() {
             </Button>
           </div>
 
-          <div className="overflow-x-auto p-4 font-mono text-xs bg-gray-800 leading-7">
-            <div className="min-w-[580px]">
-              <div className="grid grid-cols-[40px_1fr] text-slate-300">
-                <span className="select-none pl-2 text-slate-600">1</span>
-                <span>
-                  <span className="text-pink-400">&lt;link</span>{" "}
-                  <span className="text-white">rel</span>=
-                  <span className="text-sky-300">"stylesheet"</span>{" "}
-                  <span className="text-white">href</span>=
-                  <span className="text-sky-300">
-                    "https://[YOUR_VERCEL_CDN_URL]/widget.css"
-                  </span>
-                  <span className="text-pink-400">&gt;</span>
-                </span>
+          <div className="overflow-x-auto bg-gray-800 p-4 font-mono text-xs leading-5 text-slate-300">
+            <div className="min-w-[620px]">
+              <div>
+                <span className="text-pink-400">&lt;!doctype</span>{" "}
+                <span className="text-white">html</span>
+                <span className="text-pink-400">&gt;</span>
               </div>
-
-              <div className="mt-1 grid grid-cols-[40px_1fr] bg-slate-800/70 text-slate-300">
-                <span className="relative select-none pl-2 text-slate-600 before:absolute before:bottom-1 before:left-0 before:top-1 before:w-0.5 before:bg-cyan-400">
-                  2
-                </span>
-                <span className="">
-                  <span className="text-pink-400">&lt;script</span>{" "}
-                  <span className="text-white">src</span>=
-                  <span className="text-sky-300">
-                    "https://doc-atlas-s2zi.vercel.app/widget.js"
-                  </span>{" "}
-                  <span className="text-sky-300">data-tenant-uid</span>=
-                  <span className="text-sky-300">"{tenantUid}"</span>{" "}
-                  <span className="text-pink-400">&gt;&lt;/script&gt;</span>
-                </span>
+              <div>
+                <span className="text-pink-400">&lt;html</span>{" "}
+                <span className="text-white">lang</span>=
+                <span className="text-sky-300">"en"</span>
+                <span className="text-pink-400">&gt;</span>
+              </div>
+              <div>
+                <span className="text-pink-400">&lt;head&gt;</span>
+              </div>
+              <div className="pl-6">
+                <span className="text-pink-400">&lt;meta</span>{" "}
+                <span className="text-white">charset</span>=
+                <span className="text-sky-300">"UTF-8"</span>{" "}
+                <span className="text-pink-400">/&gt;</span>
+              </div>
+              <div className="pl-6">
+                <span className="text-pink-400">&lt;meta</span>{" "}
+                <span className="text-white">name</span>=
+                <span className="text-sky-300">"viewport"</span>{" "}
+                <span className="text-white">content</span>=
+                <span className="text-sky-300">
+                  "width=device-width, initial-scale=1.0"
+                </span>{" "}
+                <span className="text-pink-400">/&gt;</span>
+              </div>
+              <div>
+                <span className="text-pink-400">&lt;/head&gt;</span>
+              </div>
+              <div>
+                <span className="text-pink-400">&lt;body&gt;</span>
+              </div>
+              <div className="pl-6 text-slate-500">
+                <span>&lt;!-- Your page content --&gt;</span>
+              </div>
+              <div className="relative bg-cyan-200/20 pl-6 before:absolute before:bottom-0 before:left-0 before:top-0 before:w-0.5 before:bg-cyan-400">
+                <span className="text-pink-400">&lt;script</span>{" "}
+                <span className="text-white">src</span>=
+                <span className="text-sky-300">
+                  "https://doc-atlas-s2zi.vercel.app/widget.js"
+                </span>{" "}
+                <span className="text-white">data-tenant-uid</span>=
+                <span className="text-sky-300">"{tenantUid}"</span>{" "}
+                <span className="text-pink-400">&gt;&lt;/script&gt;</span>
+              </div>
+              <div>
+                <span className="text-pink-400">&lt;/body&gt;</span>
+              </div>
+              <div>
+                <span className="text-pink-400">&lt;/html&gt;</span>
               </div>
             </div>
           </div>

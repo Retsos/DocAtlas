@@ -33,7 +33,7 @@ export function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 bg-transparent">
+    <header className="top-0 z-30 bg-transparent">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between pr-4 py-3 sm:pr-5 md:h-[4.5rem] md:py-2">
         <NavLink
           to="/"

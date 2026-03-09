@@ -56,7 +56,7 @@ def get_chroma_collection() -> Collection:
 
 		#Fetches the collection if it exists, otherwise creates a new one
 		_collection = client.get_or_create_collection(
-		    name="documents",
+		    name="documents_TEST",
 			schema=schema
 		)
 	return _collection

@@ -3,7 +3,7 @@
 import { useLanguage } from "@/providers/LanguageProvider";
 import docAtlasLogo from "@/assets/DocAtlasLogo.png";
 
-export function Home() {
+export default function Home() {
   const { t } = useLanguage();
 
   return (

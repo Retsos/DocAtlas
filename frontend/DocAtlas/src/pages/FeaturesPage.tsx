@@ -2,7 +2,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 
 const capabilityKeys = ["one", "two", "three", "four"] as const;
 
-export function Features() {
+export default function Features() {
   const { t } = useLanguage();
 
   return (

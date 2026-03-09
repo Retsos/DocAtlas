@@ -2,7 +2,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 
 const frictionKeys = ["one", "two", "three"] as const;
 
-export function About() {
+export default function About() {
   const { t } = useLanguage();
 
   return (

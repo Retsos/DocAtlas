@@ -3,17 +3,14 @@
 import { useLanguage } from "@/providers/LanguageProvider";
 import docAtlasLogo from "@/assets/DocAtlasLogo.png";
 
-export function Home() {
+export default function Home() {
   const { t } = useLanguage();
 
   return (
     <main id="home">
-      <section className="scroll-mt-24 bg-[radial-gradient(ellipse_70%_60%_at_10%_0%,rgba(110,231,183,0.28)_0%,transparent_65%),radial-gradient(ellipse_65%_55%_at_90%_20%,rgba(16,185,129,0.22)_0%,transparent_70%)] px-4 pb-14 pt-10 sm:px-5 sm:pb-16 sm:pt-12 md:pb-20 md:pt-16 lg:px-10 xl:px-14">
+      <section className="scroll-mt-24 px-4 pb-14 pt-10 sm:px-5 sm:pb-16 sm:pt-12 md:pb-20 md:pt-16 lg:px-10 xl:px-14">
         <div className="mx-auto grid w-full max-w-6xl items-center gap-8 md:grid-cols-2 md:gap-10 lg:gap-14">
-          <div className="space-y-5 sm:space-y-6">
-            <p className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.15em] text-emerald-800">
-              {t("website.home.badge")}
-            </p>
+          <div className="pt-10 space-y-5 sm:space-y-6">
             <h1 className="text-3xl font-semibold leading-tight tracking-tight text-emerald-950 sm:text-4xl md:text-5xl">
               {t("website.home.title")}
             </h1>

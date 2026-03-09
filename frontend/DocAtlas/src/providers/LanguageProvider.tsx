@@ -39,6 +39,7 @@ const translations: Record<Language, TranslationTree> = {
       footer: {
         description: 'Πλατφόρμα γνώσης με AI για ομάδες υγείας.',
         company: 'Εταιρεία',
+        language: 'Γλώσσα',
         features: 'Λειτουργίες',
         about: 'Σχετικά',
         contact: 'Επικοινωνία',
@@ -129,7 +130,7 @@ const translations: Record<Language, TranslationTree> = {
         home: 'Home',
         features: 'Features',
         about: 'About',
-        signIn: 'Sign in',
+        signIn: 'Log in',
       },
       home: {
         badge: 'Hospital AI Knowledge Platform',
@@ -147,6 +148,7 @@ const translations: Record<Language, TranslationTree> = {
       footer: {
         description: 'AI knowledge platform for healthcare teams.',
         company: 'Company',
+        language: 'Language',
         features: 'Features',
         about: 'About',
         contact: 'Contact',
@@ -200,11 +202,11 @@ const translations: Record<Language, TranslationTree> = {
         register: 'Register your hospital',
       },
       subheadings: {
-        login: 'Sign in to manage your knowledge base and settings.',
+        login: 'Log in to manage your knowledge base and settings.',
         register: 'Create an admin account linked to your organization.',
       },
       tabs: {
-        login: 'Sign in',
+        login: 'Log in',
         register: 'Register',
       },
       labels: {
@@ -219,7 +221,7 @@ const translations: Record<Language, TranslationTree> = {
       },
       buttons: {
         loading: 'Please wait...',
-        login: 'Sign in to DocAtlas',
+        login: 'Log in to DocAtlas',
         register: 'Create hospital account',
       },
       errors: {

@@ -2,40 +2,14 @@
 import { Link, NavLink } from "react-router-dom";
 
 import { useLanguage } from "@/providers/LanguageProvider";
-import docAtlasLogo from "@/assets/DocAtlasLogo.png";
+import docAtlasLogoWithTitle from "@/assets/DocAtlasLogoWithTitle.png";
+import { GreeceFlagIcon, UKFlagIcon } from "../icons/Flags";
 
 const navLinks = [
   { key: "website.nav.home", to: "/", end: true },
   { key: "website.nav.features", to: "/features" },
   { key: "website.nav.about", to: "/about" },
 ];
-
-function GreeceFlagIcon() {
-  return (
-    <svg viewBox="0 0 24 16" className="h-5 w-7 rounded-sm" aria-hidden="true">
-      <rect width="24" height="16" fill="#0D5EAF" />
-      <rect y="1.78" width="24" height="1.78" fill="#fff" />
-      <rect y="5.33" width="24" height="1.78" fill="#fff" />
-      <rect y="8.89" width="24" height="1.78" fill="#fff" />
-      <rect y="12.44" width="24" height="1.78" fill="#fff" />
-      <rect width="10.67" height="8.89" fill="#0D5EAF" />
-      <rect x="4.44" width="1.78" height="8.89" fill="#fff" />
-      <rect y="3.56" width="10.67" height="1.78" fill="#fff" />
-    </svg>
-  );
-}
-
-function UKFlagIcon() {
-  return (
-    <svg viewBox="0 0 24 16" className="h-5 w-7 rounded-sm" aria-hidden="true">
-      <rect width="24" height="16" fill="#012169" />
-      <path d="M0 0l24 16M24 0L0 16" stroke="#fff" strokeWidth="3.2" />
-      <path d="M0 0l24 16M24 0L0 16" stroke="#C8102E" strokeWidth="1.4" />
-      <path d="M12 0v16M0 8h24" stroke="#fff" strokeWidth="5" />
-      <path d="M12 0v16M0 8h24" stroke="#C8102E" strokeWidth="3" />
-    </svg>
-  );
-}
 
 export function Navbar() {
   const { language, setLanguage, t } = useLanguage();
@@ -59,21 +33,18 @@ export function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-emerald-100/70 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-5 md:h-[4.5rem] md:py-2">
+    <header className="top-0 z-30 bg-transparent">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between pr-4 py-3 sm:pr-5 md:h-[4.5rem] md:py-2">
         <NavLink
           to="/"
           className="flex items-center gap-2 sm:gap-3"
           onClick={() => setIsMobileNavOpen(false)}
         >
           <img
-            src={docAtlasLogo}
+            src={docAtlasLogoWithTitle}
             alt="DocAtlas logo"
-            className="h-10 w-10 object-contain drop-shadow-[0_8px_14px_rgba(5,150,105,0.32)] sm:h-12 sm:w-12 md:h-14 md:w-14"
+            className="pt-2 h-10 w-10 object-contain drop-shadow-[0_8px_14px_rgba(5,150,105,0.32)] sm:h-12 sm:w-12 md:h-44 md:w-44"
           />
-          <span className="text-lg font-semibold tracking-tight text-emerald-950 sm:text-xl">
-            DocAtlas
-          </span>
         </NavLink>
 
         <nav aria-label="Website navigation" className="hidden md:block">
@@ -98,7 +69,7 @@ export function Navbar() {
               <button
                 type="button"
                 onClick={() => setIsLangMenuOpen((open) => !open)}
-                className="inline-flex items-center gap-1 rounded-md border border-black/60 px-2 py-1 text-sm text-emerald-900 transition hover:border-black"
+                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm text-emerald-900 transition hover:border-black"
                 aria-label="Switch language"
               >
                 {language === "el" ? <GreeceFlagIcon /> : <UKFlagIcon />}
@@ -178,7 +149,7 @@ export function Navbar() {
       </div>
 
       {isMobileNavOpen && (
-        <div className="border-t border-emerald-100 bg-white px-4 py-4 md:hidden">
+        <div className="border-t border-emerald-100 bg-transparent px-4 py-4 md:hidden">
           <ul className="space-y-1 text-sm font-semibold text-emerald-900">
             {navLinks.map((item) => (
               <li key={item.to}>

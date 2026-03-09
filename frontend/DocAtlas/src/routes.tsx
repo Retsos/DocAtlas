@@ -2,7 +2,6 @@ import {
   createBrowserRouter,
   Navigate,
   Outlet,
-  RouterProvider,
   useLocation,
 } from "react-router-dom";
 
@@ -12,10 +11,13 @@ import { AuthPage } from "@/pages/AuthPage";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { KnowledgeBasePage } from "@/pages/KnowledgeBasePage";
 import InstructionsPage from "@/pages/InstructionsPage";
-import { Home } from "@/pages/HomePage";
-import { Features } from "@/pages/FeaturesPage";
-import { About } from "@/pages/AboutPage";
+import HomePage from "@/pages/HomePage";
+import FeaturesPage from "@/pages/FeaturesPage";
+import AboutPage from "@/pages/AboutPage";
+import ErrorPage from "./pages/ErrorPage";
+import LogsPage from "./pages/LogsPage";
 
+// eslint-disable-next-line react-refresh/only-export-components
 function AuthGuard() {
   const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
@@ -35,48 +37,33 @@ function AuthGuard() {
   );
 }
 
-function RootRedirect() {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  if (isLoading) {
-    return null;
-  }
-
-  return <Navigate to={isAuthenticated ? "/dashboard" : "/auth"} replace />;
-}
-
 // eslint-disable-next-line react-refresh/only-export-components
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <Layout />,
+    errorElement: <ErrorPage />,
     children: [
-      { index: true, element: <Home /> },
-      { path: "features", element: <Features /> },
-      { path: "about", element: <About /> },
+      { index: true, element: <HomePage /> },
+      { path: "features", element: <FeaturesPage /> },
+      { path: "about", element: <AboutPage /> },
     ],
   },
   { path: "/auth", element: <AuthPage /> },
-  { path: "/redirect", element: <RootRedirect /> },
 
   {
     element: <AuthGuard />,
+    errorElement: <ErrorPage />,
     children: [
       {
         element: <DashboardLayout />,
+        errorElement: <ErrorPage />,
         children: [
           { path: "/dashboard", element: <KnowledgeBasePage /> },
           { path: "/instructions", element: <InstructionsPage /> },
+          { path: "/logs", element: <LogsPage /> },
         ],
       },
     ],
   },
-  {
-    path: "*",
-    element: <Navigate to="/" replace />,
-  },
 ]);
-
-export function AppRouter() {
-  return <RouterProvider router={router} />;
-}

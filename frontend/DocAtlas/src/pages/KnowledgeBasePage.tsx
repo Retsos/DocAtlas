@@ -17,9 +17,9 @@ import {
   getDocumentSourcesCount,
   getDocumentSourcesPage,
   type DocumentsPageCursor,
-  uploadStorageSources,
 } from "@/services/storage-sources-service";
 import type { KnowledgeSource } from "@/types/knowledgeSource";
+import { useUploadFiles } from "@/hooks/useUploadFiles";
 
 function formatDate(date?: Date) {
   if (!date) {
@@ -51,7 +51,6 @@ export function KnowledgeBasePage() {
   const [sources, setSources] = useState<KnowledgeSource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isPageLoading, setIsPageLoading] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const [deletingId, setDeletingId] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
@@ -61,11 +60,30 @@ export function KnowledgeBasePage() {
   const [refreshTick, setRefreshTick] = useState(0);
   const hasLoadedOnceRef = useRef(false);
 
+  const {
+    mutate: uploadFiles,
+    isPending: isUploadingFastApi,
+    error: uploadError,
+  } = useUploadFiles();
+
   const hasPendingFiles = useMemo(
     () => selectedFiles.length > 0,
     [selectedFiles.length],
   );
   const totalPages = Math.max(1, Math.ceil(totalSources / DOCUMENTS_PAGE_SIZE));
+
+  useEffect(() => {
+    if (!uploadError) {
+      return;
+    }
+
+    if (uploadError instanceof FirebaseError) {
+      setErrorMessage(uploadError.message);
+      return;
+    }
+
+    setErrorMessage("Upload failed. Please try again.");
+  }, [uploadError]);
 
   useEffect(() => {
     if (!user?.id) {
@@ -111,7 +129,11 @@ export function KnowledgeBasePage() {
         setHasNextPage(pageResult.hasMore);
 
         setPageCursors((prev) => {
-          if (!pageResult.hasMore || !pageResult.nextCursor || prev[currentPage + 1]) {
+          if (
+            !pageResult.hasMore ||
+            !pageResult.nextCursor ||
+            prev[currentPage + 1]
+          ) {
             return prev;
           }
           const next = [...prev];
@@ -119,7 +141,10 @@ export function KnowledgeBasePage() {
           return next;
         });
 
-        const maxPageIndex = Math.max(0, Math.ceil(total / DOCUMENTS_PAGE_SIZE) - 1);
+        const maxPageIndex = Math.max(
+          0,
+          Math.ceil(total / DOCUMENTS_PAGE_SIZE) - 1,
+        );
         if (currentPage > maxPageIndex) {
           setCurrentPage(maxPageIndex);
           return;
@@ -150,32 +175,27 @@ export function KnowledgeBasePage() {
   }, [currentPage, refreshTick, user?.id]);
 
   async function handleUpload() {
-    if (!user?.id || !hasPendingFiles) {
-      return;
-    }
+    if (!user?.id || !hasPendingFiles) return;
 
-    setIsUploading(true);
+    // We pass all the data the hook needs
     setErrorMessage("");
-
-    try {
-      await uploadStorageSources({
+    uploadFiles(
+      {
         ownerId: user.id,
-        hospitalName: user.hospitalName,
+        hospitalName: user.hospitalName || "Default",
         files: selectedFiles,
-      });
-      setSelectedFiles([]);
-      setCurrentPage(0);
-      setPageCursors([null]);
-      setRefreshTick((tick) => tick + 1);
-    } catch (error) {
-      if (error instanceof FirebaseError) {
-        setErrorMessage(error.message);
-      } else {
-        setErrorMessage("Upload failed. Please try again.");
-      }
-    } finally {
-      setIsUploading(false);
-    }
+      },
+      {
+        onSuccess: () => {
+          // Clear UI and trigger your existing refresh logic
+          setSelectedFiles([]);
+          setCurrentPage(0);
+          setPageCursors([null]);
+          setRefreshTick((tick) => tick + 1);
+        },
+        // Note: Error state is now handled by 'uploadError' from the hook
+      },
+    );
   }
 
   async function handleDelete(source: KnowledgeSource) {
@@ -261,12 +281,12 @@ export function KnowledgeBasePage() {
             size="lg"
             className="h-12 w-full cursor-pointer bg-emerald-950 text-base text-emerald-50 hover:bg-emerald-900"
             onClick={handleUpload}
-            disabled={!hasPendingFiles || isUploading}
+            disabled={!hasPendingFiles || isUploadingFastApi}
           >
-            {isUploading ? (
+            {isUploadingFastApi ? (
               <span className="inline-flex items-center gap-2">
                 <Loader2 className="size-4 animate-spin" />
-                Uploading to Storage...
+                Uploading to Storage + FastAPI...
               </span>
             ) : (
               "Upload Files"
@@ -283,7 +303,9 @@ export function KnowledgeBasePage() {
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-slate-900">Your Documents</h2>
+          <h2 className="text-xl font-semibold text-slate-900">
+            Your Documents
+          </h2>
           <p className="text-xs text-slate-500">{totalSources} total</p>
         </div>
 
@@ -309,9 +331,11 @@ export function KnowledgeBasePage() {
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-1">
-                        <p className="text-sm font-semibold text-slate-900">{source.name}</p>
+                        <p className="text-sm font-semibold text-slate-900">
+                          {source.name}
+                        </p>
                         <p className="text-xs text-slate-500">
-                          Uploaded: {formatDate(source.createdAt)} | Size: {" "}
+                          Uploaded: {formatDate(source.createdAt)} | Size:{" "}
                           {formatSize(source.sizeBytes)}
                         </p>
                         <a
@@ -358,7 +382,9 @@ export function KnowledgeBasePage() {
                   type="button"
                   variant="outline"
                   className="cursor-pointer"
-                  onClick={() => setCurrentPage((page) => Math.max(page - 1, 0))}
+                  onClick={() =>
+                    setCurrentPage((page) => Math.max(page - 1, 0))
+                  }
                   disabled={isLoading || isPageLoading || currentPage === 0}
                 >
                   <ChevronLeft className="mr-1 size-4" />

@@ -43,7 +43,11 @@ export function Sidebar() {
 
       <div className="border-t pt-4">
         <p className="mb-3 text-xs text-muted-foreground">{user?.email}</p>
-        <Button variant="outline" className="w-full" onClick={logout}>
+        <Button
+          variant="outline"
+          className="w-full bg-gray-100 hover:bg-gray-200"
+          onClick={logout}
+        >
           Logout
         </Button>
       </div>

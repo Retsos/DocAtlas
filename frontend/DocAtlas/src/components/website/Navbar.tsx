@@ -34,7 +34,7 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-30 bg-transparent">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-5 md:h-[4.5rem] md:py-2">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between pr-4 py-3 sm:pr-5 md:h-[4.5rem] md:py-2">
         <NavLink
           to="/"
           className="flex items-center gap-2 sm:gap-3"
@@ -43,7 +43,7 @@ export function Navbar() {
           <img
             src={docAtlasLogoWithTitle}
             alt="DocAtlas logo"
-            className="pt-2 h-10 w-10 object-contain drop-shadow-[0_8px_14px_rgba(5,150,105,0.32)] sm:h-12 sm:w-12 md:h-36 md:w-36"
+            className="pt-2 h-10 w-10 object-contain drop-shadow-[0_8px_14px_rgba(5,150,105,0.32)] sm:h-12 sm:w-12 md:h-44 md:w-44"
           />
         </NavLink>
 

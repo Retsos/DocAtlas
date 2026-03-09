@@ -156,20 +156,6 @@ export function AuthPage() {
               {t("auth.heroDescription")}
             </p>
           </div>
-
-          <div className="relative space-y-2 text-xs text-emerald-100/70 sm:text-sm">
-            {[
-              t("auth.heroBullets.one"),
-              t("auth.heroBullets.two"),
-              t("auth.heroBullets.three"),
-              t("auth.heroBullets.four"),
-            ].map((item) => (
-              <p key={item} className="flex items-center justify-center gap-2">
-                <span className="size-1.5 rounded-full bg-emerald-300" />
-                {item}
-              </p>
-            ))}
-          </div>
         </aside>
 
         <section className="flex items-center justify-center overflow-y-auto p-5 sm:p-7 md:p-8 lg:p-10">

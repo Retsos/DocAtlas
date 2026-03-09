@@ -31,6 +31,10 @@ app.add_middleware(
     allow_credentials=True,
 )
 
+@app.post("/test")
+def test_endpoint():
+    return {"message": "API is working!"}
+
 @app.post("/upload-file")
 async def upload_file(
     #Accepts a file from form-data

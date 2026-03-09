@@ -31,11 +31,11 @@ app.add_middleware(
     allow_credentials=True,
 )
 
-@app.post("/test")
-def test_endpoint():
+@app.get("/")
+def health_check():
     return {"message": "API is working!"}
 
-@app.post("/upload-file")
+@app.post("/api/upload-file")
 async def upload_file(
     #Accepts a file from form-data
     file: UploadFile = File(...), 
@@ -67,10 +67,10 @@ async def upload_file(
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="An error has occured while processing the file")
     
 
-@app.post("/query")
+@app.post("/api/query")
 @limiter.limit("100/minute")  #Rate limits to 100 requests per minute per IP
 def query(
     request: Request,
@@ -114,5 +114,5 @@ def query(
             "ids": retrieved_ids
         }
         
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        raise HTTPException(status_code=500, detail="An error has occured")

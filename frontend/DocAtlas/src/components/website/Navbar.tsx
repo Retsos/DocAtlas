@@ -2,7 +2,7 @@
 import { Link, NavLink } from "react-router-dom";
 
 import { useLanguage } from "@/providers/LanguageProvider";
-import docAtlasLogo from "@/assets/DocAtlasLogo.png";
+import docAtlasLogoWithTitle from "@/assets/DocAtlasLogoWithTitle.png";
 import { GreeceFlagIcon, UKFlagIcon } from "../icons/Flags";
 
 const navLinks = [
@@ -33,7 +33,7 @@ export function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-emerald-100/70 backdrop-blur">
+    <header className="sticky top-0 z-30 bg-transparent">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-5 md:h-[4.5rem] md:py-2">
         <NavLink
           to="/"
@@ -41,13 +41,10 @@ export function Navbar() {
           onClick={() => setIsMobileNavOpen(false)}
         >
           <img
-            src={docAtlasLogo}
+            src={docAtlasLogoWithTitle}
             alt="DocAtlas logo"
-            className="pt-2 h-10 w-10 object-contain drop-shadow-[0_8px_14px_rgba(5,150,105,0.32)] sm:h-12 sm:w-12 md:h-18 md:w-18"
+            className="pt-2 h-10 w-10 object-contain drop-shadow-[0_8px_14px_rgba(5,150,105,0.32)] sm:h-12 sm:w-12 md:h-36 md:w-36"
           />
-          <span className="text-lg font-semibold tracking-tight text-emerald-950 sm:text-xl">
-            DocAtlas
-          </span>
         </NavLink>
 
         <nav aria-label="Website navigation" className="hidden md:block">
@@ -152,7 +149,7 @@ export function Navbar() {
       </div>
 
       {isMobileNavOpen && (
-        <div className="border-t border-emerald-100 bg-white px-4 py-4 md:hidden">
+        <div className="border-t border-emerald-100 bg-transparent px-4 py-4 md:hidden">
           <ul className="space-y-1 text-sm font-semibold text-emerald-900">
             {navLinks.map((item) => (
               <li key={item.to}>

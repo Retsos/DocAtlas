@@ -52,9 +52,11 @@ export const router = createBrowserRouter([
 
   {
     element: <AuthGuard />,
+    errorElement: <ErrorPage />,
     children: [
       {
         element: <DashboardLayout />,
+        errorElement: <ErrorPage />,
         children: [
           { path: "/dashboard", element: <KnowledgeBasePage /> },
           { path: "/instructions", element: <InstructionsPage /> },

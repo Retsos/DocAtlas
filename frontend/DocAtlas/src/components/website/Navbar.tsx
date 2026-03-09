@@ -69,7 +69,7 @@ export function Navbar() {
               <button
                 type="button"
                 onClick={() => setIsLangMenuOpen((open) => !open)}
-                className="inline-flex items-center gap-1 rounded-md border border-black/60 px-2 py-1 text-sm text-emerald-900 transition hover:border-black"
+                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm text-emerald-900 transition hover:border-black"
                 aria-label="Switch language"
               >
                 {language === "el" ? <GreeceFlagIcon /> : <UKFlagIcon />}

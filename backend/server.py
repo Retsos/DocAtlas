@@ -16,6 +16,9 @@ limiter = Limiter(key_func=get_remote_address)  #Fetches the client's IP address
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+
+MAX_FILE_SIZE = 10 * 1024 * 1024  #10MB
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -35,9 +38,14 @@ async def upload_file(
     col: Collection = Depends(get_chroma_collection)
 ):
     try:
+
+        if file.size and file.size > MAX_FILE_SIZE:
+            raise HTTPException(status_code=413, detail=f"File size exceeds the maximum limit of {MAX_FILE_SIZE / (1024 * 1024)} MB")
+        
+        
         #Reads the file bytes into memory
         file_content = await file.read()
-        
+
         #Processes the file
         ids, documents, metadatas = prepare_document_for_chroma(file.filename, file_content)
         

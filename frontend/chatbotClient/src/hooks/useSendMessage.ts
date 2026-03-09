@@ -6,8 +6,7 @@ type SendMessageRequest = {
 };
 
 type SendMessageResponse = {
-  message: string;
-  response: string;
+  answer: string;
 };
 
 export const useSendMessage = () => {

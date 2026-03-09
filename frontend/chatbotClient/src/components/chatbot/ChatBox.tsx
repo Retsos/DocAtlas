@@ -28,7 +28,7 @@ const ChatBot = () => {
         onSuccess: (data) => {
           setMessages((prev) => [
             ...prev,
-            { content: data.message, role: "bot" },
+            { content: data.answer, role: "bot" },
           ]);
         },
         onError: () => {

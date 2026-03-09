@@ -1,5 +1,5 @@
 ﻿import { Link } from "react-router-dom";
-
+import docAtlasLogo from "@/assets/DocAtlasLogo.png";
 import { useLanguage } from "@/providers/LanguageProvider";
 
 export function Footer() {
@@ -7,25 +7,27 @@ export function Footer() {
   const { t } = useLanguage();
 
   return (
-    <footer className="relative border-t border-emerald-200 px-4 py-8 sm:px-5 sm:py-10">
-      <div className="pointer-events-none absolute inset-0" />
-      <div className="relative mx-auto grid w-full max-w-6xl gap-8 text-sm sm:gap-6 md:grid-cols-3">
+    <footer className="relative border-t border-emerald-200 px-4 py-8 sm:px-5 sm:py-10 lg:px-10 xl:px-14">
+      <div className="mx-auto grid w-full max-w-6xl items-start gap-8 text-sm sm:gap-6 md:grid-cols-[auto_1fr_1fr_1.2fr] md:gap-10">
         <div>
-          <p className="text-base font-semibold text-emerald-600">DocAtlas</p>
-          <p className="mt-2 max-w-sm leading-6 text-emerald-600/90">
-            {t("website.footer.description")}
-          </p>
+          <Link to="/" className="inline-flex items-start">
+            <img
+              src={docAtlasLogo}
+              alt="DocAtlas logo"
+              className="h-12 w-12 object-contain drop-shadow-[0_8px_14px_rgba(5,150,105,0.32)]"
+            />
+          </Link>
         </div>
 
-        <div>
-          <p className="font-semibold text-emerald-600">
+        <div className="space-y-3">
+          <p className="font-semibold text-emerald-900/90">
             {t("website.footer.company")}
           </p>
-          <ul className="mt-2 space-y-1">
+          <ul className="space-y-2">
             <li>
               <Link
                 to="/features"
-                className="text-emerald-600/90 hover:emerald-600"
+                className="text-emerald-700/90 transition hover:text-emerald-600"
               >
                 {t("website.footer.features")}
               </Link>
@@ -33,7 +35,7 @@ export function Footer() {
             <li>
               <Link
                 to="/about"
-                className="text-emerald-600/90 hover:emerald-600"
+                className="text-emerald-700/90 transition hover:text-emerald-600"
               >
                 {t("website.footer.about")}
               </Link>
@@ -41,12 +43,36 @@ export function Footer() {
           </ul>
         </div>
 
-        <div>
-          <p className="font-semibold text-emerald-600">
+        <div className="space-y-3">
+          <p className="font-semibold text-emerald-900/90">
+            {t("website.footer.resources")}
+          </p>
+          <ul className="space-y-2">
+            <li>
+              <Link
+                to="/dashboard"
+                className="text-emerald-700/90 transition hover:text-emerald-600"
+              >
+                {t("website.footer.knowledgeBase")}
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/instructions"
+                className="text-emerald-700/90 transition hover:text-emerald-600"
+              >
+                {t("website.footer.instructions")}
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        <div className="space-y-3">
+          <p className="font-semibold text-emerald-900/90">
             {t("website.footer.contact")}
           </p>
-          <p className="mt-2 text-emerald-600/90">team@docatlas.ai</p>
-          <p className="mt-3 max-w-sm text-xs leading-5 text-emerald-600/75">
+          <p className="text-emerald-700/90">team@docatlas.ai</p>
+          <p className="max-w-sm text-xs leading-5 text-emerald-700/75">
             Copyright (c) {currentYear} DocAtlas.{" "}
             {t("website.footer.copyrightSuffix")}
           </p>

@@ -39,8 +39,11 @@ const translations: Record<Language, TranslationTree> = {
       footer: {
         description: 'Πλατφόρμα γνώσης με AI για ομάδες υγείας.',
         company: 'Εταιρεία',
+        resources: 'Πόροι',
         features: 'Λειτουργίες',
         about: 'Σχετικά',
+        knowledgeBase: 'Βάση Γνώσης',
+        instructions: 'Οδηγίες',
         contact: 'Επικοινωνία',
         copyrightSuffix: 'Με επιφύλαξη παντός δικαιώματος.',
       },
@@ -147,8 +150,11 @@ const translations: Record<Language, TranslationTree> = {
       footer: {
         description: 'AI knowledge platform for healthcare teams.',
         company: 'Company',
+        resources: 'Resources',
         features: 'Features',
         about: 'About',
+        knowledgeBase: 'Knowledge Base',
+        instructions: 'Instructions',
         contact: 'Contact',
         copyrightSuffix: 'All rights reserved.',
       },

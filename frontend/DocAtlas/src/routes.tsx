@@ -15,6 +15,7 @@ import HomePage from "@/pages/HomePage";
 import FeaturesPage from "@/pages/FeaturesPage";
 import AboutPage from "@/pages/AboutPage";
 import ErrorPage from "./pages/ErrorPage";
+import LogsPage from "./pages/LogsPage";
 
 // eslint-disable-next-line react-refresh/only-export-components
 function AuthGuard() {
@@ -60,6 +61,7 @@ export const router = createBrowserRouter([
         children: [
           { path: "/dashboard", element: <KnowledgeBasePage /> },
           { path: "/instructions", element: <InstructionsPage /> },
+          { path: "/logs", element: <LogsPage /> },
         ],
       },
     ],

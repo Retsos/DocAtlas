@@ -1,5 +1,5 @@
 ﻿import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Settings } from "lucide-react";
+import { LayoutDashboard, Logs, Settings } from "lucide-react";
 
 import { useAuth } from "@/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 const navItems = [
   { to: "/dashboard", label: "Knowledge Base", icon: LayoutDashboard },
   { to: "/instructions", label: "Instructions", icon: Settings },
+  { to: "/logs", label: "Logs", icon: Logs },
 ];
 
 export function Sidebar() {

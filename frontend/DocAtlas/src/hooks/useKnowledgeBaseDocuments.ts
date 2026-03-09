@@ -1,16 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FirebaseError } from "firebase/app";
-// import { apiClient, getApiErrorMessage } from "@/lib/api";
+import { apiClient } from "@/lib/api";
 
 import {
   DOCUMENTS_PAGE_SIZE,
-  deleteDocumentSource,
   getDocumentSourcesCount,
   getDocumentSourcesPage,
   type DocumentsPageCursor,
 } from "@/services/storage-sources-service";
 import type { KnowledgeSource } from "@/types/knowledgeSource";
-import { getAuth } from "firebase/auth/web-extension";
 
 type UseKnowledgeBaseDocumentsInput = {
   ownerId?: string;
@@ -145,25 +143,8 @@ export function useKnowledgeBaseDocuments({
     setErrorMessage("");
 
     try {
-
-      //set up authentication with jwt context for backend to verify admin permissions before deleting.
-      const auth = getAuth();
-      const user = auth.currentUser;
-      if (!user) throw new Error("Not Allowed.");
-      // const token = await user.getIdToken();
-      
-      // Delete from Firestore and Storage.
-      await deleteDocumentSource({
-        documentId: source.id,
-        storagePath: source.storagePath,
-      });
-      
-      //connect to backend to delete the indexed document as well to keep in sync with storage metadata.
-      // await apiClient.delete(`/delete-file/${source.id}`, {
-      //   headers: {
-      //     "Authorization": `Bearer ${token}` 
-      //   }
-      // });
+      // Backend orchestrates Firestore + Storage + Chroma delete.
+      await apiClient.delete(`/api/delete-source/${source.id}`);
 
       if (sources.length === 1 && currentPage > 0) {
         setCurrentPage((page) => Math.max(page - 1, 0));

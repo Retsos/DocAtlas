@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FirebaseError } from "firebase/app";
-import { getAuth } from "firebase/auth";
 import { apiClient, getApiErrorMessage } from "@/lib/api";
 import { uploadStorageSources } from "@/services/storage-sources-service";
 
@@ -27,30 +26,15 @@ export const useUploadFiles = () => {
           return [];
         }
 
-        //set up authentication with jwt context for backend to verify admin permissions before indexing.
-        const auth = getAuth();
-        const user = auth.currentUser;
-        if (!user) {
-          throw new Error("Not Allowed.");
-        }
-        // take the token
-        const token = await user.getIdToken();
-
         // Backend indexing requests (one per file).
         const fastApiUploads = files.map((file) => {
           const formData = new FormData();
           // Field name must match FastAPI endpoint signature: file: UploadFile
           formData.append("file", file);
-          
-          // TODO formData.append("tenant_id", input.ownerId);
+          formData.append("tenant_id", input.ownerId);
 
           return apiClient
-            .post<UploadFileApiResponse>("/upload-file", formData, {
-              headers: { 
-                "Content-Type": "multipart/form-data",
-                "Authorization": `Bearer ${token}` 
-              },
-            })
+            .post<UploadFileApiResponse>("/api/upload-file", formData)
             .then((response) => response.data);
         });
 

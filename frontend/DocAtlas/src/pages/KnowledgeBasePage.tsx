@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FirebaseError } from "firebase/app";
 import {
   ChevronLeft,
@@ -50,6 +50,7 @@ export function KnowledgeBasePage() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [sources, setSources] = useState<KnowledgeSource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPageLoading, setIsPageLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [deletingId, setDeletingId] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -58,6 +59,7 @@ export function KnowledgeBasePage() {
   const [hasNextPage, setHasNextPage] = useState(false);
   const [pageCursors, setPageCursors] = useState<DocumentsPageCursor[]>([null]);
   const [refreshTick, setRefreshTick] = useState(0);
+  const hasLoadedOnceRef = useRef(false);
 
   const hasPendingFiles = useMemo(
     () => selectedFiles.length > 0,
@@ -73,11 +75,17 @@ export function KnowledgeBasePage() {
       setCurrentPage(0);
       setHasNextPage(false);
       setPageCursors([null]);
+      hasLoadedOnceRef.current = false;
       return;
     }
     const ownerId = user.id;
 
-    setIsLoading(true);
+    const isInitialLoad = !hasLoadedOnceRef.current;
+    if (isInitialLoad) {
+      setIsLoading(true);
+    } else {
+      setIsPageLoading(true);
+    }
     setErrorMessage("");
 
     let cancelled = false;
@@ -117,7 +125,9 @@ export function KnowledgeBasePage() {
           return;
         }
 
+        hasLoadedOnceRef.current = true;
         setIsLoading(false);
+        setIsPageLoading(false);
       } catch (error) {
         if (cancelled) {
           return;
@@ -128,6 +138,7 @@ export function KnowledgeBasePage() {
           setErrorMessage("Failed to load files from documents collection.");
         }
         setIsLoading(false);
+        setIsPageLoading(false);
       }
     }
 
@@ -276,7 +287,7 @@ export function KnowledgeBasePage() {
           <p className="text-xs text-slate-500">{totalSources} total</p>
         </div>
 
-        {isLoading ? (
+        {isLoading && sources.length === 0 ? (
           <div className="flex items-center justify-center gap-2 rounded-xl border border-emerald-100 bg-white p-8 text-sm text-slate-600">
             <Loader2 className="size-4 animate-spin" />
             Loading your documents...
@@ -348,7 +359,7 @@ export function KnowledgeBasePage() {
                   variant="outline"
                   className="cursor-pointer"
                   onClick={() => setCurrentPage((page) => Math.max(page - 1, 0))}
-                  disabled={isLoading || currentPage === 0}
+                  disabled={isLoading || isPageLoading || currentPage === 0}
                 >
                   <ChevronLeft className="mr-1 size-4" />
                   Previous
@@ -358,9 +369,9 @@ export function KnowledgeBasePage() {
                   variant="outline"
                   className="cursor-pointer"
                   onClick={() => setCurrentPage((page) => page + 1)}
-                  disabled={isLoading || !hasNextPage}
+                  disabled={isLoading || isPageLoading || !hasNextPage}
                 >
-                  Next
+                  {isPageLoading ? "Loading..." : "Next"}
                   <ChevronRight className="ml-1 size-4" />
                 </Button>
               </div>

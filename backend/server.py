@@ -5,6 +5,7 @@ from config.chromaClient import get_chroma_collection
 from chromadb.api.models.Collection import Collection
 from chromadb import Search, K, Knn, Rrf
 from services.documentProcessing import prepare_document_for_chroma, normalize_greek_text
+from services.llmService import generate_answer
 from models.RequestBody import RequestBody
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -31,7 +32,7 @@ app.add_middleware(
     allow_credentials=True,
 )
 
-@app.post("/upload-file")
+@app.post("/api/upload-file")
 async def upload_file(
     #Accepts a file from form-data
     file: UploadFile = File(...), 
@@ -66,9 +67,9 @@ async def upload_file(
         raise HTTPException(status_code=500, detail=str(e))
     
 
-@app.post("/query")
-@limiter.limit("100/minute")  #Rate limits to 100 requests per minute per IP
-def query(
+@app.post("/api/query")
+@limiter.limit("20/minute")  #Rate limits to 20 requests per minute per IP
+async def query(
     request: Request,
     body: RequestBody,
     col: Collection = Depends(get_chroma_collection)
@@ -100,14 +101,12 @@ def query(
         results = col.search(search_query)
 
         retrieved_docs = results.get('documents', [[]])[0] if results else []
-        retrieved_metadatas = results.get('metadatas', [[]])[0] if results else []
-        retrieved_ids = results.get('ids', [[]])[0] if results else []
-
-        return{
-            "query": body.prompt,
-            "results": retrieved_docs,
-            "metadatas": retrieved_metadatas,
-            "ids": retrieved_ids
+        
+        answer = await run_in_threadpool(generate_answer, body.prompt, retrieved_docs)
+        
+        return {
+            "answer": answer,
+            "sources": retrieved_docs # Send sources back so the UI can cite them
         }
         
     except Exception as e:

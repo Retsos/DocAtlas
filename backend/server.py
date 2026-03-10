@@ -17,7 +17,10 @@ app = FastAPI()
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# CORS for local frontend dev and deployed UI.
+# CORS is a browser-side access control layer that limits which frontend origins
+# can issue cross-site requests to this API. We keep an explicit allowlist for
+# production domains and local dev hosts to avoid accidental open access while
+# still supporting local development and Vercel-hosted clients.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[

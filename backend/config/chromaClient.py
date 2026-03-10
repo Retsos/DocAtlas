@@ -14,7 +14,7 @@ _collection: Collection | None = None
 
 #Dense embedding for semantic search with open-source model from Hugging Face
 hf_ef = embedding_functions.OpenAIEmbeddingFunction(
-	openai_api_key=os.getenv("OPENAI_API_KEY"),
+	api_key=os.getenv("OPENAI_API_KEY"),
     model_name="text-embedding-3-small"
 )
 

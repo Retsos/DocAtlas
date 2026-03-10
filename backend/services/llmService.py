@@ -9,13 +9,14 @@ def generate_answer(question: str, context_chunks: list[str]):
     """
     Combines the user question with retrieved context to generate an answer.
     """
-    # Combine chunks into a single context block
     context_text = "\n\n".join(context_chunks)
     
     system_prompt = (
-        "You are a helpful assistant. Use the following pieces of retrieved context "
-        "to answer the user's question. Always try to answer the question based on your knowledge before looking into the retrieved context" 
-        "If you don't know the answer based on the context, just say that you don't know. Keep the answer concise.\n\n"
+        "You are a strictly professional and helpful assistant for a specific organization. "
+        "You MUST answer the user's question ONLY using the provided Context below. "
+        "If the answer is NOT explicitly contained in the Context, you must reply EXACTLY with: "
+        "'Δεν διαθέτω αυτή την πληροφορία. Παρακαλώ επικοινωνήστε απευθείας με το νοσοκομείο.' "
+        "Do NOT use your internal general knowledge under any circumstances. Keep the answer concise and clear.\n\n"
         f"Context:\n{context_text}"
     )
 
@@ -25,7 +26,7 @@ def generate_answer(question: str, context_chunks: list[str]):
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": question}
         ],
-        temperature=0.2,
+        temperature=0.0,
     )
 
     return response.choices[0].message.content

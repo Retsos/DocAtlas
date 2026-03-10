@@ -5,25 +5,25 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative border-t border-emerald-200 px-4 py-8 sm:px-5 sm:py-10 lg:px-10 xl:px-14">
+    <footer className="relative border-t border-sky-200 px-4 py-8 sm:px-5 sm:py-10 lg:px-10 xl:px-14">
       <div className="mx-auto grid w-full max-w-6xl items-start gap-8 text-sm sm:gap-6 md:grid-cols-3 md:gap-10">
         <div>
           <Link to="/" className="inline-flex items-start">
             <img
               src={docAtlasLogo}
               alt="DocAtlas logo"
-              className="h-18 w-18 object-contain drop-shadow-[0_8px_14px_rgba(5,150,105,0.32)]"
+              className="h-18 w-18 object-contain drop-shadow-[0_8px_14px_rgba(37,99,235,0.32)]"
             />
           </Link>
         </div>
 
         <div className="space-y-3">
-          <p className="font-semibold text-emerald-900/90">Company</p>
+          <p className="font-barlow-bold text-sky-950">DocAtlas</p>
           <ul className="space-y-2">
             <li>
               <Link
                 to="/features"
-                className="text-emerald-700/90 transition hover:text-emerald-600"
+                className="text-sky-600 transition hover:text-sky-650"
               >
                 Features
               </Link>
@@ -31,7 +31,7 @@ export function Footer() {
             <li>
               <Link
                 to="/about"
-                className="text-emerald-700/90 transition hover:text-emerald-600"
+                className="text-sky-600 transition hover:text-sky-650"
               >
                 About
               </Link>
@@ -40,9 +40,9 @@ export function Footer() {
         </div>
 
         <div className="space-y-3">
-          <p className="font-semibold text-emerald-900/90">Contact</p>
-          <p className="text-emerald-700/90">team@docatlas.ai</p>
-          <p className="max-w-sm text-xs leading-5 text-emerald-700/75">
+          <p className="font-barlow-bold text-sky-950">Contact</p>
+          <p className="text-sky-600">Docatlas@gmail.com</p>
+          <p className="max-w-sm text-sky-600">
             Copyright (c) {currentYear} DocAtlas. All rights reserved.
           </p>
         </div>

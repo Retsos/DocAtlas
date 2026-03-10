@@ -6,52 +6,71 @@ export default function Home() {
   return (
     <main id="home">
       <section className="scroll-mt-24 px-4 pb-14 pt-10 sm:px-5 sm:pb-16 sm:pt-12 md:pb-20 md:pt-16 lg:px-10 xl:px-14">
-        <div className="mx-auto grid w-full max-w-6xl items-center gap-8 md:grid-cols-2 md:gap-10 lg:gap-14">
+        <div className="mx-auto grid w-full max-w-6xl items-center gap-8 md:grid-cols-[1.2fr_0.8fr] md:gap-10 lg:gap-14">
           <div className="pt-10 space-y-5 sm:space-y-6">
-            <h1 className="text-3xl font-semibold leading-tight tracking-tight text-emerald-950 sm:text-4xl md:text-5xl">
-              Bring every hospital document into one reliable AI assistant.
+            <h1 className="text-4xl font-dm-serif-display font-semibold leading-20 tracking-tight text-sky-950 sm:text-5xl md:text-7xl">
+              Bring every hospital document into one{" "}
+              <span className="text-sky-600">reliable AI assistant.</span>
             </h1>
-            <p className="max-w-xl text-sm leading-6 text-slate-700 sm:text-base sm:leading-7">
-              DocAtlas organizes your internal files, protocols and links so staff gets instant, cited answers grounded in your own institution data.
+            <p className="max-w-xl text-base font-barlow leading-6 text-sky-950 sm:text-xl sm:leading-7">
+              DocAtlas organizes your internal files, protocols and links so
+              patients gets instant, cited answers grounded in your own
+              institution data.
             </p>
-            <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+            <div className="sm:py-14 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
               <Link
                 to="/auth"
-                className="rounded-md bg-emerald-950 px-5 py-3 text-center text-sm font-semibold text-emerald-50 transition hover:bg-emerald-900"
+                className="rounded-md bg-sky-950 px-5 py-3 text-center text-sm font-barlow-bold text-sky-50 transition hover:bg-sky-900"
               >
                 Get Started
               </Link>
               <Link
                 to="/about"
-                className="rounded-md border border-emerald-200 bg-white px-5 py-3 text-center text-sm font-semibold text-emerald-900 transition hover:border-emerald-400"
+                className="rounded-md border border-sky-900 bg-white px-5 py-3 font-barlow-bold text-center text-sm text-sky-900 transition hover:border-sky-800 hover:text-sky-800"
               >
                 Learn More
               </Link>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-emerald-100 bg-white p-5 shadow-[0_25px_60px_rgba(6,78,59,0.1)] sm:p-6 md:p-7">
-            <div className="mb-4 flex items-center gap-3">
-              <img
-                src={docAtlasLogo}
-                alt="DocAtlas"
-                className="h-10 w-10 rounded-md object-cover"
-              />
-              <div>
-                <p className="text-sm font-semibold text-emerald-950">
-                  DocAtlas Assistant
-                </p>
-                <p className="text-xs text-slate-500">
-                  Institution-grounded responses
-                </p>
+          <div className="rounded-2xl border border-sky-100 bg-white p-5 shadow-[0_25px_60px_rgba(30,64,175,0.12)] sm:p-6 md:p-7">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <img
+                  src={docAtlasLogo}
+                  alt="DocAtlas"
+                  className="h-10 w-10 rounded-md object-cover"
+                />
+                <div>
+                  <p className="text-sm font-barlow-bold font-semibold text-sky-950">
+                    DocAtlas Assistant
+                  </p>
+                  <p className="text-xs font-barlow text-slate-500">
+                    Institution-grounded responses
+                  </p>
+                </div>
               </div>
             </div>
-            <div className="space-y-3 text-sm">
-              <div className="rounded-lg bg-emerald-50 p-3 text-emerald-900">
-                What is the updated emergency stroke triage protocol?
+            <div className="space-y-3 font-barlow text-sm">
+              <div className="flex justify-start">
+                <div className="max-w-[85%] rounded-2xl rounded-tl-md bg-sky-50 px-4 py-3 text-sky-950">
+                  What should I bring with me for my MRI exam?
+                </div>
               </div>
-              <div className="rounded-lg border border-emerald-100 bg-white p-3 text-slate-700">
-                Protocol v3.2 recommends CT within 20 minutes and immediate neurology consult activation after imaging. Source: Stroke-Protocol-2025.pdf
+              <div className="flex justify-end">
+                <div className="max-w-[85%] rounded-2xl rounded-tr-md border border-sky-100 bg-white px-4 py-3 text-slate-900 shadow-sm">
+                  Please bring a photo ID, your referral, and any prior imaging.
+                  If you have implants or a pacemaker, let us know before your
+                  visit.
+                  <span className="mt-2 block text-xs text-slate-500">
+                    Source: MRI-Prep-Checklist.pdf
+                  </span>
+                </div>
+              </div>
+              <div className="flex justify-start">
+                <div className="max-w-[70%] rounded-2xl rounded-tl-md bg-slate-100 px-3 py-2 text-xs text-slate-500">
+                  Answer grounded in 2 institutional documents.
+                </div>
               </div>
             </div>
           </div>

@@ -41,15 +41,14 @@ export function KnowledgeUploadPanel({
   const hasPendingFiles = selectedFiles.length > 0;
 
   return (
-    <section className="flex h-[45rem] flex-col overflow-hidden rounded-2xl border border-emerald-100/80 bg-white/95 p-6 shadow-[0_20px_50px_rgba(6,78,59,0.08)] sm:p-8">
-
+    <section className="flex h-[45rem] flex-col overflow-hidden rounded-2xl border border-sky-100/80 bg-white/95 p-6 shadow-[0_20px_50px_rgba(30,64,175,0.1)] sm:p-8">
       <div className="mb-4 flex shrink-0 items-start justify-between gap-4">
         <div className="space-y-2">
-          <p className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-900">
+          <p className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-900">
             <Sparkles className="size-3.5" />
             Chatbot Data Studio
           </p>
-          <h2 className="text-2xl font-semibold tracking-tight text-emerald-950">
+          <h2 className="text-2xl font-semibold tracking-tight text-sky-950">
             Upload Knowledge Sources
           </h2>
           <p className="text-sm text-slate-600">
@@ -62,7 +61,7 @@ export function KnowledgeUploadPanel({
 
       <div className="flex-1 min-h-0 overflow-y-auto space-y-8 pr-2 [scrollbar-gutter:stable]">
         {selectedFiles.length > 0 && (
-          <div className="rounded-xl border border-emerald-100 bg-emerald-50/40 p-4">
+          <div className="rounded-xl border border-sky-100 bg-sky-50/40 p-4">
             <p className="mb-2 text-sm font-medium text-slate-900">
               Selected files
             </p>
@@ -72,7 +71,7 @@ export function KnowledgeUploadPanel({
                 return (
                   <li
                     key={fileId}
-                    className="flex items-center justify-between gap-2 rounded-md border border-emerald-100 bg-white px-3 py-2 text-xs text-slate-700"
+                    className="flex items-center justify-between gap-2 rounded-md border border-sky-100 bg-white px-3 py-2 text-xs text-slate-700"
                   >
                     <span className="min-w-0 flex-1 truncate pr-2" title={file.name}>
                       {file.name}
@@ -110,9 +109,9 @@ export function KnowledgeUploadPanel({
 
         <label
           htmlFor="file-upload"
-          className="flex min-h-64 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-emerald-200 bg-[linear-gradient(145deg,rgba(236,253,245,0.75),rgba(255,255,255,0.95))] p-8 text-center transition hover:border-emerald-300 hover:bg-emerald-50/70"
+          className="flex min-h-64 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-sky-200 bg-[linear-gradient(145deg,rgba(224,242,254,0.75),rgba(255,255,255,0.95))] p-8 text-center transition hover:border-sky-300 hover:bg-sky-50/70"
         >
-          <FileUp className="mb-4 size-10 text-emerald-900/70" />
+          <FileUp className="mb-4 size-10 text-sky-900/70" />
           <p className="text-lg font-medium text-slate-900">
             Drop files here or click to upload
           </p>
@@ -144,7 +143,7 @@ export function KnowledgeUploadPanel({
         <Button
           type="button"
           size="lg"
-          className="h-12 w-full cursor-pointer bg-emerald-950 text-base text-emerald-50 shadow-[0_10px_30px_rgba(4,120,87,0.28)] transition hover:-translate-y-0.5 hover:bg-emerald-900"
+          className="h-12 w-full cursor-pointer bg-sky-950 text-base text-sky-50 shadow-[0_10px_30px_rgba(30,64,175,0.28)] transition hover:-translate-y-0.5 hover:bg-sky-900"
           onClick={onUpload}
           disabled={!hasPendingFiles || isUploading}
         >

@@ -67,14 +67,14 @@ export function KnowledgeDocumentsSection({
     <section className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-semibold tracking-tight text-emerald-950">
+          <h2 className="text-2xl font-semibold tracking-tight text-sky-950">
             Indexed Documents
           </h2>
           <p className="mt-1 text-sm text-slate-600">
             Manage all uploaded files used by your DocAtlas assistant.
           </p>
         </div>
-        <p className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-900">
+        <p className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-900">
           {isSearchActive ? `${totalSources} results` : `${totalSources} total`}
         </p>
       </div>
@@ -89,16 +89,16 @@ export function KnowledgeDocumentsSection({
       />
 
       {isLoading && sources.length === 0 ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-emerald-100 bg-white p-8 text-sm text-slate-600">
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-sky-100 bg-white p-8 text-sm text-slate-600">
           <Loader2 className="size-4 animate-spin" />
           Loading indexed documents...
         </div>
       ) : sources.length === 0 && isSearchActive ? (
-        <div className="rounded-xl border border-emerald-100 bg-white p-6 text-sm text-slate-600">
+        <div className="rounded-xl border border-sky-100 bg-white p-6 text-sm text-slate-600">
           No uploaded documents match "{searchTerm}".
         </div>
       ) : sources.length === 0 ? (
-        <div className="rounded-xl border border-emerald-100 bg-white p-6 text-sm text-slate-600">
+        <div className="rounded-xl border border-sky-100 bg-white p-6 text-sm text-slate-600">
           No files uploaded yet. Use the panel above to add your first source.
         </div>
       ) : (
@@ -110,7 +110,7 @@ export function KnowledgeDocumentsSection({
               return (
                 <article
                   key={source.id}
-                  className="rounded-xl border border-emerald-100 bg-white p-4 shadow-sm transition hover:border-emerald-200 hover:shadow-md"
+                  className="rounded-xl border border-sky-100 bg-white p-4 shadow-sm transition hover:border-sky-200 hover:shadow-md"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 space-y-2">
@@ -129,7 +129,7 @@ export function KnowledgeDocumentsSection({
                         href={source.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-xs font-medium text-emerald-800 underline-offset-2 transition hover:text-emerald-700 hover:underline"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-sky-800 underline-offset-2 transition hover:text-sky-700 hover:underline"
                       >
                         Open source file
                         <ExternalLink className="size-3.5" />
@@ -162,7 +162,7 @@ export function KnowledgeDocumentsSection({
           </div>
 
           {!isSearchActive && (
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-100 bg-white px-4 py-3 text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm">
               <p className="text-slate-600">
                 Page {Math.min(currentPage + 1, totalPages)} of {totalPages}
               </p>
@@ -170,7 +170,7 @@ export function KnowledgeDocumentsSection({
                 <Button
                   type="button"
                   variant="outline"
-                  className="cursor-pointer border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50"
+                  className="cursor-pointer border-sky-200 hover:border-sky-300 hover:bg-sky-50"
                   onClick={onPreviousPage}
                   disabled={isLoading || isPageLoading || currentPage === 0}
                 >
@@ -180,7 +180,7 @@ export function KnowledgeDocumentsSection({
                 <Button
                   type="button"
                   variant="outline"
-                  className="cursor-pointer border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50"
+                  className="cursor-pointer border-sky-200 hover:border-sky-300 hover:bg-sky-50"
                   onClick={onNextPage}
                   disabled={isLoading || isPageLoading || !hasNextPage}
                 >

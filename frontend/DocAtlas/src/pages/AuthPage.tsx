@@ -28,7 +28,7 @@ function InputField({
     <div className="space-y-2">
       <label
         htmlFor={id}
-        className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-900/80 sm:text-xs"
+        className="text-[11px] font-semibold uppercase tracking-[0.12em] text-sky-900/80 sm:text-xs"
       >
         {label}
       </label>
@@ -39,7 +39,7 @@ function InputField({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         required={required}
-        className="h-11 w-full rounded-lg border border-emerald-100 bg-emerald-50/40 px-3 text-sm text-slate-900 outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-300/30 sm:h-12 sm:text-base"
+        className="h-11 w-full rounded-lg border border-sky-100 bg-sky-50/40 px-3 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:bg-white focus:ring-2 focus:ring-sky-300/30 sm:h-12 sm:text-base"
       />
     </div>
   );
@@ -107,11 +107,11 @@ export function AuthPage() {
   }
 
   return (
-    <main className="relative min-h-dvh overflow-y-auto bg-stone-100 bg-[radial-gradient(ellipse_80%_60%_at_70%_-10%,rgba(134,239,172,0.25)_0%,transparent_60%),radial-gradient(ellipse_50%_40%_at_5%_90%,rgba(147,197,253,0.2)_0%,transparent_55%)] p-4 sm:p-6 md:p-8">
+    <main className="relative min-h-dvh overflow-y-auto bg-slate-50 bg-[radial-gradient(ellipse_80%_60%_at_70%_-10%,rgba(186,230,253,0.26)_0%,transparent_60%),radial-gradient(ellipse_50%_40%_at_5%_90%,rgba(147,197,253,0.2)_0%,transparent_55%)] p-4 sm:p-6 md:p-8">
       <div className="mx-auto mt-2 w-full max-w-7xl sm:mt-4 md:mt-6">
         <Link
           to="/"
-          className="mb-5 inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-emerald-900 shadow-sm ring-1 ring-emerald-100 transition hover:bg-white sm:mb-8 sm:px-4 sm:py-2.5 sm:text-base"
+          className="mb-5 inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-sky-900 shadow-sm ring-1 ring-sky-100 transition hover:bg-white sm:mb-8 sm:px-4 sm:py-2.5 sm:text-base"
         >
           <svg
             viewBox="0 0 24 24"
@@ -132,7 +132,7 @@ export function AuthPage() {
       </div>
 
       <div className="mx-auto grid w-full max-w-7xl overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_24px_64px_rgba(0,0,0,0.08)] md:max-h-[calc(100dvh-9.5rem)] md:min-h-0 md:grid-cols-2">
-        <aside className="relative flex flex-col items-center justify-center gap-4 overflow-y-auto bg-emerald-950 px-6 py-10 text-center text-emerald-50 sm:px-8 sm:py-12 md:gap-3 md:px-8 md:py-8 lg:px-12 lg:py-12">
+        <aside className="relative flex flex-col items-center justify-center gap-4 overflow-y-auto bg-sky-950 px-6 py-10 text-center text-sky-50 sm:px-8 sm:py-12 md:gap-3 md:px-8 md:py-8 lg:px-12 lg:py-12">
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:40px_40px]" />
 
           <div className="relative flex justify-center">
@@ -144,13 +144,13 @@ export function AuthPage() {
           </div>
 
           <div className="relative space-y-3 md:space-y-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-300 sm:text-sm sm:tracking-[0.2em]">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-300 sm:text-sm sm:tracking-[0.2em]">
               Admin Platform
             </p>
             <h2 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl md:text-4xl">
               Your institution's knowledge, always at hand.
             </h2>
-            <p className="mx-auto max-w-sm text-sm leading-6 text-emerald-100/75 sm:text-base sm:leading-7">
+            <p className="mx-auto max-w-sm text-sm leading-6 text-sky-100/75 sm:text-base sm:leading-7">
               AI assistant for hospitals grounded on your own files, URLs and operational docs.
             </p>
           </div>
@@ -234,7 +234,7 @@ export function AuthPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="h-11 w-full rounded-lg bg-emerald-950 text-sm font-semibold text-emerald-50 transition hover:bg-emerald-900 disabled:cursor-not-allowed disabled:opacity-60 sm:h-12 sm:text-base"
+                className="h-11 w-full rounded-lg bg-sky-950 text-sm font-semibold text-sky-50 transition hover:bg-sky-900 disabled:cursor-not-allowed disabled:opacity-60 sm:h-12 sm:text-base"
               >
                 {isSubmitting
                   ? "Please wait..."

@@ -8,6 +8,7 @@ export default function InstructionsPage() {
   const { user } = useAuth();
   const tenantUid = user?.id ?? "YOUR_TENANT_UID_FROM_STEP_1";
   const [copied, setCopied] = useState(false);
+  const [websiteUrl, setWebsiteUrl] = useState("");
 
   const embedSnippet = `<!doctype html>
 <html lang="en">
@@ -32,41 +33,61 @@ export default function InstructionsPage() {
 
   return (
     <section className="space-y-6">
-      <header className="rounded-2xl border border-emerald-100 bg-white/90 p-6 shadow-[0_20px_45px_rgba(6,78,59,0.08)]">
-        <p className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-900">
+      <header className="rounded-2xl border border-sky-100 bg-white/90 p-6 shadow-[0_20px_45px_rgba(30,64,175,0.1)]">
+        <p className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-900">
           <ShieldCheck className="size-3.5" />
           Production Setup Guide
         </p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-emerald-950">
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-sky-950">
           Embed DocAtlas Widget
         </h1>
         <p className="mt-2 text-sm text-slate-600">
-          Follow this guide to install the DocAtlas widget and securely connect it to your institution knowledge base.
+          Follow this guide to install the DocAtlas widget and securely connect
+          it to your institution knowledge base.
         </p>
       </header>
 
-      <article className="rounded-xl border border-emerald-100 bg-white p-5">
+      <article className="rounded-xl border border-sky-100 bg-white p-5">
+        <h2 className="text-base font-semibold text-slate-900">Website URL</h2>
+        <p className="mt-2 text-sm text-slate-600">
+          Enter the website where the widget will be installed.
+        </p>
+        <label className="mt-4 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+          Website address
+        </label>
+        <input
+          type="url"
+          value={websiteUrl}
+          onChange={(event) => setWebsiteUrl(event.target.value)}
+          placeholder="https://www.yourhospital.org"
+          className="mt-2 h-11 w-full rounded-md border border-sky-200 bg-white px-3 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+        />
+      </article>
+
+      <article className="rounded-xl border border-sky-100 bg-white p-5">
         <h2 className="text-base font-semibold text-slate-900">
           Step 1: Tenant ID
         </h2>
         <p className="mt-2 text-sm text-slate-600">
-          Use this unique tenant identifier to link your website requests to your organization workspace.
+          Use this unique tenant identifier to link your website requests to
+          your organization workspace.
         </p>
-        <p className="mt-3 rounded-md border border-emerald-100 bg-emerald-50 px-3 py-2 font-mono text-sm break-all text-emerald-950">
+        <p className="mt-3 rounded-md border border-sky-100 bg-sky-50 px-3 py-2 font-mono text-sm break-all text-sky-950">
           {tenantUid}
         </p>
         <p className="mt-2 text-sm text-slate-600">
-          Keep this ID safe. Requests without a valid tenant ID cannot access your indexed documents.
+          Keep this ID safe. Requests without a valid tenant ID cannot access
+          your indexed documents.
         </p>
       </article>
 
-      <article className="rounded-xl border border-emerald-100 bg-white p-5">
+      <article className="rounded-xl border border-sky-100 bg-white p-5">
         <h2 className="text-base font-semibold text-slate-900">
           Step 2: Insert the Script
         </h2>
         <p className="mt-2 text-sm text-slate-600">
-          Copy the snippet and paste it into your website HTML, preferably before the closing{" "}
-          <code>&lt;/body&gt;</code> tag.
+          Copy the snippet and paste it into your website HTML, preferably
+          before the closing <code>&lt;/body&gt;</code> tag.
         </p>
         <div className="mt-4 w-full max-w-4xl overflow-hidden rounded-2xl border border-slate-700">
           <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900 px-4 py-3">
@@ -151,7 +172,7 @@ export default function InstructionsPage() {
         </div>
       </article>
 
-      <article className="rounded-xl border border-emerald-100 bg-white p-5">
+      <article className="rounded-xl border border-sky-100 bg-white p-5">
         <h2 className="text-base font-semibold text-slate-900">
           Step 3: Allowlist Your Domain
         </h2>
@@ -160,7 +181,9 @@ export default function InstructionsPage() {
         </p>
         <p className="mt-2 text-sm text-slate-600">
           Add your website domain (for example,{" "}
-          <span className="font-mono">www.ahepa.gr</span>) in your admin profile settings. If a script runs on a non-registered domain, access is blocked automatically.
+          <span className="font-mono">www.ahepa.gr</span>) in your admin profile
+          settings. If a script runs on a non-registered domain, access is
+          blocked automatically.
         </p>
       </article>
     </section>

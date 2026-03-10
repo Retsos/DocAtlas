@@ -86,27 +86,27 @@ export function KnowledgeBasePage() {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-2xl border border-emerald-100/80 bg-white/90 p-6 shadow-[0_22px_50px_rgba(6,78,59,0.08)] backdrop-blur-sm sm:p-7">
-        <p className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-900">
+      <section className="rounded-2xl border border-sky-100/80 bg-white/90 p-6 shadow-[0_22px_50px_rgba(30,64,175,0.1)] backdrop-blur-sm sm:p-7">
+        <p className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-900">
           Hospital AI Knowledge Platform
         </p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-emerald-950">
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-sky-950">
           Bring every hospital document into one reliable AI assistant.
         </h1>
         <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-600 sm:text-base">
           DocAtlas organizes your internal files, protocols and links so staff gets instant, cited answers grounded in your own institution data.
         </p>
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border border-emerald-100 bg-emerald-50/50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-900/80">
+          <div className="rounded-xl border border-sky-100 bg-sky-50/60 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-sky-900/80">
               Core workflow
             </p>
             <p className="mt-1 text-sm text-slate-700">
               Document ingestion, vector search, and grounded RAG responses with source references.
             </p>
           </div>
-          <div className="rounded-xl border border-emerald-100 bg-emerald-50/50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-900/80">
+          <div className="rounded-xl border border-sky-100 bg-sky-50/60 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-sky-900/80">
               Today
             </p>
             <p className="mt-1 text-sm text-slate-700">

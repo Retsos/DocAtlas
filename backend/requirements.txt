@@ -33,7 +33,7 @@ docx2txt==0.9
 durationpy==0.10
 email-validator==2.3.0
 emoji==2.15.0
-en_core_web_sm==3.8.0
+en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
 et_xmlfile==2.0.0
 fastapi==0.135.1
 fastapi-cli==0.0.24

@@ -102,6 +102,38 @@ export async function getDocumentSourcesCount(ownerId: string): Promise<number> 
   return snapshot.data().count;
 }
 
+export async function getAllDocumentSourcesByOwner(ownerId: string): Promise<KnowledgeSource[]> {
+  const primaryQuery = query(
+    collection(db, DOCUMENTS_COLLECTION),
+    where("ownerId", "==", ownerId),
+    orderBy("createdAt", "desc"),
+    orderBy(documentId(), "desc"),
+  );
+
+  let snapshot;
+  try {
+    snapshot = await getDocs(primaryQuery);
+  } catch (error) {
+    if (!(error instanceof FirebaseError) || error.code !== "failed-precondition") {
+      throw error;
+    }
+
+    const fallbackQuery = query(
+      collection(db, DOCUMENTS_COLLECTION),
+      where("ownerId", "==", ownerId),
+    );
+
+    snapshot = await getDocs(fallbackQuery);
+  }
+
+  return snapshot.docs
+    .map(mapDocumentSnapshot)
+    .sort(
+      (a, b) =>
+        (b.createdAt?.getTime?.() ?? 0) - (a.createdAt?.getTime?.() ?? 0),
+    );
+}
+
 export async function getDocumentSourcesPage(input: {
   ownerId: string;
   pageSize?: number;

@@ -42,6 +42,7 @@ type AuthContextValue = {
   login: (input: LoginInput) => Promise<void>;
   registerHospital: (input: RegisterHospitalInput) => Promise<void>;
   logout: () => Promise<void>;
+  getToken: () => Promise<string | null>;
 };
 
 const USERS_COLLECTION = "users";
@@ -66,6 +67,13 @@ function mapToAuthUser(input: {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+const getToken = useCallback(async () => {
+  if (!auth.currentUser) return null;
+  // Το true ζητάει force refresh αν χρειάζεται, αλλιώς φέρνει το cached
+  return await auth.currentUser.getIdToken(true); 
+}, []);
+
 
   useEffect(() => {
     // Keep auth state in sync with Firebase session lifecycle.
@@ -99,9 +107,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async ({ email, password }: LoginInput) => {
-    await signInWithEmailAndPassword(auth, email, password);
+    const credentials = await signInWithEmailAndPassword(auth, email, password);
+    const token = await credentials.user.getIdToken(true);
+    console.log("DocAtlas login JWT token:", token);
   }, []);
-
   const registerHospital = useCallback(
     async ({ hospitalName, email, password }: RegisterHospitalInput) => {
       const credentials = await createUserWithEmailAndPassword(
@@ -133,8 +142,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       registerHospital,
       logout,
+      getToken
     }),
-    [isLoading, login, logout, registerHospital, user],
+    [isLoading, login, logout, registerHospital, user, getToken],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

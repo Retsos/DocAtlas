@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Copy } from "lucide-react";
+import { Check, Copy, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/providers/AuthProvider";
@@ -32,38 +32,44 @@ export default function InstructionsPage() {
 
   return (
     <section className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">Instructions</h1>
-        <p className="text-sm text-muted-foreground">
-          Follow these steps to embed the DocAtlas widget on your website.
+      <header className="rounded-2xl border border-emerald-100 bg-white/90 p-6 shadow-[0_20px_45px_rgba(6,78,59,0.08)]">
+        <p className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-900">
+          <ShieldCheck className="size-3.5" />
+          Production Setup Guide
+        </p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-emerald-950">
+          Embed DocAtlas Widget
+        </h1>
+        <p className="mt-2 text-sm text-slate-600">
+          Follow this guide to install the DocAtlas widget and securely connect it to your institution knowledge base.
         </p>
       </header>
 
-      <article className="rounded-lg border bg-card p-4">
-        <h2 className="text-base font-semibold">
-          Step 1: Your Key (Tenant ID)
+      <article className="rounded-xl border border-emerald-100 bg-white p-5">
+        <h2 className="text-base font-semibold text-slate-900">
+          Step 1: Tenant ID
         </h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Your organization unique identifier is:
+        <p className="mt-2 text-sm text-slate-600">
+          Use this unique tenant identifier to link your website requests to your organization workspace.
         </p>
-        <p className="mt-2 rounded-md bg-muted px-3 py-2 font-mono text-sm break-all">
+        <p className="mt-3 rounded-md border border-emerald-100 bg-emerald-50 px-3 py-2 font-mono text-sm break-all text-emerald-950">
           {tenantUid}
         </p>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Do not lose it and do not change it. Without this key, the assistant
-          cannot access your organization documents.
+        <p className="mt-2 text-sm text-slate-600">
+          Keep this ID safe. Requests without a valid tenant ID cannot access your indexed documents.
         </p>
       </article>
 
-      <article className="rounded-lg border bg-card p-4">
-        <h2 className="text-base font-semibold">Step 2: Insert the Code</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Copy the highlited code below and paste it into your website HTML.
-          Ideally, place it right before the closing <code>&lt;/body&gt;</code>{" "}
-          tag.
+      <article className="rounded-xl border border-emerald-100 bg-white p-5">
+        <h2 className="text-base font-semibold text-slate-900">
+          Step 2: Insert the Script
+        </h2>
+        <p className="mt-2 text-sm text-slate-600">
+          Copy the snippet and paste it into your website HTML, preferably before the closing{" "}
+          <code>&lt;/body&gt;</code> tag.
         </p>
-        <div className="mt-4 w-full max-w-3xl overflow-hidden rounded-2xl border border-slate-700">
-          <div className="flex items-center justify-between border-b bg-gray-900 border-slate-800 px-4 py-3">
+        <div className="mt-4 w-full max-w-4xl overflow-hidden rounded-2xl border border-slate-700">
+          <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900 px-4 py-3">
             <p className="text-xs font-medium tracking-wide text-slate-400">
               HTML
             </p>
@@ -83,7 +89,7 @@ export default function InstructionsPage() {
             </Button>
           </div>
 
-          <div className="overflow-x-auto bg-gray-800 p-4 font-mono text-xs leading-5 text-slate-300">
+          <div className="overflow-x-auto bg-slate-800 p-4 font-mono text-xs leading-5 text-slate-300">
             <div className="min-w-[620px]">
               <div>
                 <span className="text-pink-400">&lt;!doctype</span>{" "}
@@ -145,20 +151,16 @@ export default function InstructionsPage() {
         </div>
       </article>
 
-      <article className="rounded-lg border bg-card p-4">
-        <h2 className="text-base font-semibold">
-          Step 3: Register Your Domain (Security)
+      <article className="rounded-xl border border-emerald-100 bg-white p-5">
+        <h2 className="text-base font-semibold text-slate-900">
+          Step 3: Allowlist Your Domain
         </h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          For security reasons, our server rejects requests coming from unknown
-          websites.
+        <p className="mt-2 text-sm text-slate-600">
+          For security, DocAtlas rejects widget traffic from unknown domains.
         </p>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Make sure your website domain (for example,{" "}
-          <span className="font-mono">www.ahepa.gr</span>) is correctly
-          registered in your DocAtlas Admin Panel profile settings. If the
-          script is placed on an unregistered domain, access will be blocked
-          automatically.
+        <p className="mt-2 text-sm text-slate-600">
+          Add your website domain (for example,{" "}
+          <span className="font-mono">www.ahepa.gr</span>) in your admin profile settings. If a script runs on a non-registered domain, access is blocked automatically.
         </p>
       </article>
     </section>

@@ -28,7 +28,7 @@ export function Navbar() {
         </NavLink>
 
         <nav aria-label="Website navigation" className="hidden md:block">
-          <ul className="flex items-center gap-8 text-base font-semibold text-sky-950">
+          <ul className="flex items-center gap-8 text-base font-barlow text-sky-950">
             {navLinks.map((item) => (
               <li key={item.to}>
                 <NavLink

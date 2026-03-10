@@ -12,7 +12,7 @@ export default function Home() {
               Bring every hospital document into one{" "}
               <span className="text-sky-600">reliable AI assistant.</span>
             </h1>
-            <p className="max-w-xl text-sm leading-6 text-sky-950 sm:text-base sm:leading-7">
+            <p className="max-w-xl text-sm font-barlow leading-6 text-sky-950 sm:text-base sm:leading-7">
               DocAtlas organizes your internal files, protocols and links so
               staff gets instant, cited answers grounded in your own institution
               data.

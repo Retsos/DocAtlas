@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-
 from api.routes.files import router as files_router
 from api.routes.health import router as health_router
 from api.routes.query import router as query_router

@@ -1,4 +1,5 @@
 import "./App.css";
+import ChatbotWidget from "./components/chatbot/ChatbotWidget";
 import DoctorsSection from "./components/DoctorSection";
 import FooterSection from "./components/FooterSection";
 import HeroSection from "./components/HeroSection";
@@ -13,6 +14,7 @@ function App() {
       <ServicesSection />
       <DoctorsSection />
       <FooterSection />
+      <ChatbotWidget />
     </div>
   );
 }

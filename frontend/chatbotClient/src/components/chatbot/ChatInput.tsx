@@ -12,7 +12,9 @@ type Props = {
 };
 
 const ChatInput = ({ onSubmit }: Props) => {
-  const { register, handleSubmit, reset, formState } = useForm<ChatFormData>();
+  const { register, handleSubmit, reset, formState } = useForm<ChatFormData>({
+    mode: "onChange",
+  });
 
   const submit = handleSubmit((data) => {
     reset({ prompt: "" });

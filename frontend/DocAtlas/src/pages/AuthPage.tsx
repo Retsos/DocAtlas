@@ -1,9 +1,8 @@
-﻿import { useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { FirebaseError } from "firebase/app";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import { useAuth } from "@/providers/AuthProvider";
-import { useLanguage } from "@/providers/LanguageProvider";
 import docAtlasLogo from "@/assets/DocAtlasLogo.png";
 
 type AuthMode = "login" | "register";
@@ -55,7 +54,6 @@ export function AuthPage() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const { isAuthenticated, login, registerHospital } = useAuth();
-  const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -77,7 +75,7 @@ export function AuthPage() {
         await login({ email: email.trim(), password });
       } else {
         if (!hospitalName.trim()) {
-          setErrorMessage(t("auth.errors.hospitalNameRequired"));
+          setErrorMessage("Hospital name is required.");
           return;
         }
 
@@ -92,16 +90,16 @@ export function AuthPage() {
     } catch (error) {
       if (error instanceof FirebaseError) {
         if (error.code === "permission-denied") {
-          setErrorMessage(t("auth.errors.permissionDenied"));
+          setErrorMessage("Firestore rules blocked this action. Check your database rules.");
         } else if (error.code === "auth/email-already-in-use") {
-          setErrorMessage(t("auth.errors.emailInUse"));
+          setErrorMessage("This email is already in use.");
         } else if (error.code === "auth/invalid-credential") {
-          setErrorMessage(t("auth.errors.invalidCredential"));
+          setErrorMessage("Invalid email or password.");
         } else {
           setErrorMessage(error.message);
         }
       } else {
-        setErrorMessage(t("auth.errors.generic"));
+        setErrorMessage("Something went wrong. Please try again.");
       }
     } finally {
       setIsSubmitting(false);
@@ -129,7 +127,7 @@ export function AuthPage() {
               strokeLinejoin="round"
             />
           </svg>
-          <span>{t("auth.backToWebsite")}</span>
+          <span>Back to website</span>
         </Link>
       </div>
 
@@ -147,13 +145,13 @@ export function AuthPage() {
 
           <div className="relative space-y-3 md:space-y-4">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-300 sm:text-sm sm:tracking-[0.2em]">
-              {t("auth.adminPlatform")}
+              Admin Platform
             </p>
             <h2 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl md:text-4xl">
-              {t("auth.heroTitle")}
+              Your institution's knowledge, always at hand.
             </h2>
             <p className="mx-auto max-w-sm text-sm leading-6 text-emerald-100/75 sm:text-base sm:leading-7">
-              {t("auth.heroDescription")}
+              AI assistant for hospitals grounded on your own files, URLs and operational docs.
             </p>
           </div>
         </aside>
@@ -162,14 +160,12 @@ export function AuthPage() {
           <div className="w-full max-w-xl space-y-5 text-center sm:space-y-6">
             <div className="space-y-2">
               <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-                {mode === "login"
-                  ? t("auth.headings.login")
-                  : t("auth.headings.register")}
+                {mode === "login" ? "Welcome back" : "Register your hospital"}
               </h1>
               <p className="text-sm text-slate-500 sm:text-base">
                 {mode === "login"
-                  ? t("auth.subheadings.login")
-                  : t("auth.subheadings.register")}
+                  ? "Log in to manage your knowledge base and settings."
+                  : "Create an admin account linked to your organization."}
               </p>
             </div>
 
@@ -187,7 +183,7 @@ export function AuthPage() {
                     : "text-slate-500 hover:text-slate-800",
                 ].join(" ")}
               >
-                {t("auth.tabs.login")}
+                Log in
               </button>
               <button
                 type="button"
@@ -202,7 +198,7 @@ export function AuthPage() {
                     : "text-slate-500 hover:text-slate-800",
                 ].join(" ")}
               >
-                {t("auth.tabs.register")}
+                Register
               </button>
             </div>
 
@@ -210,29 +206,29 @@ export function AuthPage() {
               {mode === "register" && (
                 <InputField
                   id="hospital-name"
-                  label={t("auth.labels.hospitalName")}
+                  label="Hospital Name"
                   value={hospitalName}
                   onChange={setHospitalName}
-                  placeholder={t("auth.placeholders.hospitalName")}
+                  placeholder="e.g. Hygeia Hospital"
                 />
               )}
 
               <InputField
                 id="email"
-                label={t("auth.labels.email")}
+                label="Email"
                 type="email"
                 value={email}
                 onChange={setEmail}
-                placeholder={t("auth.placeholders.email")}
+                placeholder="admin@hospital.gr"
               />
 
               <InputField
                 id="password"
-                label={t("auth.labels.password")}
+                label="Password"
                 type="password"
                 value={password}
                 onChange={setPassword}
-                placeholder={t("auth.placeholders.password")}
+                placeholder="********"
               />
 
               <button
@@ -241,10 +237,10 @@ export function AuthPage() {
                 className="h-11 w-full rounded-lg bg-emerald-950 text-sm font-semibold text-emerald-50 transition hover:bg-emerald-900 disabled:cursor-not-allowed disabled:opacity-60 sm:h-12 sm:text-base"
               >
                 {isSubmitting
-                  ? t("auth.buttons.loading")
+                  ? "Please wait..."
                   : mode === "login"
-                    ? t("auth.buttons.login")
-                    : t("auth.buttons.register")}
+                    ? "Log in to DocAtlas"
+                    : "Create hospital account"}
               </button>
 
               {errorMessage && (

@@ -1,36 +1,16 @@
-﻿import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 
-import { useLanguage } from "@/providers/LanguageProvider";
 import docAtlasLogoWithTitle from "@/assets/DocAtlasLogoWithTitle.png";
-import { GreeceFlagIcon, UKFlagIcon } from "../icons/Flags";
 
 const navLinks = [
-  { key: "website.nav.home", to: "/", end: true },
-  { key: "website.nav.features", to: "/features" },
-  { key: "website.nav.about", to: "/about" },
+  { label: "Home", to: "/", end: true },
+  { label: "Features", to: "/features" },
+  { label: "About", to: "/about" },
 ];
 
 export function Navbar() {
-  const { language, setLanguage, t } = useLanguage();
-  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-  const menuRef = useRef<HTMLLIElement | null>(null);
-
-  useEffect(() => {
-    function onDocumentClick(event: MouseEvent) {
-      if (!menuRef.current) {
-        return;
-      }
-
-      if (!menuRef.current.contains(event.target as Node)) {
-        setIsLangMenuOpen(false);
-      }
-    }
-
-    document.addEventListener("click", onDocumentClick);
-    return () => document.removeEventListener("click", onDocumentClick);
-  }, []);
 
   return (
     <header className="top-0 z-30 bg-transparent">
@@ -61,59 +41,10 @@ export function Navbar() {
                     ].join(" ")
                   }
                 >
-                  {t(item.key)}
+                  {item.label}
                 </NavLink>
               </li>
             ))}
-            <li ref={menuRef} className="relative ml-2">
-              <button
-                type="button"
-                onClick={() => setIsLangMenuOpen((open) => !open)}
-                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm text-emerald-900 transition hover:border-black"
-                aria-label="Switch language"
-              >
-                {language === "el" ? <GreeceFlagIcon /> : <UKFlagIcon />}
-                <span className="text-xs">▾</span>
-              </button>
-
-              {isLangMenuOpen && (
-                <div className="absolute right-0 top-10 z-40 min-w-32 rounded-md border border-emerald-100 bg-white p-1 shadow-lg">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLanguage("el");
-                      setIsLangMenuOpen(false);
-                    }}
-                    className={[
-                      "flex w-full items-center justify-between rounded px-2 py-1.5 text-sm transition",
-                      language === "el"
-                        ? "bg-emerald-50 text-emerald-700"
-                        : "text-emerald-900 hover:bg-emerald-50",
-                    ].join(" ")}
-                  >
-                    <span>Ελληνικά</span>
-                    <GreeceFlagIcon />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLanguage("en");
-                      setIsLangMenuOpen(false);
-                    }}
-                    className={[
-                      "flex w-full items-center justify-between rounded px-2 py-1.5 text-sm transition",
-                      language === "en"
-                        ? "bg-emerald-50 text-emerald-700"
-                        : "text-emerald-900 hover:bg-emerald-50",
-                    ].join(" ")}
-                  >
-                    <span>English</span>
-                    <UKFlagIcon />
-                  </button>
-                </div>
-              )}
-            </li>
           </ul>
         </nav>
 
@@ -143,7 +74,7 @@ export function Navbar() {
             to="/auth"
             className="hidden rounded-md bg-emerald-950 px-4 py-2 text-sm font-semibold text-emerald-50 transition hover:bg-emerald-900 md:inline-flex"
           >
-            {t("website.nav.signIn")}
+            Log in
           </Link>
         </div>
       </div>
@@ -166,7 +97,7 @@ export function Navbar() {
                     ].join(" ")
                   }
                 >
-                  {t(item.key)}
+                  {item.label}
                 </NavLink>
               </li>
             ))}
@@ -176,7 +107,7 @@ export function Navbar() {
                 onClick={() => setIsMobileNavOpen(false)}
                 className="block rounded-md bg-emerald-950 px-3 py-2 text-center text-sm font-semibold text-emerald-50"
               >
-                {t("website.nav.signIn")}
+                Log in
               </Link>
             </li>
           </ul>

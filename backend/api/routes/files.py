@@ -9,6 +9,7 @@ from services.documentProcessing import prepare_document_for_chroma
 router = APIRouter(prefix="/api", tags=["files"])
 
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+ALLOWED_EXTENSIONS = {"pdf", "docx", "doc", "csv", "xls", "xlsx", "txt"}
 
 
 @router.post("/upload-file")
@@ -22,25 +23,39 @@ async def upload_file(
         if admin_data.get("uid") != tenant_id:
             raise HTTPException(status_code=403, detail="No permission.")
 
+        filename = file.filename or ""
+        if not filename.strip():
+            raise HTTPException(status_code=400, detail="Missing filename.")
+
+        extension = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+        if extension not in ALLOWED_EXTENSIONS:
+            raise HTTPException(status_code=400, detail=f"Unsupported file type: {extension or 'unknown'}")
+
         col: Collection = get_chroma_collection()
 
-        if file.size and file.size > MAX_FILE_SIZE:
+        file_content = await file.read()
+        if not file_content:
+            raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+
+        # Validate against actual byte length to avoid relying on optional multipart metadata.
+        if len(file_content) > MAX_FILE_SIZE:
             raise HTTPException(status_code=413, detail="File too large.")
 
-        file_content = await file.read()
-
         ids, documents, metadatas = prepare_document_for_chroma(
-            file.filename, file_content
+            filename, file_content
         )
         metadatas = [{**metadata, "tenant_id": tenant_id} for metadata in metadatas]
 
         if not ids:
-            return {"message": "Empty file.", "chunks_inserted": 0}
+            raise HTTPException(
+                status_code=422,
+                detail=f"No extractable text found in '{filename}'.",
+            )
 
         await run_in_threadpool(col.add, ids=ids, documents=documents, metadatas=metadatas)
 
         return {
-            "message": f"File {file.filename} uploaded.",
+            "message": f"File {filename} uploaded.",
             "chunks_inserted": len(ids),
         }
     except HTTPException:

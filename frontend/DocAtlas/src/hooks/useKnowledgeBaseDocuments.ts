@@ -4,6 +4,7 @@ import { apiClient } from "@/lib/api";
 
 import {
   DOCUMENTS_PAGE_SIZE,
+  getAllDocumentSourcesByOwner,
   getDocumentSourcesCount,
   getDocumentSourcesPage,
   type DocumentsPageCursor,
@@ -12,10 +13,12 @@ import type { KnowledgeSource } from "@/types/knowledgeSource";
 
 type UseKnowledgeBaseDocumentsInput = {
   ownerId?: string;
+  searchTerm?: string;
 };
 
 export function useKnowledgeBaseDocuments({
   ownerId,
+  searchTerm = "",
 }: UseKnowledgeBaseDocumentsInput) {
   const [sources, setSources] = useState<KnowledgeSource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -24,14 +27,20 @@ export function useKnowledgeBaseDocuments({
   const [errorMessage, setErrorMessage] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [totalSources, setTotalSources] = useState(0);
+  const [totalAvailableSources, setTotalAvailableSources] = useState(0);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [pageCursors, setPageCursors] = useState<DocumentsPageCursor[]>([null]);
   const [refreshTick, setRefreshTick] = useState(0);
   const hasLoadedOnceRef = useRef(false);
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+  const isSearchActive = normalizedSearchTerm.length > 0;
 
   const totalPages = useMemo(
-    () => Math.max(1, Math.ceil(totalSources / DOCUMENTS_PAGE_SIZE)),
-    [totalSources],
+    () =>
+      isSearchActive
+        ? 1
+        : Math.max(1, Math.ceil(totalSources / DOCUMENTS_PAGE_SIZE)),
+    [isSearchActive, totalSources],
   );
 
   function refreshDocuments() {
@@ -49,6 +58,7 @@ export function useKnowledgeBaseDocuments({
       setIsLoading(false);
       setSources([]);
       setTotalSources(0);
+      setTotalAvailableSources(0);
       setCurrentPage(0);
       setHasNextPage(false);
       setPageCursors([null]);
@@ -70,6 +80,27 @@ export function useKnowledgeBaseDocuments({
 
     async function loadDocumentsPage() {
       try {
+        if (isSearchActive) {
+          const allSources = await getAllDocumentSourcesByOwner(resolvedOwnerId);
+          if (cancelled) {
+            return;
+          }
+
+          const filteredSources = allSources.filter((source) =>
+            source.name.toLowerCase().includes(normalizedSearchTerm),
+          );
+
+          setSources(filteredSources);
+          setTotalSources(filteredSources.length);
+          setTotalAvailableSources(allSources.length);
+          setHasNextPage(false);
+          setCurrentPage(0);
+          hasLoadedOnceRef.current = true;
+          setIsLoading(false);
+          setIsPageLoading(false);
+          return;
+        }
+
         const cursor = pageCursors[currentPage] ?? null;
         const [pageResult, total] = await Promise.all([
           getDocumentSourcesPage({
@@ -86,6 +117,7 @@ export function useKnowledgeBaseDocuments({
 
         setSources(pageResult.sources);
         setTotalSources(total);
+        setTotalAvailableSources(total);
         setHasNextPage(pageResult.hasMore);
 
         setPageCursors((prev) => {
@@ -132,7 +164,13 @@ export function useKnowledgeBaseDocuments({
     return () => {
       cancelled = true;
     };
-  }, [currentPage, ownerId, refreshTick]);
+  }, [
+    currentPage,
+    isSearchActive,
+    normalizedSearchTerm,
+    ownerId,
+    refreshTick,
+  ]);
 
   async function deleteSource(source: KnowledgeSource) {
     if (!source.id) {
@@ -170,8 +208,10 @@ export function useKnowledgeBaseDocuments({
     errorMessage,
     currentPage,
     totalSources,
+    totalAvailableSources,
     totalPages,
     hasNextPage,
+    isSearchActive,
     setCurrentPage,
     setErrorMessage,
     deleteSource,

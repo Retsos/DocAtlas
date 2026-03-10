@@ -84,8 +84,7 @@ async def query(
         results = col.search(search_query)
 
         retrieved_docs = results.get("documents", [[]])[0] if results else []
-        answer = await run_in_threadpool(generate_answer, body.prompt, retrieved_docs)
-
+        answer = await run_in_threadpool(generate_answer, body.prompt, retrieved_docs, body.history)
         return {
             "answer": answer,
             "sources": retrieved_docs,  # Returned for optional UI citations.

@@ -9,6 +9,7 @@ const publicApiClient = axios.create({
 type SendMessageRequest = {
     prompt: string;
     tenant_id: string;
+    history: { role: string; content: string }[];
 };
 
 type SendMessageResponse = {
@@ -23,6 +24,7 @@ export const useSendMessage = () => {
             const res = await publicApiClient.post<SendMessageResponse>("/api/query", {
                 prompt: data.prompt,
                 tenant_id: data.tenant_id,
+                history: data.history,
                 top_k: 5
             });
 

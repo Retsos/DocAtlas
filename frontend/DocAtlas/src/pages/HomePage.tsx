@@ -8,11 +8,11 @@ export default function Home() {
       <section className="scroll-mt-24 px-4 pb-14 pt-10 sm:px-5 sm:pb-16 sm:pt-12 md:pb-20 md:pt-16 lg:px-10 xl:px-14">
         <div className="mx-auto grid w-full max-w-6xl items-center gap-8 md:grid-cols-2 md:gap-10 lg:gap-14">
           <div className="pt-10 space-y-5 sm:space-y-6">
-            <h1 className="text-4xl font-semibold leading-tight tracking-tight text-sky-950 sm:text-4xl md:text-5xl">
+            <h1 className="text-4xl font-semibold leading-tight tracking-tight text-sky-950 sm:text-4xl md:text-6xl">
               Bring every hospital document into one{" "}
               <span className="text-sky-600">reliable AI assistant.</span>
             </h1>
-            <p className="max-w-xl text-sm leading-6 text-slate-700 sm:text-base sm:leading-7">
+            <p className="max-w-xl text-sm leading-6 text-sky-950 sm:text-base sm:leading-7">
               DocAtlas organizes your internal files, protocols and links so
               staff gets instant, cited answers grounded in your own institution
               data.
@@ -26,7 +26,7 @@ export default function Home() {
               </Link>
               <Link
                 to="/about"
-                className="rounded-md border border-sky-200 bg-white px-5 py-3 text-center text-sm font-semibold text-sky-900 transition hover:border-sky-400"
+                className="rounded-md border border-sky-900 bg-white px-5 py-3 text-center text-sm font-semibold text-sky-900 transition hover:border-sky-800 hover:text-sky-800"
               >
                 Learn More
               </Link>
@@ -50,10 +50,10 @@ export default function Home() {
               </div>
             </div>
             <div className="space-y-3 text-sm">
-              <div className="rounded-lg bg-sky-50 p-3 text-sky-900">
+              <div className="rounded-lg bg-sky-50 p-3 text-sky-950">
                 What is the updated emergency stroke triage protocol?
               </div>
-              <div className="rounded-lg border border-sky-100 bg-white p-3 text-slate-700">
+              <div className="rounded-lg border border-sky-100 bg-white p-3 text-sky-950">
                 Protocol v3.2 recommends CT within 20 minutes and immediate
                 neurology consult activation after imaging. Source:
                 Stroke-Protocol-2025.pdf

@@ -18,12 +18,12 @@ export function Footer() {
         </div>
 
         <div className="space-y-3">
-          <p className="font-semibold text-sky-900/90">Company</p>
+          <p className="font-semibold text-sky-950">Company</p>
           <ul className="space-y-2">
             <li>
               <Link
                 to="/features"
-                className="text-sky-700/90 transition hover:text-sky-600"
+                className="text-sky-600 transition hover:text-sky-650"
               >
                 Features
               </Link>
@@ -31,7 +31,7 @@ export function Footer() {
             <li>
               <Link
                 to="/about"
-                className="text-sky-700/90 transition hover:text-sky-600"
+                className="text-sky-600 transition hover:text-sky-650"
               >
                 About
               </Link>
@@ -40,9 +40,9 @@ export function Footer() {
         </div>
 
         <div className="space-y-3">
-          <p className="font-semibold text-sky-900/90">Contact</p>
-          <p className="text-sky-700/90">team@docatlas.ai</p>
-          <p className="max-w-sm text-xs leading-5 text-sky-700/75">
+          <p className="font-semibold text-sky-950">Contact</p>
+          <p className="text-sky-600">team@docatlas.ai</p>
+          <p className="max-w-sm text-xs leading-5 text-sky-600">
             Copyright (c) {currentYear} DocAtlas. All rights reserved.
           </p>
         </div>

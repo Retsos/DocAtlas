@@ -28,7 +28,7 @@ export function Navbar() {
         </NavLink>
 
         <nav aria-label="Website navigation" className="hidden md:block">
-          <ul className="flex items-center gap-8 text-base font-semibold text-sky-900/90">
+          <ul className="flex items-center gap-8 text-base font-semibold text-sky-950">
             {navLinks.map((item) => (
               <li key={item.to}>
                 <NavLink
@@ -37,7 +37,7 @@ export function Navbar() {
                   className={({ isActive }) =>
                     [
                       "transition hover:text-sky-600",
-                      isActive ? "text-sky-600" : "text-sky-900/90",
+                      isActive ? "text-sky-600" : "text-sky-950",
                     ].join(" ")
                   }
                 >
@@ -53,7 +53,7 @@ export function Navbar() {
             type="button"
             onClick={() => setIsMobileNavOpen((open) => !open)}
             aria-label="Toggle navigation menu"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-sky-200 text-sky-900 md:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-sky-200 text-sky-950 md:hidden"
           >
             <svg
               viewBox="0 0 24 24"
@@ -72,7 +72,7 @@ export function Navbar() {
 
           <Link
             to="/auth"
-            className="hidden rounded-md bg-sky-950 px-4 py-2 text-sm font-semibold text-sky-50 transition hover:bg-sky-900 md:inline-flex"
+            className="hidden rounded-md bg-sky-950 px-4 py-2 text-sm font-semibold text-sky-50 transition  md:inline-flex hover:bg-sky-900"
           >
             Log in
           </Link>
@@ -81,7 +81,7 @@ export function Navbar() {
 
       {isMobileNavOpen && (
         <div className="border-t border-sky-100 bg-transparent px-4 py-4 md:hidden">
-          <ul className="space-y-1 text-sm font-semibold text-sky-900">
+          <ul className="space-y-1 text-sm font-semibold text-sky-950">
             {navLinks.map((item) => (
               <li key={item.to}>
                 <NavLink
@@ -91,9 +91,7 @@ export function Navbar() {
                   className={({ isActive }) =>
                     [
                       "block rounded-md px-3 py-2 transition",
-                      isActive
-                        ? "bg-sky-50 text-sky-700"
-                        : "hover:bg-sky-50",
+                      isActive ? "bg-sky-50 text-sky-700" : "hover:bg-sky-50",
                     ].join(" ")
                   }
                 >

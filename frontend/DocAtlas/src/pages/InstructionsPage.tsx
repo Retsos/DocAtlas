@@ -32,12 +32,12 @@ export default function InstructionsPage() {
 
   return (
     <section className="space-y-6">
-      <header className="rounded-2xl border border-emerald-100 bg-white/90 p-6 shadow-[0_20px_45px_rgba(6,78,59,0.08)]">
-        <p className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-900">
+      <header className="rounded-2xl border border-sky-100 bg-white/90 p-6 shadow-[0_20px_45px_rgba(30,64,175,0.1)]">
+        <p className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-900">
           <ShieldCheck className="size-3.5" />
           Production Setup Guide
         </p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-emerald-950">
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-sky-950">
           Embed DocAtlas Widget
         </h1>
         <p className="mt-2 text-sm text-slate-600">
@@ -45,14 +45,14 @@ export default function InstructionsPage() {
         </p>
       </header>
 
-      <article className="rounded-xl border border-emerald-100 bg-white p-5">
+      <article className="rounded-xl border border-sky-100 bg-white p-5">
         <h2 className="text-base font-semibold text-slate-900">
           Step 1: Tenant ID
         </h2>
         <p className="mt-2 text-sm text-slate-600">
           Use this unique tenant identifier to link your website requests to your organization workspace.
         </p>
-        <p className="mt-3 rounded-md border border-emerald-100 bg-emerald-50 px-3 py-2 font-mono text-sm break-all text-emerald-950">
+        <p className="mt-3 rounded-md border border-sky-100 bg-sky-50 px-3 py-2 font-mono text-sm break-all text-sky-950">
           {tenantUid}
         </p>
         <p className="mt-2 text-sm text-slate-600">
@@ -60,7 +60,7 @@ export default function InstructionsPage() {
         </p>
       </article>
 
-      <article className="rounded-xl border border-emerald-100 bg-white p-5">
+      <article className="rounded-xl border border-sky-100 bg-white p-5">
         <h2 className="text-base font-semibold text-slate-900">
           Step 2: Insert the Script
         </h2>
@@ -151,7 +151,7 @@ export default function InstructionsPage() {
         </div>
       </article>
 
-      <article className="rounded-xl border border-emerald-100 bg-white p-5">
+      <article className="rounded-xl border border-sky-100 bg-white p-5">
         <h2 className="text-base font-semibold text-slate-900">
           Step 3: Allowlist Your Domain
         </h2>

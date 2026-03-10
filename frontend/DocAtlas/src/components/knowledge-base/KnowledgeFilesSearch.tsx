@@ -18,9 +18,9 @@ export function KnowledgeFilesSearch({
   const hasFiles = totalCount > 0 || value.trim().length > 0;
 
   return (
-    <section className="rounded-xl border border-emerald-100 bg-white/90 p-4 shadow-sm">
+    <section className="rounded-xl border border-sky-100 bg-white/90 p-4 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm font-medium text-emerald-950">{title}</p>
+        <p className="text-sm font-medium text-sky-950">{title}</p>
         <p className="text-xs text-slate-500">
           Showing {filteredCount} of {totalCount}
         </p>
@@ -31,7 +31,7 @@ export function KnowledgeFilesSearch({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="mt-3 h-10 w-full rounded-md border border-emerald-200 bg-white px-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+        className="mt-3 h-10 w-full rounded-md border border-sky-200 bg-white px-3 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
         aria-label={title}
         disabled={!hasFiles}
       />

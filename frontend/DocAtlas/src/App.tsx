@@ -7,11 +7,13 @@ const queryClient = new QueryClient();
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <div className="docatlas-app">
+      <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <RouterProvider router={router} />
         </AuthProvider>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </div>
   );
 }
 

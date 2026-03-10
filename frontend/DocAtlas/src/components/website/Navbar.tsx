@@ -23,12 +23,12 @@ export function Navbar() {
           <img
             src={docAtlasLogoWithTitle}
             alt="DocAtlas logo"
-            className="pt-2 h-10 w-10 object-contain drop-shadow-[0_8px_14px_rgba(5,150,105,0.32)] sm:h-12 sm:w-12 md:h-44 md:w-44"
+            className="pt-2 h-10 w-10 object-contain drop-shadow-[0_8px_14px_rgba(37,99,235,0.32)] sm:h-12 sm:w-12 md:h-44 md:w-44"
           />
         </NavLink>
 
         <nav aria-label="Website navigation" className="hidden md:block">
-          <ul className="flex items-center gap-8 text-base font-semibold text-emerald-900/90">
+          <ul className="flex items-center gap-8 text-base font-semibold text-sky-900/90">
             {navLinks.map((item) => (
               <li key={item.to}>
                 <NavLink
@@ -36,8 +36,8 @@ export function Navbar() {
                   end={item.end}
                   className={({ isActive }) =>
                     [
-                      "transition hover:text-emerald-600",
-                      isActive ? "text-emerald-600" : "text-emerald-900/90",
+                      "transition hover:text-sky-600",
+                      isActive ? "text-sky-600" : "text-sky-900/90",
                     ].join(" ")
                   }
                 >
@@ -53,7 +53,7 @@ export function Navbar() {
             type="button"
             onClick={() => setIsMobileNavOpen((open) => !open)}
             aria-label="Toggle navigation menu"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-emerald-200 text-emerald-900 md:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-sky-200 text-sky-900 md:hidden"
           >
             <svg
               viewBox="0 0 24 24"
@@ -72,7 +72,7 @@ export function Navbar() {
 
           <Link
             to="/auth"
-            className="hidden rounded-md bg-emerald-950 px-4 py-2 text-sm font-semibold text-emerald-50 transition hover:bg-emerald-900 md:inline-flex"
+            className="hidden rounded-md bg-sky-950 px-4 py-2 text-sm font-semibold text-sky-50 transition hover:bg-sky-900 md:inline-flex"
           >
             Log in
           </Link>
@@ -80,8 +80,8 @@ export function Navbar() {
       </div>
 
       {isMobileNavOpen && (
-        <div className="border-t border-emerald-100 bg-transparent px-4 py-4 md:hidden">
-          <ul className="space-y-1 text-sm font-semibold text-emerald-900">
+        <div className="border-t border-sky-100 bg-transparent px-4 py-4 md:hidden">
+          <ul className="space-y-1 text-sm font-semibold text-sky-900">
             {navLinks.map((item) => (
               <li key={item.to}>
                 <NavLink
@@ -92,8 +92,8 @@ export function Navbar() {
                     [
                       "block rounded-md px-3 py-2 transition",
                       isActive
-                        ? "bg-emerald-50 text-emerald-700"
-                        : "hover:bg-emerald-50",
+                        ? "bg-sky-50 text-sky-700"
+                        : "hover:bg-sky-50",
                     ].join(" ")
                   }
                 >
@@ -105,7 +105,7 @@ export function Navbar() {
               <Link
                 to="/auth"
                 onClick={() => setIsMobileNavOpen(false)}
-                className="block rounded-md bg-emerald-950 px-3 py-2 text-center text-sm font-semibold text-emerald-50"
+                className="block rounded-md bg-sky-950 px-3 py-2 text-center text-sm font-semibold text-sky-50"
               >
                 Log in
               </Link>

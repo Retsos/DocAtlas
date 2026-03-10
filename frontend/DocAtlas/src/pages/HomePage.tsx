@@ -34,29 +34,43 @@ export default function Home() {
           </div>
 
           <div className="rounded-2xl border border-sky-100 bg-white p-5 shadow-[0_25px_60px_rgba(30,64,175,0.12)] sm:p-6 md:p-7">
-            <div className="mb-4 flex items-center gap-3">
-              <img
-                src={docAtlasLogo}
-                alt="DocAtlas"
-                className="h-10 w-10 rounded-md object-cover"
-              />
-              <div>
-                <p className="text-sm font-barlow-bold font-semibold text-sky-950">
-                  DocAtlas Assistant
-                </p>
-                <p className="text-xs font-barlow text-slate-500">
-                  Institution-grounded responses
-                </p>
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <img
+                  src={docAtlasLogo}
+                  alt="DocAtlas"
+                  className="h-10 w-10 rounded-md object-cover"
+                />
+                <div>
+                  <p className="text-sm font-barlow-bold font-semibold text-sky-950">
+                    DocAtlas Assistant
+                  </p>
+                  <p className="text-xs font-barlow text-slate-500">
+                    Institution-grounded responses
+                  </p>
+                </div>
               </div>
             </div>
             <div className="space-y-3 font-barlow text-sm">
-              <div className="rounded-lg bg-sky-50 p-3 text-sky-950">
-                What is the updated emergency stroke triage protocol?
+              <div className="flex justify-start">
+                <div className="max-w-[85%] rounded-2xl rounded-tl-md bg-sky-50 px-4 py-3 text-sky-950">
+                  What should I bring with me for my MRI exam?
+                </div>
               </div>
-              <div className="rounded-lg border border-sky-100 bg-white p-3 text-sky-950">
-                Protocol v3.2 recommends CT within 20 minutes and immediate
-                neurology consult activation after imaging. Source:
-                Stroke-Protocol-2025.pdf
+              <div className="flex justify-end">
+                <div className="max-w-[85%] rounded-2xl rounded-tr-md border border-sky-100 bg-white px-4 py-3 text-slate-900 shadow-sm">
+                  Please bring a photo ID, your referral, and any prior imaging.
+                  If you have implants or a pacemaker, let us know before your
+                  visit.
+                  <span className="mt-2 block text-xs text-slate-500">
+                    Source: MRI-Prep-Checklist.pdf
+                  </span>
+                </div>
+              </div>
+              <div className="flex justify-start">
+                <div className="max-w-[70%] rounded-2xl rounded-tl-md bg-slate-100 px-3 py-2 text-xs text-slate-500">
+                  Answer grounded in 2 institutional documents.
+                </div>
               </div>
             </div>
           </div>

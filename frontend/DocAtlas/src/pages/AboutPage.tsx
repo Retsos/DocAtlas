@@ -12,10 +12,6 @@ export default function About() {
           <h1 className="text-4xl font-dm-serif-display font-semibold leading-20 tracking-tight text-sky-950 sm:text-5xl md:text-7xl">
             About Us
           </h1>
-          <p className="mx-auto max-w-3xl text-sm leading-6 text-slate-700 sm:text-base sm:leading-7">
-            The product is designed to solve the daily challenge of finding
-            reliable administrative and operational knowledge fast.
-          </p>
         </header>
 
         <section className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm sm:p-7 lg:px-10 lg:py-9">

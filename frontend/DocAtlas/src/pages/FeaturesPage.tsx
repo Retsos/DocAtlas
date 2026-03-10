@@ -10,11 +10,12 @@ export default function Features() {
     <main className="px-4 py-12 sm:px-5 sm:py-16 lg:px-10 xl:px-14">
       <div className="mx-auto w-full max-w-6xl space-y-8 sm:space-y-10 lg:space-y-12">
         <header className="space-y-3 text-center">
-          <h1 className="text-4xl font-semibold tracking-tight text-sky-950 sm:text-5xl md:text-6xl">
-            Features
+          <h1 className="text-4xl font-dm-serif-display font-semibold leading-20 tracking-tight text-sky-950 sm:text-5xl md:text-7xl">
+            Our Features
           </h1>
           <p className="mx-auto max-w-3xl text-sm leading-6 text-slate-700 sm:text-base sm:leading-7">
-            DocAtlas is an AI platform that acts as an institution-specific administrative assistant for healthcare organizations.
+            DocAtlas is an AI platform that acts as an institution-specific
+            administrative assistant for healthcare organizations.
           </p>
         </header>
 
@@ -23,8 +24,17 @@ export default function Features() {
             What the idea is
           </h2>
           <div className="mt-4 space-y-4 text-sm leading-6 text-slate-700 sm:text-base sm:leading-7">
-            <p>Each organization uploads its own documents, guidelines, and procedures, and the system answers based on those sources instead of generic web responses or a general LLM memory.</p>
-            <p>The core combines document ingestion, vector search, and RAG: files become structured knowledge chunks, the most relevant passages are retrieved, and grounded answers are generated with source references.</p>
+            <p>
+              Each organization uploads its own documents, guidelines, and
+              procedures, and the system answers based on those sources instead
+              of generic web responses or a general LLM memory.
+            </p>
+            <p>
+              The core combines document ingestion, vector search, and RAG:
+              files become structured knowledge chunks, the most relevant
+              passages are retrieved, and grounded answers are generated with
+              source references.
+            </p>
           </div>
         </section>
 

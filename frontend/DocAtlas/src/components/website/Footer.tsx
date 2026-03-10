@@ -18,7 +18,7 @@ export function Footer() {
         </div>
 
         <div className="space-y-3">
-          <p className="font-semibold text-sky-950">Company</p>
+          <p className="font-barlow-bold text-sky-950">DocAtlas</p>
           <ul className="space-y-2">
             <li>
               <Link
@@ -40,9 +40,9 @@ export function Footer() {
         </div>
 
         <div className="space-y-3">
-          <p className="font-semibold text-sky-950">Contact</p>
-          <p className="text-sky-600">team@docatlas.ai</p>
-          <p className="max-w-sm text-xs leading-5 text-sky-600">
+          <p className="font-barlow-bold text-sky-950">Contact</p>
+          <p className="text-sky-600">Docatlas@gmail.com</p>
+          <p className="max-w-sm text-sky-600">
             Copyright (c) {currentYear} DocAtlas. All rights reserved.
           </p>
         </div>

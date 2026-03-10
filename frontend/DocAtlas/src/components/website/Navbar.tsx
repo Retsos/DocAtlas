@@ -72,7 +72,7 @@ export function Navbar() {
 
           <Link
             to="/auth"
-            className="hidden rounded-md bg-sky-950 px-4 py-2 text-sm font-semibold text-sky-50 transition  md:inline-flex hover:bg-sky-900"
+            className="hidden rounded-md bg-sky-950 px-4 py-2 text-sm font-barlow-bold text-sky-50 transition  md:inline-flex hover:bg-sky-900"
           >
             Log in
           </Link>
@@ -81,7 +81,7 @@ export function Navbar() {
 
       {isMobileNavOpen && (
         <div className="border-t border-sky-100 bg-transparent px-4 py-4 md:hidden">
-          <ul className="space-y-1 text-sm font-semibold text-sky-950">
+          <ul className="space-y-1 text-sm font-barlow text-sky-950">
             {navLinks.map((item) => (
               <li key={item.to}>
                 <NavLink
@@ -103,7 +103,7 @@ export function Navbar() {
               <Link
                 to="/auth"
                 onClick={() => setIsMobileNavOpen(false)}
-                className="block rounded-md bg-sky-950 px-3 py-2 text-center text-sm font-semibold text-sky-50"
+                className="block rounded-md bg-sky-950 px-3 py-2 text-center text-sm font-barlow-bold text-sky-50"
               >
                 Log in
               </Link>

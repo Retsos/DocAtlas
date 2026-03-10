@@ -3,6 +3,7 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 @import url("https://fonts.googleapis.com/css2?family=Barlow:wght@100&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Barlow:wght@100&family=DM+Serif+Display&display=swap");
 
 @custom-variant dark (&:is(.dark *));
 
@@ -174,5 +175,16 @@ body {
 
 .font-barlow {
   font-family: "Barlow", var(--font-sans);
-  font-weight: 300;
+  font-weight: 400;
+}
+
+.font-barlow-bold {
+  font-family: "Barlow", var(--font-sans);
+  font-weight: 600;
+}
+
+.font-dm-serif-display {
+  font-family: "DM Serif Display", serif;
+  font-weight: 900;
+  font-style: normal;
 }

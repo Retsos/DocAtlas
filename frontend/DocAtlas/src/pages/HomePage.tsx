@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <main id="home">
       <section className="scroll-mt-24 px-4 pb-14 pt-10 sm:px-5 sm:pb-16 sm:pt-12 md:pb-20 md:pt-16 lg:px-10 xl:px-14">
-        <div className="mx-auto grid w-full max-w-6xl items-center gap-8 md:grid-cols-2 md:gap-10 lg:gap-14">
+        <div className="mx-auto grid w-full max-w-6xl items-center gap-8 md:grid-cols-[1.2fr_0.8fr] md:gap-10 lg:gap-14">
           <div className="pt-10 space-y-5 sm:space-y-6">
             <h1 className="text-4xl font-semibold leading-tight tracking-tight text-sky-950 sm:text-4xl md:text-6xl">
               Bring every hospital document into one{" "}

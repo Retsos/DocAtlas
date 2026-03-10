@@ -1,18 +1,19 @@
 from fastapi import APIRouter, HTTPException, Request
 from chromadb import K, Knn, Rrf, Search
 from chromadb.api.models.Collection import Collection
-
 from config.chromaClient import get_chroma_collection
 from core.rate_limit import limiter
 from models.RequestBody import RequestBody
 from services.documentProcessing import normalize_greek_text
+from services.llmService import generate_answer
+from fastapi.concurrency import run_in_threadpool
 
 router = APIRouter(prefix="/api", tags=["query"])
 
 
 @router.post("/query")
 @limiter.limit("100/minute")
-def query(
+async def query(
     request: Request,
     body: RequestBody,
 ):
@@ -47,14 +48,11 @@ def query(
         results = col.search(search_query)
 
         retrieved_docs = results.get("documents", [[]])[0] if results else []
-        retrieved_metadatas = results.get("metadatas", [[]])[0] if results else []
-        retrieved_ids = results.get("ids", [[]])[0] if results else []
+        answer = await run_in_threadpool(generate_answer, body.prompt, retrieved_docs)
 
         return {
-            "query": body.prompt,
-            "results": retrieved_docs,
-            "metadatas": retrieved_metadatas,
-            "ids": retrieved_ids,
+            "answer": answer,
+            "sources": retrieved_docs # Send sources back so the UI can cite them
         }
     except HTTPException:
         raise

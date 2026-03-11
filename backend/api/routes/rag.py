@@ -5,7 +5,7 @@ from config.chromaClient import get_chroma_collection
 from core.rate_limit import limiter
 from models.RequestBody import RequestBody
 from services.documentProcessing import normalize_greek_text
-from services.llmService import generate_answer
+from services.llmService import generate_answer, classify_intent
 from fastapi.concurrency import run_in_threadpool
 from core.firebase import get_firestore_client
 
@@ -56,9 +56,30 @@ async def query(
         col: Collection = get_chroma_collection()
         clean_prompt = normalize_greek_text(body.prompt)
 
+        intent = await run_in_threadpool(classify_intent, body.prompt)
+
+        if intent == "MEDICAL":
+            #Immediately returns the safety guardrail, no database search needed
+            return {
+                "answer": "Δεν είμαι εξουσιοδοτημένος να παρέχω ιατρική διάγνωση, παρακαλώ μιλήστε με έναν γιατρό.",
+                "sources": []
+            }
+        
+        elif intent == "GENERAL":
+            #Passes an empty context list, the LLM will handle the small talk without retrieval
+            answer = await run_in_threadpool(generate_answer, body.prompt, [], body.history)
+            return {
+                "answer": answer,
+                "sources": []
+            }
+
         hybrid_rank = Rrf(
             ranks=[
-                Knn(query=clean_prompt, return_rank=True, limit=15),
+                Knn(
+                    query=clean_prompt, 
+                    return_rank=True, 
+                    limit=15
+                ),
                 Knn(
                     query=clean_prompt,
                     key="sparse_embedding",

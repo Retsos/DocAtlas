@@ -3,12 +3,21 @@ import { Check, Copy, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/providers/AuthProvider";
+import { useWebsiteUrlSettings } from "@/hooks/useWebsiteUrlSettings";
 
 export default function InstructionsPage() {
   const { user } = useAuth();
   const tenantUid = user?.id ?? "YOUR_TENANT_UID_FROM_STEP_1";
   const [copied, setCopied] = useState(false);
-  const [websiteUrl, setWebsiteUrl] = useState("");
+  const {
+    websiteUrl,
+    savedWebsiteUrl,
+    isSavingUrl,
+    isLoadingUrl,
+    urlStatus,
+    setWebsiteUrl,
+    saveWebsiteUrl,
+  } = useWebsiteUrlSettings(user?.id);
 
   const embedSnippet = `<!doctype html>
 <html lang="en">
@@ -62,6 +71,25 @@ export default function InstructionsPage() {
           placeholder="https://www.yourhospital.org"
           className="mt-2 h-11 w-full rounded-md border border-sky-200 bg-white px-3 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
         />
+        <div className="mt-3 flex items-center gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            className="h-10 border-sky-300 cursor-pointer hover:text-white bg-sky-600 px-2 text-xs text-white transition hover:bg-sky-700 hover:border-sky-300 md:px-3 md:text-sm"
+            disabled={isSavingUrl || isLoadingUrl}
+            onClick={() => void saveWebsiteUrl()}
+          >
+            {isSavingUrl ? "Saving..." : savedWebsiteUrl ? "Update URL" : "Save URL"}
+          </Button>
+          {savedWebsiteUrl ? (
+            <p className="text-xs text-slate-500">
+              Current saved URL: <span className="font-mono">{savedWebsiteUrl}</span>
+            </p>
+          ) : (
+            <p className="text-xs text-slate-500">No URL saved yet.</p>
+          )}
+        </div>
+        {urlStatus ? <p className="mt-2 text-sm text-slate-600">{urlStatus}</p> : null}
       </article>
 
       <article className="rounded-xl border border-sky-100 bg-white p-5">

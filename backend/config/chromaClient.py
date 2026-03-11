@@ -13,8 +13,9 @@ _collection: Collection | None = None
 
 
 #Dense embedding for semantic search with open-source model from Hugging Face
-hf_ef = embedding_functions.SentenceTransformerEmbeddingFunction(
-    model_name="paraphrase-multilingual-MiniLM-L12-v2"
+hf_ef = embedding_functions.OpenAIEmbeddingFunction(
+	api_key=os.getenv("OPENAI_API_KEY"),
+    model_name="text-embedding-3-small"
 )
 
 #Sparse Embedding for keyword-based search using BM25 algorithm

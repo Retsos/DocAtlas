@@ -10,6 +10,7 @@ import { Layout } from "@/components/website/Layout";
 import { AuthPage } from "@/pages/AuthPage";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { KnowledgeBasePage } from "@/pages/KnowledgeBasePage";
+import { MyFilesPage } from "@/pages/MyFilesPage";
 import InstructionsPage from "@/pages/InstructionsPage";
 import HomePage from "@/pages/HomePage";
 import FeaturesPage from "@/pages/FeaturesPage";
@@ -60,6 +61,7 @@ export const router = createBrowserRouter([
         errorElement: <ErrorPage />,
         children: [
           { path: "/dashboard", element: <KnowledgeBasePage /> },
+          { path: "/dashboard/my-files", element: <MyFilesPage /> },
           { path: "/instructions", element: <InstructionsPage /> },
           { path: "/logs", element: <LogsPage /> },
         ],

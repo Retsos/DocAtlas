@@ -1,137 +1,74 @@
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  documentId,
-  getCountFromServer,
-  getDocs,
-  limit,
-  orderBy,
-  query,
-  serverTimestamp,
-  startAfter,
-  where,
-  type DocumentData,
-  type QueryDocumentSnapshot,
-} from "firebase/firestore";
-import { FirebaseError } from "firebase/app";
-import {
-  deleteObject,
-  getDownloadURL,
-  ref,
-  uploadBytes,
-} from "firebase/storage";
-
-import { db, storage } from "@/lib/firebase";
+import { apiClient } from "@/lib/api";
 import type { KnowledgeSource } from "@/types/knowledgeSource";
 
-const DOCUMENTS_COLLECTION = "documents";
 export const DOCUMENTS_PAGE_SIZE = 5;
-export type DocumentsPageCursor = QueryDocumentSnapshot<DocumentData> | null;
+export type DocumentsPageCursor = number | null;
 
-// Keep every user's files isolated in a dedicated storage "room".
-function buildUserFolder(ownerId: string) {
-  return `knowledge-sources/${ownerId}`;
-}
+type BackendDocumentsResponse = {
+  items: Array<{
+    id: string;
+    ownerId: string;
+    hospitalName: string;
+    type: "file" | "url";
+    name: string;
+    url: string;
+    storagePath?: string;
+    createdAt?: string | null;
+    sizeBytes?: number;
+  }>;
+  total: number;
+  page: number;
+  page_size: number;
+  has_next: boolean;
+};
 
-function sanitizeFileName(fileName: string) {
-  return fileName.replace(/\s+/g, "_");
-}
-
-function mapDocumentSnapshot(
-  docSnapshot: QueryDocumentSnapshot<DocumentData>,
-): KnowledgeSource {
-  const data = docSnapshot.data();
-
+function mapKnowledgeSource(item: BackendDocumentsResponse["items"][number]): KnowledgeSource {
   return {
-    id: docSnapshot.id,
-    ownerId: typeof data.ownerId === "string" ? data.ownerId : "",
-    hospitalName: typeof data.hospitalName === "string" ? data.hospitalName : "",
-    type: data.type === "url" ? "url" : "file",
-    name: typeof data.name === "string" ? data.name : "Untitled",
-    url: typeof data.url === "string" ? data.url : "",
-    storagePath:
-      typeof data.storagePath === "string" ? data.storagePath : undefined,
-    createdAt: data.createdAt?.toDate?.(),
-    sizeBytes: typeof data.sizeBytes === "number" ? data.sizeBytes : undefined,
+    id: item.id,
+    ownerId: item.ownerId,
+    hospitalName: item.hospitalName,
+    type: item.type,
+    name: item.name,
+    url: item.url,
+    storagePath: item.storagePath,
+    createdAt: item.createdAt ? new Date(item.createdAt) : undefined,
+    sizeBytes: item.sizeBytes,
   };
 }
 
-export async function uploadStorageSources(input: {
-  ownerId: string;
-  hospitalName: string;
-  files: File[];
+async function fetchDocuments(input: {
+  page: number;
+  pageSize?: number;
+  search?: string;
 }) {
-  await Promise.all(
-    input.files.map(async (file) => {
-      const safeName = sanitizeFileName(file.name);
-      const fileRef = ref(
-        storage,
-        `${buildUserFolder(input.ownerId)}/${Date.now()}-${safeName}`,
-      );
-
-      // 1) Upload the binary file to Cloud Storage.
-      await uploadBytes(fileRef, file, {
-        contentType: file.type || undefined,
-      });
-
-      // 2) Persist source metadata in Firestore so the UI can query by owner.
-      const downloadUrl = await getDownloadURL(fileRef);
-
-      await addDoc(collection(db, DOCUMENTS_COLLECTION), {
-        ownerId: input.ownerId,
-        hospitalName: input.hospitalName,
-        type: "file",
-        name: file.name,
-        url: downloadUrl,
-        storagePath: fileRef.fullPath,
-        sizeBytes: file.size,
-        createdAt: serverTimestamp(),
-      });
-    }),
-  );
+  const response = await apiClient.get<BackendDocumentsResponse>("/api/documents", {
+    params: {
+      page: input.page,
+      page_size: input.pageSize ?? DOCUMENTS_PAGE_SIZE,
+      search: input.search ?? "",
+    },
+  });
+  return response.data;
 }
 
-export async function getDocumentSourcesCount(ownerId: string): Promise<number> {
-  const countQuery = query(
-    collection(db, DOCUMENTS_COLLECTION),
-    where("ownerId", "==", ownerId),
-  );
-  const snapshot = await getCountFromServer(countQuery);
-  return snapshot.data().count;
+export async function getDocumentSourcesCount(_ownerId: string): Promise<number> {
+  const data = await fetchDocuments({ page: 1, pageSize: 1 });
+  return data.total;
 }
 
-export async function getAllDocumentSourcesByOwner(ownerId: string): Promise<KnowledgeSource[]> {
-  const primaryQuery = query(
-    collection(db, DOCUMENTS_COLLECTION),
-    where("ownerId", "==", ownerId),
-    orderBy("createdAt", "desc"),
-    orderBy(documentId(), "desc"),
-  );
+export async function getAllDocumentSourcesByOwner(_ownerId: string): Promise<KnowledgeSource[]> {
+  const allSources: KnowledgeSource[] = [];
+  let page = 1;
+  let hasNext = true;
 
-  let snapshot;
-  try {
-    snapshot = await getDocs(primaryQuery);
-  } catch (error) {
-    if (!(error instanceof FirebaseError) || error.code !== "failed-precondition") {
-      throw error;
-    }
-
-    const fallbackQuery = query(
-      collection(db, DOCUMENTS_COLLECTION),
-      where("ownerId", "==", ownerId),
-    );
-
-    snapshot = await getDocs(fallbackQuery);
+  while (hasNext) {
+    const data = await fetchDocuments({ page, pageSize: 50 });
+    allSources.push(...data.items.map(mapKnowledgeSource));
+    hasNext = data.has_next;
+    page += 1;
   }
 
-  return snapshot.docs
-    .map(mapDocumentSnapshot)
-    .sort(
-      (a, b) =>
-        (b.createdAt?.getTime?.() ?? 0) - (a.createdAt?.getTime?.() ?? 0),
-    );
+  return allSources;
 }
 
 export async function getDocumentSourcesPage(input: {
@@ -143,58 +80,19 @@ export async function getDocumentSourcesPage(input: {
   hasMore: boolean;
   nextCursor: DocumentsPageCursor;
 }> {
-  const pageSize = input.pageSize ?? DOCUMENTS_PAGE_SIZE;
-  const pageLimit = pageSize + 1;
-
-  const baseQuery = query(
-    collection(db, DOCUMENTS_COLLECTION),
-    where("ownerId", "==", input.ownerId),
-    orderBy("createdAt", "desc"),
-    orderBy(documentId(), "desc"),
-  );
-
-  const pageQuery = input.startAfterCursor
-    ? query(baseQuery, startAfter(input.startAfterCursor), limit(pageLimit))
-    : query(baseQuery, limit(pageLimit));
-
-  let snapshot;
-  try {
-    snapshot = await getDocs(pageQuery);
-  } catch (error) {
-    // Fallback for projects without the composite index required by ownerId + createdAt ordering.
-    if (!(error instanceof FirebaseError) || error.code !== "failed-precondition") {
-      throw error;
-    }
-
-    const fallbackBaseQuery = query(
-      collection(db, DOCUMENTS_COLLECTION),
-      where("ownerId", "==", input.ownerId),
-    );
-    const fallbackQuery = input.startAfterCursor
-      ? query(fallbackBaseQuery, startAfter(input.startAfterCursor), limit(pageLimit))
-      : query(fallbackBaseQuery, limit(pageLimit));
-
-    snapshot = await getDocs(fallbackQuery);
-  }
-  const hasMore = snapshot.docs.length > pageSize;
-  const currentPageDocs = hasMore ? snapshot.docs.slice(0, pageSize) : snapshot.docs;
+  const page = (input.startAfterCursor ?? 0) + 1;
+  const data = await fetchDocuments({
+    page,
+    pageSize: input.pageSize ?? DOCUMENTS_PAGE_SIZE,
+  });
 
   return {
-    sources: currentPageDocs.map(mapDocumentSnapshot),
-    hasMore,
-    nextCursor:
-      currentPageDocs.length > 0 ? currentPageDocs[currentPageDocs.length - 1] : null,
+    sources: data.items.map(mapKnowledgeSource),
+    hasMore: data.has_next,
+    nextCursor: data.has_next ? page : null,
   };
 }
 
-export async function deleteDocumentSource(input: {
-  documentId: string;
-  storagePath?: string;
-}) {
-  // Delete storage object first (if present), then remove metadata doc.
-  if (input.storagePath) {
-    await deleteObject(ref(storage, input.storagePath));
-  }
-
-  await deleteDoc(doc(db, DOCUMENTS_COLLECTION, input.documentId));
+export async function deleteDocumentSource(input: { documentId: string }) {
+  await apiClient.delete(`/api/delete-source/${input.documentId}`);
 }

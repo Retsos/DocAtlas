@@ -1,4 +1,4 @@
-﻿import {
+import {
   createContext,
   useCallback,
   useContext,
@@ -8,14 +8,13 @@
   type ReactNode,
 } from "react";
 import {
-  createUserWithEmailAndPassword,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 
-import { auth, db } from "@/lib/firebase";
+import { apiClient, getApiErrorMessage } from "@/lib/api";
+import { auth } from "@/lib/firebase";
 
 type AuthUser = {
   id: string;
@@ -33,6 +32,7 @@ type RegisterHospitalInput = {
   hospitalName: string;
   email: string;
   password: string;
+  websiteUrl: string;
 };
 
 type AuthContextValue = {
@@ -45,38 +45,43 @@ type AuthContextValue = {
   getToken: () => Promise<string | null>;
 };
 
-const USERS_COLLECTION = "users";
-
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 function mapToAuthUser(input: {
-  uid: string;
-  email: string | null;
-  hospitalName?: string;
+  id: string;
+  email: string;
+  hospitalName: string;
   role?: string;
 }): AuthUser {
-  // Normalize Firebase + Firestore payload into a stable app user model.
   return {
-    id: input.uid,
-    email: input.email ?? "",
-    hospitalName: input.hospitalName ?? "Hospital",
+    id: input.id,
+    email: input.email,
+    hospitalName: input.hospitalName,
     role: "admin",
   };
+}
+
+async function fetchCurrentProfile() {
+  const response = await apiClient.get<{
+    id: string;
+    email: string;
+    hospitalName: string;
+    role: string;
+  }>("/api/me");
+
+  return response.data;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-const getToken = useCallback(async () => {
-  if (!auth.currentUser) return null;
-  // Το true ζητάει force refresh αν χρειάζεται, αλλιώς φέρνει το cached
-  return await auth.currentUser.getIdToken(true); 
-}, []);
-
+  const getToken = useCallback(async () => {
+    if (!auth.currentUser) return null;
+    return await auth.currentUser.getIdToken(true);
+  }, []);
 
   useEffect(() => {
-    // Keep auth state in sync with Firebase session lifecycle.
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (!firebaseUser) {
         setUser(null);
@@ -84,23 +89,28 @@ const getToken = useCallback(async () => {
         return;
       }
 
-      const userDocRef = doc(db, USERS_COLLECTION, firebaseUser.uid);
-      const userDoc = await getDoc(userDocRef);
-      const userData = userDoc.exists() ? userDoc.data() : null;
-
-      // Enrich auth user with profile data stored in Firestore.
-      setUser(
-        mapToAuthUser({
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          hospitalName:
-            typeof userData?.hospitalName === "string"
-              ? userData.hospitalName
-              : undefined,
-          role: typeof userData?.role === "string" ? userData.role : undefined,
-        }),
-      );
-      setIsLoading(false);
+      try {
+        const profile = await fetchCurrentProfile();
+        setUser(
+          mapToAuthUser({
+            id: profile.id,
+            email: profile.email,
+            hospitalName: profile.hospitalName,
+            role: profile.role,
+          }),
+        );
+      } catch (error) {
+        setUser(
+          mapToAuthUser({
+            id: firebaseUser.uid,
+            email: firebaseUser.email ?? "",
+            hospitalName: "Hospital",
+            role: "admin",
+          }),
+        );
+      } finally {
+        setIsLoading(false);
+      }
     });
 
     return () => unsubscribe();
@@ -108,24 +118,42 @@ const getToken = useCallback(async () => {
 
   const login = useCallback(async ({ email, password }: LoginInput) => {
     const credentials = await signInWithEmailAndPassword(auth, email, password);
-    const token = await credentials.user.getIdToken(true);
-    console.log("DocAtlas login JWT token:", token);
+    const profile = await fetchCurrentProfile();
+    setUser(
+      mapToAuthUser({
+        id: profile.id || credentials.user.uid,
+        email: profile.email || credentials.user.email || "",
+        hospitalName: profile.hospitalName || "Hospital",
+        role: profile.role || "admin",
+      }),
+    );
   }, []);
-  const registerHospital = useCallback(
-    async ({ hospitalName, email, password }: RegisterHospitalInput) => {
-      const credentials = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password,
-      );
 
-      // Persist organization metadata for later role/scope checks.
-      await setDoc(doc(db, USERS_COLLECTION, credentials.user.uid), {
-        hospitalName,
-        email,
-        role: "admin",
-        createdAt: serverTimestamp(),
-      });
+  const registerHospital = useCallback(
+    async ({ hospitalName, email, password, websiteUrl }: RegisterHospitalInput) => {
+      try {
+        await apiClient.post("/api/auth/register", {
+          hospital_name: hospitalName,
+          email,
+          password,
+          website_url: websiteUrl,
+        });
+        await signInWithEmailAndPassword(auth, email, password);
+        const profile = await fetchCurrentProfile();
+        setUser(
+          mapToAuthUser({
+            id: profile.id,
+            email: profile.email,
+            hospitalName: profile.hospitalName,
+            role: profile.role,
+          }),
+        );
+      } catch (error) {
+        const message = getApiErrorMessage(error);
+        throw new Error(
+          message ?? (error instanceof Error ? error.message : "Register failed."),
+        );
+      }
     },
     [],
   );
@@ -142,7 +170,7 @@ const getToken = useCallback(async () => {
       login,
       registerHospital,
       logout,
-      getToken
+      getToken,
     }),
     [isLoading, login, logout, registerHospital, user, getToken],
   );

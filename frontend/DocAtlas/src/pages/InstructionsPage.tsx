@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Copy, ShieldCheck } from "lucide-react";
+import { Check, Copy, Loader2, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/providers/AuthProvider";
@@ -64,6 +64,12 @@ export default function InstructionsPage() {
         <label className="mt-4 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
           Website address
         </label>
+        {isLoadingUrl && (
+          <div className="mt-2 inline-flex items-center gap-2 rounded-md border border-sky-100 bg-sky-50 px-3 py-2 text-xs text-slate-600">
+            <Loader2 className="size-3.5 animate-spin" />
+            Loading saved URL...
+          </div>
+        )}
         <input
           type="url"
           value={websiteUrl}

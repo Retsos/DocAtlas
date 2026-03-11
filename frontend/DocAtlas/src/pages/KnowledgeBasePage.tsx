@@ -1,37 +1,13 @@
 import { useEffect, useState } from "react";
-import { FirebaseError } from "firebase/app";
 
 import { useAuth } from "@/providers/AuthProvider";
-import { KnowledgeDocumentsSection } from "@/components/knowledge-base/KnowledgeDocumentsSection";
 import { KnowledgeUploadPanel } from "@/components/knowledge-base/KnowledgeUploadPanel";
-import { useKnowledgeBaseDocuments } from "@/hooks/useKnowledgeBaseDocuments";
 import { useUploadFiles } from "@/hooks/useUploadFiles";
 
 export function KnowledgeBasePage() {
   const { user } = useAuth();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [uploadedSearchTerm, setUploadedSearchTerm] = useState("");
-
-  const {
-    sources,
-    isLoading,
-    isPageLoading,
-    deletingId,
-    errorMessage,
-    currentPage,
-    totalSources,
-    totalAvailableSources,
-    totalPages,
-    hasNextPage,
-    isSearchActive,
-    setCurrentPage,
-    setErrorMessage,
-    deleteSource,
-    resetPaginationAndRefresh,
-  } = useKnowledgeBaseDocuments({
-    ownerId: user?.id,
-    searchTerm: uploadedSearchTerm,
-  });
+  const [errorMessage, setErrorMessage] = useState("");
 
   const {
     mutate: uploadFiles,
@@ -43,103 +19,54 @@ export function KnowledgeBasePage() {
     if (!uploadError) {
       return;
     }
-
-    if (uploadError instanceof FirebaseError) {
-      setErrorMessage(uploadError.message);
-      return;
-    }
-
-    setErrorMessage("Upload failed. Please try again.");
+    setErrorMessage(uploadError.message || "Upload failed. Please try again.");
   }, [uploadError]);
 
   useEffect(() => {
     if (!user?.id) {
       setSelectedFiles([]);
-      setUploadedSearchTerm("");
       setErrorMessage("");
     }
-  }, [user?.id, setErrorMessage]);
+  }, [user?.id]);
 
   async function handleUpload() {
     if (!user?.id || selectedFiles.length === 0) return;
 
-    // Trigger TanStack Query mutation:
-    // - Uploads files to Firebase Storage/Firestore
-    // - Calls FastAPI /upload-file for indexing in backend
     setErrorMessage("");
     uploadFiles(
       {
         ownerId: user.id,
-        hospitalName: user.hospitalName || "Default",
         files: selectedFiles,
       },
       {
         onSuccess: () => {
-          // Keep UI state in sync after a successful mutation.
           setSelectedFiles([]);
-          resetPaginationAndRefresh();
         },
-        // Errors are exposed via `uploadError` from the mutation hook.
       },
     );
   }
 
   return (
-    <div className="space-y-8">
+    <div className="flex h-full min-h-0 flex-col space-y-6">
       <section className="rounded-2xl border border-sky-100/80 bg-white/90 p-6 shadow-[0_22px_50px_rgba(30,64,175,0.1)] backdrop-blur-sm sm:p-7">
         <p className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-900">
           Hospital AI Knowledge Platform
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-sky-950">
-          Bring every hospital document into one reliable AI assistant.
+          Upload new knowledge sources.
         </h1>
         <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-600 sm:text-base">
-          DocAtlas organizes your internal files, protocols and links so staff gets instant, cited answers grounded in your own institution data.
+          Add institutional files and DocAtlas will index them for grounded answers. Use the My Files page to search, paginate, filter by file type, and manage existing sources.
         </p>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border border-sky-100 bg-sky-50/60 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-sky-900/80">
-              Core workflow
-            </p>
-            <p className="mt-1 text-sm text-slate-700">
-              Document ingestion, vector search, and grounded RAG responses with source references.
-            </p>
-          </div>
-          <div className="rounded-xl border border-sky-100 bg-sky-50/60 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-sky-900/80">
-              Today
-            </p>
-            <p className="mt-1 text-sm text-slate-700">
-              {totalAvailableSources} indexed {totalAvailableSources === 1 ? "document" : "documents"} available for your assistant.
-            </p>
-          </div>
-        </div>
       </section>
 
+      <div className="min-h-0 flex-1"></div>
       <KnowledgeUploadPanel
         selectedFiles={selectedFiles}
         isUploading={isUploadingFastApi}
         errorMessage={errorMessage}
         onFilesChange={setSelectedFiles}
         onUpload={() => void handleUpload()}
-      />
-
-      <KnowledgeDocumentsSection
-        sources={sources}
-        totalSources={totalSources}
-        totalAvailableSources={totalAvailableSources}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        hasNextPage={hasNextPage}
-        isLoading={isLoading}
-        isPageLoading={isPageLoading}
-        isSearchActive={isSearchActive}
-        searchTerm={uploadedSearchTerm}
-        onSearchChange={setUploadedSearchTerm}
-        deletingId={deletingId}
-        onDelete={deleteSource}
-        onPreviousPage={() => setCurrentPage((page) => Math.max(page - 1, 0))}
-        onNextPage={() => setCurrentPage((page) => page + 1)}
       />
     </div>
   );

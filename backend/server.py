@@ -5,6 +5,7 @@ from slowapi.errors import RateLimitExceeded
 from api.routes.files import router as files_router
 from api.routes.health import router as health_router
 from api.routes.rag import router as query_router
+from api.routes.account import router as account_router
 from core.firebase import initialize_firebase
 from core.rate_limit import limiter
 
@@ -39,3 +40,4 @@ app.add_middleware(
 app.include_router(health_router)
 app.include_router(files_router)
 app.include_router(query_router)
+app.include_router(account_router)

@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { FirebaseError } from "firebase/app";
+import { Loader2 } from "lucide-react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import { useAuth } from "@/providers/AuthProvider";
@@ -48,6 +49,7 @@ function InputField({
 export function AuthPage() {
   const [mode, setMode] = useState<AuthMode>("login");
   const [hospitalName, setHospitalName] = useState("");
+  const [websiteUrl, setWebsiteUrl] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -81,6 +83,7 @@ export function AuthPage() {
 
         await registerHospital({
           hospitalName: hospitalName.trim(),
+          websiteUrl: websiteUrl.trim(),
           email: email.trim(),
           password,
         });
@@ -89,17 +92,15 @@ export function AuthPage() {
       navigate(redirectTo, { replace: true });
     } catch (error) {
       if (error instanceof FirebaseError) {
-        if (error.code === "permission-denied") {
-          setErrorMessage("Firestore rules blocked this action. Check your database rules.");
-        } else if (error.code === "auth/email-already-in-use") {
-          setErrorMessage("This email is already in use.");
-        } else if (error.code === "auth/invalid-credential") {
+        if (error.code === "auth/invalid-credential") {
           setErrorMessage("Invalid email or password.");
+        } else if (error.code === "auth/too-many-requests") {
+          setErrorMessage("Too many attempts. Please try again later.");
         } else {
           setErrorMessage(error.message);
         }
       } else {
-        setErrorMessage("Something went wrong. Please try again.");
+        setErrorMessage(error instanceof Error ? error.message : "Something went wrong. Please try again.");
       }
     } finally {
       setIsSubmitting(false);
@@ -204,13 +205,23 @@ export function AuthPage() {
 
             <form onSubmit={onSubmit} className="space-y-4 text-left">
               {mode === "register" && (
-                <InputField
-                  id="hospital-name"
-                  label="Hospital Name"
-                  value={hospitalName}
-                  onChange={setHospitalName}
-                  placeholder="e.g. Hygeia Hospital"
-                />
+                <>
+                  <InputField
+                    id="hospital-name"
+                    label="Hospital Name"
+                    value={hospitalName}
+                    onChange={setHospitalName}
+                    placeholder="e.g. Hygeia Hospital"
+                  />
+                  <InputField
+                    id="website-url"
+                    label="Website URL"
+                    type="url"
+                    value={websiteUrl}
+                    onChange={setWebsiteUrl}
+                    placeholder="https://www.yourhospital.org"
+                  />
+                </>
               )}
 
               <InputField
@@ -234,13 +245,18 @@ export function AuthPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="h-11 w-full rounded-lg bg-sky-950 text-sm font-semibold text-sky-50 transition hover:bg-sky-900 disabled:cursor-not-allowed disabled:opacity-60 sm:h-12 sm:text-base"
+                className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-sky-950 text-sm font-semibold text-sky-50 transition hover:bg-sky-900 disabled:cursor-not-allowed disabled:opacity-60 sm:h-12 sm:text-base"
               >
-                {isSubmitting
-                  ? "Please wait..."
-                  : mode === "login"
-                    ? "Log in to DocAtlas"
-                    : "Create hospital account"}
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" />
+                    Please wait...
+                  </>
+                ) : mode === "login" ? (
+                  "Log in to DocAtlas"
+                ) : (
+                  "Create hospital account"
+                )}
               </button>
 
               {errorMessage && (

@@ -1,11 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { FirebaseError } from "firebase/app";
 import { apiClient, getApiErrorMessage } from "@/lib/api";
-import { uploadStorageSources } from "@/services/storage-sources-service";
 
 type UploadInput = {
   ownerId: string;
-  hospitalName: string;
   files: File[];
 };
 
@@ -38,18 +35,8 @@ export const useUploadFiles = () => {
             .then((response) => response.data);
         });
 
-        // Keep storage metadata and backend indexing in sync by running both flows together.
-        const [, fastApiResults] = await Promise.all([
-          uploadStorageSources(input),
-          Promise.all(fastApiUploads),
-        ]);
-
-        return fastApiResults;
+        return await Promise.all(fastApiUploads);
       } catch (error) {
-        // Preserve FirebaseError type so UI can render provider-specific messages.
-        if (error instanceof FirebaseError) {
-          throw error;
-        }
         const backendMessage = getApiErrorMessage(error);
         if (backendMessage) {
           throw new Error(`Backend upload failed: ${backendMessage}`);

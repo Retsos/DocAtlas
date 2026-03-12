@@ -11,11 +11,10 @@ class RequestBody(BaseModel):
     @field_validator('prompt')
     @classmethod
     def sanitize_prompt(cls, v: str) -> str:
-        # 1. Ξηλώνουμε εντελώς οτιδήποτε μοιάζει με HTML tag
+        #Removes all HTML like characters
         clean_text = re.sub(r'<[^>]+>', '', v)
         
-        # 2. Αφαιρούμε κρυφούς control χαρακτήρες που προκαλούν ανωμαλίες στις βάσεις
+        #Removes special characters which could produce errors to databases
         clean_text = re.sub(r'[\x00-\x1F\x7F]', '', clean_text)
         
-        # 3. Επιστρέφουμε το καθαρό κείμενο, χωρίς κενά στις άκρες
         return clean_text.strip()

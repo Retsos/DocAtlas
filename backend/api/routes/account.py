@@ -1,24 +1,11 @@
 from urllib.parse import urlparse
-
 from fastapi import APIRouter, Depends, HTTPException
 from firebase_admin import auth, firestore
-from pydantic import BaseModel, EmailStr, Field
-
 from core.firebase import get_firestore_client, verify_token
+from models.RegisterRequest import RegisterRequest
+from models.WebsiteUrlUpdateRequest import WebsiteUrlUpdateRequest
 
 router = APIRouter(prefix="/api", tags=["account"])
-
-
-class RegisterRequest(BaseModel):
-    hospital_name: str = Field(min_length=1, max_length=200)
-    email: EmailStr
-    password: str = Field(min_length=6, max_length=128)
-    website_url: str = Field(min_length=1, max_length=500)
-
-
-class WebsiteUrlUpdateRequest(BaseModel):
-    website_url: str = Field(min_length=1, max_length=500)
-
 
 def _normalize_origin(raw_value: str) -> str:
     candidate = raw_value.strip()

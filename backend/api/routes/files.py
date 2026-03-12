@@ -1,13 +1,11 @@
 from datetime import datetime, timezone
 from urllib.parse import quote
 from uuid import uuid4
-
 from chromadb.api.models.Collection import Collection
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from firebase_admin import firestore, storage
 from google.api_core.exceptions import FailedPrecondition
-
 from config.chromaClient import get_chroma_collection
 from core.firebase import (
     delete_storage_object,

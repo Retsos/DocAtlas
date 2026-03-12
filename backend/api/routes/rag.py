@@ -4,7 +4,7 @@ from chromadb.api.models.Collection import Collection
 from config.chromaClient import get_chroma_collection
 from core.rate_limit import limiter
 from models.RequestBody import RequestBody
-from services.documentProcessing import normalize_greek_text
+from services.doc_processing import normalize_greek_text
 from services.llmService import generate_answer, classify_intent, rewrite_query
 from fastapi.concurrency import run_in_threadpool
 from core.firebase import get_firestore_client
@@ -53,11 +53,6 @@ async def query(
         # Dense KNN captures semantic similarity, sparse KNN captures lexical
         # keyword relevance, and RRF merges both rank lists into a balanced
         # result set for higher-quality retrieval before generation.
-        col: Collection = get_chroma_collection()
-        # clean_prompt = normalize_greek_text(body.prompt)
-
-        # intent = await run_in_threadpool(classify_intent, body.prompt)
-
 
         col: Collection = get_chroma_collection()
 

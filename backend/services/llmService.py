@@ -67,7 +67,7 @@ def rewrite_query(current_question: str, chat_history: list[dict] = None) -> str
     if not chat_history:
         return current_question
 
-    # Παίρνουμε τις 3 τελευταίες κουβέντες για να μην το κουράζουμε
+    # Παίρνουμε τις 3 τελευταίες 
     history_text = "\n".join([
         f"{'Χρήστης' if msg.get('role') == 'user' else 'Βοηθός'}: {msg.get('content')}" 
         for msg in chat_history[-3:]

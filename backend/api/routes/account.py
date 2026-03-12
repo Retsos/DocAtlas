@@ -7,7 +7,10 @@ from models.WebsiteUrlUpdateRequest import WebsiteUrlUpdateRequest
 
 router = APIRouter(prefix="/api", tags=["account"])
 
+
 def _normalize_origin(raw_value: str) -> str:
+    # Normalize tenant website URL to strict origin format: scheme + host.
+    # Used for per-tenant origin checks in query endpoints.
     candidate = raw_value.strip()
     if not candidate:
         raise HTTPException(status_code=400, detail="Website URL is required.")
@@ -24,6 +27,9 @@ def _normalize_origin(raw_value: str) -> str:
 
 @router.post("/auth/register")
 async def register_hospital(payload: RegisterRequest):
+    # Register flow:
+    # 1) create Firebase Auth user
+    # 2) create Firestore profile document with initial account metadata
     try:
         normalized_origin = _normalize_origin(payload.website_url)
         created_user = auth.create_user(email=payload.email, password=payload.password)
@@ -34,6 +40,7 @@ async def register_hospital(payload: RegisterRequest):
                 "hospitalName": payload.hospital_name.strip(),
                 "email": payload.email,
                 "role": "admin",
+                "uploadedDocsCount": 0,
                 "websiteUrl": normalized_origin,
                 "websiteUrlUpdatedAt": firestore.SERVER_TIMESTAMP,
                 "createdAt": firestore.SERVER_TIMESTAMP,
@@ -56,6 +63,7 @@ async def register_hospital(payload: RegisterRequest):
 
 @router.get("/me")
 async def get_me(admin_data: dict = Depends(verify_token)):
+    # Authenticated profile endpoint consumed by frontend session bootstrap.
     try:
         uid = admin_data.get("uid")
         if not uid:
@@ -70,6 +78,12 @@ async def get_me(admin_data: dict = Depends(verify_token)):
             "email": admin_data.get("email") or user_data.get("email") or "",
             "hospitalName": user_data.get("hospitalName") or "Hospital",
             "role": user_data.get("role") or "admin",
+            "uploadedDocsCount": (
+                user_data.get("uploadedDocsCount")
+                if isinstance(user_data.get("uploadedDocsCount"), int)
+                and user_data.get("uploadedDocsCount") >= 0
+                else 0
+            ),
             "websiteUrl": user_data.get("websiteUrl") if isinstance(user_data, dict) else None,
         }
     except HTTPException:
@@ -80,6 +94,7 @@ async def get_me(admin_data: dict = Depends(verify_token)):
 
 @router.get("/website-url")
 async def get_website_url(admin_data: dict = Depends(verify_token)):
+    # Lightweight endpoint used by settings UI to preload current website URL.
     try:
         uid = admin_data.get("uid")
         if not uid:
@@ -104,6 +119,7 @@ async def update_website_url(
     payload: WebsiteUrlUpdateRequest,
     admin_data: dict = Depends(verify_token),
 ):
+    # Update tenant's allowlisted origin used for widget/API origin validation.
     try:
         uid = admin_data.get("uid")
         if not uid:

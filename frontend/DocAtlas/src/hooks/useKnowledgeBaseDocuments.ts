@@ -116,8 +116,6 @@ export function useKnowledgeBaseDocuments({
       hasLoadedOnceRef.current = false;
       return;
     }
-    const resolvedOwnerId = ownerId;
-
     const isInitialLoad = !hasLoadedOnceRef.current;
     if (isInitialLoad) {
       setIsLoading(true);
@@ -134,7 +132,10 @@ export function useKnowledgeBaseDocuments({
     async function loadDocumentsPage() {
       try {
         if (isQueryActive) {
-          const allSources = await getAllDocumentSourcesByOwner(resolvedOwnerId);
+          const [allSources, total] = await Promise.all([
+            getAllDocumentSourcesByOwner(),
+            getDocumentSourcesCount(),
+          ]);
           if (cancelled) {
             return;
           }
@@ -161,7 +162,7 @@ export function useKnowledgeBaseDocuments({
 
           setSources(filteredSources.slice(startIndex, endIndex));
           setTotalSources(filteredSources.length);
-          setTotalAvailableSources(allSources.length);
+          setTotalAvailableSources(total);
           setHasNextPage(endIndex < filteredSources.length);
           hasLoadedOnceRef.current = true;
           setIsLoading(false);
@@ -172,11 +173,10 @@ export function useKnowledgeBaseDocuments({
         const cursor = pageCursors[currentPage] ?? null;
         const [pageResult, total] = await Promise.all([
           getDocumentSourcesPage({
-            ownerId: resolvedOwnerId,
             pageSize: DOCUMENTS_PAGE_SIZE,
             startAfterCursor: cursor,
           }),
-          getDocumentSourcesCount(resolvedOwnerId),
+          getDocumentSourcesCount(),
         ]);
 
         if (cancelled) {

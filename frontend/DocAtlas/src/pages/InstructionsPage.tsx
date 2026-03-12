@@ -19,20 +19,7 @@ export default function InstructionsPage() {
     saveWebsiteUrl,
   } = useWebsiteUrlSettings(user?.id);
 
-  const embedSnippet = `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Website</title>
-  <link rel="stylesheet" href="https://[YOUR_VERCEL_CDN_URL]/widget.css" />
-</head>
-<body>
-  <!-- Your page content -->
-
-  <script src="https://[YOUR_VERCEL_CDN_URL]/widget.js" data-tenant-uid="${tenantUid}"></script>
-</body>
-</html>`;
+  const embedSnippet = `<script src="https://doc-atlas-s2zi.vercel.app/widget.js" data-tenant-uid=${tenantUid} ></script>`;
 
   async function handleCopySnippet() {
     await navigator.clipboard.writeText(embedSnippet);
@@ -175,7 +162,7 @@ export default function InstructionsPage() {
                 <span className="text-pink-400">&lt;script</span>{" "}
                 <span className="text-white">src</span>=
                 <span className="text-sky-300">
-                  "https://doc-atlas-s2zi.vercel.app/widget.js"
+                  "https://chatbot-lac-one-96.vercel.app/widget.js"
                 </span>{" "}
                 <span className="text-white">data-tenant-uid</span>=
                 <span className="text-sky-300">"{tenantUid}"</span>{" "}

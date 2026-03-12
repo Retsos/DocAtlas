@@ -63,9 +63,6 @@ def classify_intent(user_prompt: str):
 
 
 def rewrite_query(current_question: str, chat_history: list[dict] = None) -> str:
-    # Αν δεν υπάρχει παρελθόν, δεν υπάρχει λόγος για μετάφραση
-    if not chat_history:
-        return current_question
 
     # Παίρνουμε τις 3 τελευταίες 
     history_text = "\n".join([
@@ -74,14 +71,16 @@ def rewrite_query(current_question: str, chat_history: list[dict] = None) -> str
     ])
     
     rewrite_prompt = (
-    "You are a strict conversation analyzer. Your job is to read the history "
-    "and rewrite the user's latest question so that it is completely self-contained "
-    "and independent, without pronouns (e.g., 'he', 'there') or incomplete dates (e.g., 'on the 2nd').\n"
-    "Replace implied references with the exact names, locations, and full dates "
-    "mentioned previously.\n\n"
-    f"History:\n{history_text}\n\n"
-    f"Latest Question: {current_question}\n\n"
-    "Respond ONLY with the new, self-contained question, without a single additional word:"
+        "You are a search query optimizer for a Greek hospital database. "
+        "Your task is to EXPAND (not replace) the user's query to maximize retrieval in a Hybrid Search system.\n"
+        "Rules:\n"
+        "1. KEEP the user's original phrasing exactly as is, especially natural dates like '4 Μαρτίου'.\n"
+        "2. APPEND the exact numeric format of the date in parentheses. If no year is provided, output BOTH the padded and unpadded Day/Month formats to ensure a match (e.g., '1 Δεκεμβρίου' -> '(01/12) (1/12)'). DO NOT assume or hallucinate a year (like 2026) unless the user explicitly states it. Avoid spamming multiple consecutive dates.\n"        "3. APPEND formal synonyms for colloquial words in parentheses (e.g., if the user says 'βάρδια', append '(εφημερία)').\n"
+        "4. Resolve any missing context from the Chat History.\n\n"
+        f"Chat History:\n{history_text}\n\n"
+        f"Latest User Query: {current_question}\n\n"
+        "Output ONLY the expanded query in Greek, without quotes or explanations. "
+        "Example Output: Ποιοι γιατροί είναι βάρδια στις 4 Μαρτίου 2026 (εφημερία) (04/03/2026)"
 )
 
     response = client.chat.completions.create(

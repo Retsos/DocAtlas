@@ -58,14 +58,8 @@ async def query(
 
         # --- QUERY REWRITING  ---
 
-        user_messages = [msg for msg in body.history if msg.get("role") == "user"]
-        #ignore the first message 
-
-        if body.history and len(user_messages) > 0:
-            search_prompt = await run_in_threadpool(rewrite_query, body.prompt, body.history)
-        else:
-            search_prompt = body.prompt
-            print(f"[REWRITER] Πρώτη ερώτηση. Παράκαμψη μετάφρασης: '{search_prompt}'")
+        search_prompt = await run_in_threadpool(rewrite_query, body.prompt, body.history)
+        print(f"[REWRITER] Τελικό Prompt στη Βάση: '{search_prompt}'")
             
         clean_prompt = normalize_greek_text(search_prompt)
         # ------------------------------------------------
@@ -94,13 +88,13 @@ async def query(
                 Knn(
                     query=clean_prompt, 
                     return_rank=True, 
-                    limit=15
+                    limit=25
                 ),
                 Knn(
                     query=clean_prompt,
                     key="sparse_embedding",
                     return_rank=True,
-                    limit=15,
+                    limit=25,
                 ),
             ],
             weights=[1.0, 1.0],

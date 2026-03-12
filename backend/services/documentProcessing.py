@@ -6,6 +6,8 @@ import string
 from bs4 import BeautifulSoup
 from pypdf import PdfReader
 import docx2txt
+import re
+
 
 #Defined to prevent surpassing chroma limits and crashing the server
 MAX_CHUNK_SIZE = 1000
@@ -17,8 +19,8 @@ def normalize_greek_text(text: str) -> str:
     
     text = text.lower()
 
-    #Removes punctuation
-    text = text.translate(str.maketrans('', '', string.punctuation))
+    #We keep letters, numbers and :/- for dates and urls, but remove other punctuation
+    text = re.sub(r'[^\w\s/\-:]', '', text)
 
     return text.strip()
 
@@ -31,13 +33,40 @@ def extract_text_from_docx(file_content: bytes) -> str:
     text = docx2txt.process(io.BytesIO(file_content))
     return text if text else ""
 
+# def extract_text_from_csv(file_content: bytes) -> str:
+#     df = pd.read_csv(io.BytesIO(file_content))
+#     return df.to_string(index=False)
+
+# def extract_text_from_excel(file_content: bytes) -> str:
+#     df = pd.read_excel(io.BytesIO(file_content))
+#     return df.to_string(index=False)
+
 def extract_text_from_csv(file_content: bytes) -> str:
-    df = pd.read_csv(io.BytesIO(file_content))
-    return df.to_string(index=False)
+    # Διαβάζουμε χωρίς να θεωρούμε την πρώτη γραμμή "κεφαλίδα"
+    df = pd.read_csv(io.BytesIO(file_content), header=None)
+    df = df.fillna("")
+    
+    lines = []
+    for index, row in df.iterrows():
+        # Πετάμε τα κενά κελιά και τα σκουπίδια του Pandas
+        row_values = [str(val).strip() for val in row.values if str(val).strip() and str(val).strip().lower() not in ['nan', 'unnamed']]
+        if row_values:
+            # Ενώνουμε τα κελιά της γραμμής με ένα καθαρό κενό.
+            lines.append(" ".join(row_values))
+            
+    return "\n".join(lines)
 
 def extract_text_from_excel(file_content: bytes) -> str:
-    df = pd.read_excel(io.BytesIO(file_content))
-    return df.to_string(index=False)
+    df = pd.read_excel(io.BytesIO(file_content), header=None)
+    df = df.fillna("")
+    
+    lines = []
+    for index, row in df.iterrows():
+        row_values = [str(val).strip() for val in row.values if str(val).strip() and str(val).strip().lower() not in ['nan', 'unnamed']]
+        if row_values:
+            lines.append(" ".join(row_values))
+            
+    return "\n".join(lines)
 
 #Scrapes paragraph text from a web page.
 def extract_text_from_url(url: str) -> str:
@@ -116,6 +145,9 @@ def prepare_document_for_chroma(file_name: str = None, file_content: bytes = Non
 
     if len(original_chunks) > MAX_CHUNK_SIZE:
         raise ValueError(f"Document is too large. Number of chunks: {len(original_chunks)}. Max allowed: {MAX_CHUNK_SIZE}")
+
+    source_context = url if url else (file_name or "Άγνωστο Έγγραφο")
+    enriched_chunks = [f"Πηγή {source_context}: {chunk}" for chunk in original_chunks]
 
     normalized_chunks = [normalize_greek_text(chunk) for chunk in original_chunks]
 

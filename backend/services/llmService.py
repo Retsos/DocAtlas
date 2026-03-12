@@ -60,3 +60,36 @@ def classify_intent(user_prompt: str):
         max_tokens=10
     )
     return response.choices[0].message.content.strip().upper()
+
+
+def rewrite_query(current_question: str, chat_history: list[dict] = None) -> str:
+    # Αν δεν υπάρχει παρελθόν, δεν υπάρχει λόγος για μετάφραση
+    if not chat_history:
+        return current_question
+
+    # Παίρνουμε τις 3 τελευταίες κουβέντες για να μην το κουράζουμε
+    history_text = "\n".join([
+        f"{'Χρήστης' if msg.get('role') == 'user' else 'Βοηθός'}: {msg.get('content')}" 
+        for msg in chat_history[-3:]
+    ])
+    
+    rewrite_prompt = (
+    "You are a strict conversation analyzer. Your job is to read the history "
+    "and rewrite the user's latest question so that it is completely self-contained "
+    "and independent, without pronouns (e.g., 'he', 'there') or incomplete dates (e.g., 'on the 2nd').\n"
+    "Replace implied references with the exact names, locations, and full dates "
+    "mentioned previously.\n\n"
+    f"History:\n{history_text}\n\n"
+    f"Latest Question: {current_question}\n\n"
+    "Respond ONLY with the new, self-contained question, without a single additional word:"
+)
+
+    response = client.chat.completions.create(
+        model="gpt-4.1", 
+        messages=[{"role": "user", "content": rewrite_prompt}],
+        temperature=0.0, 
+    )
+
+    rewritten = response.choices[0].message.content.strip()
+    print(f"[REWRITER] Αρχικό: '{current_question}' -> Νέο: '{rewritten}'")
+    return rewritten

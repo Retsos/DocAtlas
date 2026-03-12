@@ -5,7 +5,7 @@ from config.chromaClient import get_chroma_collection
 from core.rate_limit import limiter
 from models.RequestBody import RequestBody
 from services.documentProcessing import normalize_greek_text
-from services.llmService import generate_answer, classify_intent
+from services.llmService import generate_answer, classify_intent, rewrite_query
 from fastapi.concurrency import run_in_threadpool
 from core.firebase import get_firestore_client
 
@@ -54,9 +54,30 @@ async def query(
         # keyword relevance, and RRF merges both rank lists into a balanced
         # result set for higher-quality retrieval before generation.
         col: Collection = get_chroma_collection()
-        clean_prompt = normalize_greek_text(body.prompt)
+        # clean_prompt = normalize_greek_text(body.prompt)
 
-        intent = await run_in_threadpool(classify_intent, body.prompt)
+        # intent = await run_in_threadpool(classify_intent, body.prompt)
+
+
+        col: Collection = get_chroma_collection()
+
+        # --- QUERY REWRITING  ---
+
+        user_messages = [msg for msg in body.history if msg.get("role") == "user"]
+        #ignore the first message 
+
+        if body.history and len(user_messages) > 0:
+            search_prompt = await run_in_threadpool(rewrite_query, body.prompt, body.history)
+        else:
+            search_prompt = body.prompt
+            print(f"[REWRITER] Πρώτη ερώτηση. Παράκαμψη μετάφρασης: '{search_prompt}'")
+            
+        clean_prompt = normalize_greek_text(search_prompt)
+        # ------------------------------------------------
+
+        # Το intent classification παίρνει τη σωστή, ξεκάθαρη ερώτηση πλέον
+        intent = await run_in_threadpool(classify_intent, search_prompt)
+
 
         if intent == "MEDICAL":
             #Immediately returns the safety guardrail, no database search needed
@@ -114,4 +135,6 @@ async def query(
     except HTTPException:
         raise
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Query pipeline failed: {e}")

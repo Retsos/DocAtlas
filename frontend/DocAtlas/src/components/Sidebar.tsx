@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Logs, Settings } from "lucide-react";
+import { Files, LayoutDashboard, Logs, Settings } from "lucide-react";
 
 import { useAuth } from "@/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
@@ -9,20 +9,30 @@ const navItems = [
   {
     to: "/dashboard",
     label: "Knowledge Base",
-    description: "Upload, curate, and organize institutional sources.",
+    description: "Upload new institutional sources.",
     icon: LayoutDashboard,
+    end: true,
+  },
+  {
+    to: "/dashboard/my-files",
+    label: "My Files",
+    description: "Search, filter, paginate and manage uploaded files.",
+    icon: Files,
+    end: false,
   },
   {
     to: "/instructions",
     label: "Widget Setup",
     description: "Install the DocAtlas widget on your website securely.",
     icon: Settings,
+    end: false,
   },
   {
     to: "/logs",
     label: "Activity Logs",
     description: "Review operational events and upcoming audit records.",
     icon: Logs,
+    end: false,
   },
 ];
 
@@ -30,7 +40,7 @@ export function Sidebar() {
   const { user, logout } = useAuth();
 
   return (
-    <aside className="flex h-full w-20 shrink-0 flex-col overflow-hidden border-r border-sky-800/50 bg-gradient-to-b from-sky-950 via-sky-900 to-sky-900 px-2 pb-4 pt-2 text-sky-50 md:w-72 md:px-4">
+    <aside className="flex h-full min-h-0 w-20 shrink-0 flex-col overflow-hidden border-r border-sky-800/50 bg-gradient-to-b from-sky-950 via-sky-900 to-sky-900 px-2 pb-4 pt-2 text-sky-50 md:w-72 md:px-4">
       <div className="mb-5 rounded-xl bg-white/5 backdrop-blur-sm">
         <img
           src={docAtlasLogoWithTitle}
@@ -51,11 +61,12 @@ export function Sidebar() {
         </p>
       </div>
 
-      <nav className="flex-1 space-y-2">
-        {navItems.map(({ to, label, description, icon: Icon }) => (
+      <nav className="min-h-0 flex-1 space-y-2 overflow-y-auto">
+        {navItems.map(({ to, label, description, icon: Icon, end }) => (
           <NavLink
             key={to}
             to={to}
+            end={end}
             className={({ isActive }) =>
               [
                 "group flex items-center justify-center gap-3 rounded-xl border px-2 py-3 text-sm transition-all md:items-start md:justify-start md:px-3",
@@ -76,7 +87,7 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="rounded-xl border border-white/10 bg-white/5 p-2 md:p-3">
+      <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-2 md:p-3">
         <p className="mb-3 hidden text-xs text-sky-100/80 md:block">
           {user?.email}
         </p>

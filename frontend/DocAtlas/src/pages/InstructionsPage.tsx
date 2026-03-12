@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Copy, ShieldCheck } from "lucide-react";
+import { Check, Copy, Loader2, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/providers/AuthProvider";
@@ -7,7 +7,7 @@ import { useWebsiteUrlSettings } from "@/hooks/useWebsiteUrlSettings";
 
 export default function InstructionsPage() {
   const { user } = useAuth();
-  const tenantUid = user?.id ?? "YOUR_TENANT_UID_FROM_STEP_1";
+  const tenantUid = user?.id ?? "YOUR_TENANT_UID";
   const [copied, setCopied] = useState(false);
   const {
     websiteUrl,
@@ -56,14 +56,23 @@ export default function InstructionsPage() {
         </p>
       </header>
 
-      <article className="rounded-xl border border-sky-100 bg-white p-5">
-        <h2 className="text-base font-semibold text-slate-900">Website URL</h2>
+      <article className="rounded-xl border-2 border-sky-300 bg-gradient-to-br from-sky-50 via-white to-cyan-50 p-5 shadow-[0_12px_30px_rgba(14,116,144,0.12)]">
+        <p className="inline-flex items-center rounded-full border border-sky-300 bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-sky-800">
+          Most Important
+        </p>
+        <h2 className="mt-3 text-base font-semibold text-sky-950">Step 1: Set Website URL</h2>
         <p className="mt-2 text-sm text-slate-600">
-          Enter the website where the widget will be installed.
+          Enter the exact website where the widget will run. This URL is used for domain security checks.
         </p>
         <label className="mt-4 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
           Website address
         </label>
+        {isLoadingUrl && (
+          <div className="mt-2 inline-flex items-center gap-2 rounded-md border border-sky-100 bg-sky-50 px-3 py-2 text-xs text-slate-600">
+            <Loader2 className="size-3.5 animate-spin" />
+            Loading saved URL...
+          </div>
+        )}
         <input
           type="url"
           value={websiteUrl}
@@ -90,23 +99,6 @@ export default function InstructionsPage() {
           )}
         </div>
         {urlStatus ? <p className="mt-2 text-sm text-slate-600">{urlStatus}</p> : null}
-      </article>
-
-      <article className="rounded-xl border border-sky-100 bg-white p-5">
-        <h2 className="text-base font-semibold text-slate-900">
-          Step 1: Tenant ID
-        </h2>
-        <p className="mt-2 text-sm text-slate-600">
-          Use this unique tenant identifier to link your website requests to
-          your organization workspace.
-        </p>
-        <p className="mt-3 rounded-md border border-sky-100 bg-sky-50 px-3 py-2 font-mono text-sm break-all text-sky-950">
-          {tenantUid}
-        </p>
-        <p className="mt-2 text-sm text-slate-600">
-          Keep this ID safe. Requests without a valid tenant ID cannot access
-          your indexed documents.
-        </p>
       </article>
 
       <article className="rounded-xl border border-sky-100 bg-white p-5">
@@ -202,16 +194,15 @@ export default function InstructionsPage() {
 
       <article className="rounded-xl border border-sky-100 bg-white p-5">
         <h2 className="text-base font-semibold text-slate-900">
-          Step 3: Allowlist Your Domain
+          Step 3: Verify Installation
         </h2>
         <p className="mt-2 text-sm text-slate-600">
-          For security, DocAtlas rejects widget traffic from unknown domains.
+          Open your website and confirm the widget appears correctly on the page.
         </p>
         <p className="mt-2 text-sm text-slate-600">
-          Add your website domain (for example,{" "}
-          <span className="font-mono">www.ahepa.gr</span>) in your admin profile
-          settings. If a script runs on a non-registered domain, access is
-          blocked automatically.
+          If it does not load, verify that:
+          <span className="font-mono"> website URL</span> is saved in Step 1 and
+          the script was pasted before the <code>&lt;/body&gt;</code> tag in Step 2.
         </p>
       </article>
     </section>

@@ -41,37 +41,35 @@ export function KnowledgeUploadPanel({
   const hasPendingFiles = selectedFiles.length > 0;
 
   return (
-    <section className="flex h-[45rem] flex-col overflow-hidden rounded-2xl border border-sky-100/80 bg-white/95 p-6 shadow-[0_20px_50px_rgba(30,64,175,0.1)] sm:p-8">
-      <div className="mb-4 flex shrink-0 items-start justify-between gap-4">
-        <div className="space-y-2">
-          <p className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-900">
-            <Sparkles className="size-3.5" />
-            Chatbot Data Studio
-          </p>
-          <h2 className="text-2xl font-semibold tracking-tight text-sky-950">
-            Upload Knowledge Sources
-          </h2>
-          <p className="text-sm text-slate-600">
-            Add your institutional files and DocAtlas will index them for retrieval and source-cited responses.
-          </p>
-        </div>
+    <section className="flex h-full flex-col rounded-2xl border border-sky-100/80 bg-white/95 p-6 shadow-[0_20px_50px_rgba(30,64,175,0.1)] sm:p-8">      <div className="mb-4 flex items-start justify-between gap-4">
+
+      <div className="space-y-2">
+        <p className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-900">
+          <Sparkles className="size-3.5" />
+          Chatbot Data Studio
+        </p>
+        <h2 className="text-2xl font-semibold tracking-tight text-sky-950">
+          Upload Knowledge Sources
+        </h2>
+        <p className="text-sm text-slate-600">
+          Add your institutional files and DocAtlas will index them for retrieval and source-cited responses.
+        </p>
       </div>
+    </div>
 
-      
-
-      <div className="flex-1 min-h-0 overflow-y-auto space-y-8 pr-2 [scrollbar-gutter:stable]">
+      <div className="flex-1 min-h-0 space-y-6  pr-2 [scrollbar-gutter:stable]">
         {selectedFiles.length > 0 && (
           <div className="rounded-xl border border-sky-100 bg-sky-50/40 p-4">
             <p className="mb-2 text-sm font-medium text-slate-900">
               Selected files
             </p>
-            <ul className="space-y-2">
+            <ul className="max-h-60 space-y-2 overflow-y-auto pr-2 [scrollbar-gutter:stable]">
               {selectedFiles.map((file) => {
                 const fileId = `${file.name}-${file.size}-${file.lastModified}`;
                 return (
                   <li
                     key={fileId}
-                    className="flex items-center justify-between gap-2 rounded-md border border-sky-100 bg-white px-3 py-2 text-xs text-slate-700"
+                    className="flex items-center justify-between gap-2 rounded-md border border-sky-100 bg-white px-3 py-2 text-xs text-slate-700 shadow-sm"
                   >
                     <span className="min-w-0 flex-1 truncate pr-2" title={file.name}>
                       {file.name}
@@ -109,7 +107,8 @@ export function KnowledgeUploadPanel({
 
         <label
           htmlFor="file-upload"
-          className="flex min-h-64 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-sky-200 bg-[linear-gradient(145deg,rgba(224,242,254,0.75),rgba(255,255,255,0.95))] p-8 text-center transition hover:border-sky-300 hover:bg-sky-50/70"
+          className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-sky-200 bg-[linear-gradient(145deg,rgba(224,242,254,0.75),rgba(255,255,255,0.95))] p-8 text-center transition hover:border-sky-300 hover:bg-sky-50/70 ${selectedFiles.length > 0 ? "min-h-32" : "min-h-64"
+            }`}
         >
           <FileUp className="mb-4 size-10 text-sky-900/70" />
           <p className="text-lg font-medium text-slate-900">
@@ -139,7 +138,7 @@ export function KnowledgeUploadPanel({
         />
       </div>
 
-      <div className=" shrink-0 space-y-4 pt-2">
+      <div className="space-y-4 pt-6">
         <Button
           type="button"
           size="lg"

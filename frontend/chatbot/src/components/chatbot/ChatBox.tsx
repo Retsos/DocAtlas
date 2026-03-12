@@ -4,7 +4,6 @@ import ChatMessages, { type Message } from "./ChatMessages";
 import TypingIndicator from "./TypingIndicator";
 import { useSendMessage } from "./api-client";
 
-
 const INITIAL_MESSAGE: Message = {
   content: "👋 Γεια σας! Είμαι ο Ψηφιακός Βοηθός. Ρωτήστε με για διαδικασίες, έγγραφα ή τοποθεσίες του οργανισμού.",
   role: "bot",
@@ -37,16 +36,30 @@ const ChatBot = ({ uid }: ChatBotProps) => {
 
   const onSubmit = ({ prompt }: ChatFormData) => {
     setError("");
-const recentHistory = messages.slice(-4).map(msg => ({
+
+    // --- SANITIZATION FRONTEND ---
+    // 1. Καθαρίζουμε τα περιττά κενά
+    let cleanPrompt = prompt.trim();
+    
+    // 2. Αν ο χρήστης πάτησε enter χωρίς κείμενο, ακυρώνουμε την εκτέλεση
+    if (!cleanPrompt) return;
+    
+    if (cleanPrompt.length > 500) {
+      cleanPrompt = cleanPrompt.substring(0, 500);
+    }
+    // -----------------------------
+
+    const recentHistory = messages.slice(-4).map(msg => ({
       role: msg.role,
       content: msg.content
     }));
-    // Optimistic user message
-    setMessages((prev) => [...prev, { content: prompt, role: "user" }]);
+    
+    // Optimistic user message (με το ΚΑΘΑΡΟ κείμενο πλέον)
+    setMessages((prev) => [...prev, { content: cleanPrompt, role: "user" }]);
 
-    // Καλούμε το mutation και περνάμε το prompt ΚΑΙ το uid
+    // Καλούμε το mutation και περνάμε το ΚΑΘΑΡΙΣΜΕΝΟ prompt 
     sendMessageMutation.mutate(
-      { prompt, tenant_id: uid, history: recentHistory },
+      { prompt: cleanPrompt, tenant_id: uid, history: recentHistory },
       {
         onSuccess: (data) => {
           setMessages((prev) => [

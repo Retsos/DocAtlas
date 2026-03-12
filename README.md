@@ -25,7 +25,8 @@ DocAtlas provides:
 ```text
 backend/                  FastAPI + ChromaDB retrieval services
 frontend/DocAtlas/        Admin portal (React + Firebase)
-frontend/chatbotClient/   Example host site with chatbot integration
+frontend/chatbot/         Standalone chatbot widget client
+frontend/chatbotClient/   Standalone Mockap Site for widget chatbot
 docs/                     Architecture diagrams (draw.io export)
 README.md                 Project presentation + setup guide
 ```
@@ -105,7 +106,7 @@ uvicorn server:app --reload --port 8000
 ### Sample Client (optional)
 
 ```bash
-cd frontend/chatbotClient
+cd frontend/chatbot
 npm install
 npm run dev
 ```

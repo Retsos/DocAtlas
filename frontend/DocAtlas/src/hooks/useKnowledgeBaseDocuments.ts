@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FirebaseError } from "firebase/app";
 import { apiClient } from "@/lib/api";
 
 import {
@@ -11,14 +10,40 @@ import {
 } from "@/services/storage-sources-service";
 import type { KnowledgeSource } from "@/types/knowledgeSource";
 
+export type DocumentTypeFilter = "all" | "pdf" | "excel" | "word" | "text" | "other";
+
 type UseKnowledgeBaseDocumentsInput = {
   ownerId?: string;
   searchTerm?: string;
+  fileTypeFilter?: DocumentTypeFilter;
 };
+
+function getDocumentTypeFilter(source: KnowledgeSource): Exclude<DocumentTypeFilter, "all"> {
+  const extension = source.name.toLowerCase().split(".").pop() ?? "";
+
+  if (extension === "pdf") {
+    return "pdf";
+  }
+
+  if (["xls", "xlsx", "xlsm", "csv"].includes(extension)) {
+    return "excel";
+  }
+
+  if (["doc", "docx"].includes(extension)) {
+    return "word";
+  }
+
+  if (["txt", "md", "rtf"].includes(extension)) {
+    return "text";
+  }
+
+  return "other";
+}
 
 export function useKnowledgeBaseDocuments({
   ownerId,
   searchTerm = "",
+  fileTypeFilter = "all",
 }: UseKnowledgeBaseDocumentsInput) {
   const [sources, setSources] = useState<KnowledgeSource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,15 +57,14 @@ export function useKnowledgeBaseDocuments({
   const [pageCursors, setPageCursors] = useState<DocumentsPageCursor[]>([null]);
   const [refreshTick, setRefreshTick] = useState(0);
   const hasLoadedOnceRef = useRef(false);
+  const previousOwnerIdRef = useRef<string | undefined>(ownerId);
   const normalizedSearchTerm = searchTerm.trim().toLowerCase();
-  const isSearchActive = normalizedSearchTerm.length > 0;
+  const isQueryActive =
+    normalizedSearchTerm.length > 0 || fileTypeFilter !== "all";
 
   const totalPages = useMemo(
-    () =>
-      isSearchActive
-        ? 1
-        : Math.max(1, Math.ceil(totalSources / DOCUMENTS_PAGE_SIZE)),
-    [isSearchActive, totalSources],
+    () => Math.max(1, Math.ceil(totalSources / DOCUMENTS_PAGE_SIZE)),
+    [totalSources],
   );
 
   function refreshDocuments() {
@@ -54,8 +78,34 @@ export function useKnowledgeBaseDocuments({
   }
 
   useEffect(() => {
+    if (previousOwnerIdRef.current === ownerId) {
+      return;
+    }
+
+    previousOwnerIdRef.current = ownerId;
+    hasLoadedOnceRef.current = false;
+    setSources([]);
+    setTotalSources(0);
+    setTotalAvailableSources(0);
+    setHasNextPage(false);
+    setCurrentPage(0);
+    setPageCursors([null]);
+    setErrorMessage("");
+    setIsPageLoading(false);
+    setIsLoading(Boolean(ownerId));
+  }, [ownerId]);
+
+  useEffect(() => {
+    const maxPageIndex = Math.max(0, Math.ceil(totalSources / DOCUMENTS_PAGE_SIZE) - 1);
+    if (currentPage > maxPageIndex) {
+      setCurrentPage(maxPageIndex);
+    }
+  }, [currentPage, totalSources]);
+
+  useEffect(() => {
     if (!ownerId) {
       setIsLoading(false);
+      setIsPageLoading(false);
       setSources([]);
       setTotalSources(0);
       setTotalAvailableSources(0);
@@ -71,8 +121,11 @@ export function useKnowledgeBaseDocuments({
     const isInitialLoad = !hasLoadedOnceRef.current;
     if (isInitialLoad) {
       setIsLoading(true);
+      setIsPageLoading(false);
     } else {
       setIsPageLoading(true);
+      // Prevent stale rows from showing while the next page/filter is loading.
+      setSources([]);
     }
     setErrorMessage("");
 
@@ -80,21 +133,36 @@ export function useKnowledgeBaseDocuments({
 
     async function loadDocumentsPage() {
       try {
-        if (isSearchActive) {
+        if (isQueryActive) {
           const allSources = await getAllDocumentSourcesByOwner(resolvedOwnerId);
           if (cancelled) {
             return;
           }
 
-          const filteredSources = allSources.filter((source) =>
-            source.name.toLowerCase().includes(normalizedSearchTerm),
-          );
+          const filteredSources = allSources.filter((source) => {
+            const matchesName = source.name
+              .toLowerCase()
+              .includes(normalizedSearchTerm);
+            const matchesType =
+              fileTypeFilter === "all"
+                ? true
+                : getDocumentTypeFilter(source) === fileTypeFilter;
 
-          setSources(filteredSources);
+            return matchesName && matchesType;
+          });
+
+          const maxPageIndex = Math.max(
+            0,
+            Math.ceil(filteredSources.length / DOCUMENTS_PAGE_SIZE) - 1,
+          );
+          const safePageIndex = Math.min(currentPage, maxPageIndex);
+          const startIndex = safePageIndex * DOCUMENTS_PAGE_SIZE;
+          const endIndex = startIndex + DOCUMENTS_PAGE_SIZE;
+
+          setSources(filteredSources.slice(startIndex, endIndex));
           setTotalSources(filteredSources.length);
           setTotalAvailableSources(allSources.length);
-          setHasNextPage(false);
-          setCurrentPage(0);
+          setHasNextPage(endIndex < filteredSources.length);
           hasLoadedOnceRef.current = true;
           setIsLoading(false);
           setIsPageLoading(false);
@@ -133,15 +201,6 @@ export function useKnowledgeBaseDocuments({
           return next;
         });
 
-        const maxPageIndex = Math.max(
-          0,
-          Math.ceil(total / DOCUMENTS_PAGE_SIZE) - 1,
-        );
-        if (currentPage > maxPageIndex) {
-          setCurrentPage(maxPageIndex);
-          return;
-        }
-
         hasLoadedOnceRef.current = true;
         setIsLoading(false);
         setIsPageLoading(false);
@@ -149,11 +208,7 @@ export function useKnowledgeBaseDocuments({
         if (cancelled) {
           return;
         }
-        if (error instanceof FirebaseError) {
-          setErrorMessage(error.message);
-        } else {
-          setErrorMessage("Failed to load files from documents collection.");
-        }
+        setErrorMessage("Failed to load files from backend.");
         setIsLoading(false);
         setIsPageLoading(false);
       }
@@ -166,8 +221,9 @@ export function useKnowledgeBaseDocuments({
     };
   }, [
     currentPage,
-    isSearchActive,
+    isQueryActive,
     normalizedSearchTerm,
+    fileTypeFilter,
     ownerId,
     refreshTick,
   ]);
@@ -181,7 +237,7 @@ export function useKnowledgeBaseDocuments({
     setErrorMessage("");
 
     try {
-      // Backend orchestrates Firestore + Storage + Chroma delete.
+      // Backend orchestrates canonical source delete.
       await apiClient.delete(`/api/delete-source/${source.id}`);
 
       if (sources.length === 1 && currentPage > 0) {
@@ -190,11 +246,7 @@ export function useKnowledgeBaseDocuments({
         refreshDocuments();
       }
     } catch (error) {
-      if (error instanceof FirebaseError) {
-        setErrorMessage(error.message);
-      } else {
-        setErrorMessage("Delete failed. Please try again.");
-      }
+      setErrorMessage("Delete failed. Please try again.");
     } finally {
       setDeletingId("");
     }
@@ -211,7 +263,7 @@ export function useKnowledgeBaseDocuments({
     totalAvailableSources,
     totalPages,
     hasNextPage,
-    isSearchActive,
+    isQueryActive,
     setCurrentPage,
     setErrorMessage,
     deleteSource,

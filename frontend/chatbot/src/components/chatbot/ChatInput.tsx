@@ -1,4 +1,3 @@
-import type { KeyboardEvent } from "react";
 import { useForm } from "react-hook-form";
 import { ArrowUp } from "lucide-react";
 import { Button } from "../ui/button";
@@ -12,45 +11,55 @@ type Props = {
 };
 
 const ChatInput = ({ onSubmit }: Props) => {
-  const { register, handleSubmit, reset, formState } = useForm<ChatFormData>({
+  const { register, handleSubmit, reset, watch } = useForm<ChatFormData>({
     mode: "onChange",
     defaultValues: { prompt: "" },
   });
 
+  // watch to get the current value of the prompt for validation
+  const promptValue = watch("prompt");
+  const isValid = promptValue.trim().length > 0;
+
   const submit = handleSubmit((data) => {
+    if (!isValid) return; // we dont want to submit empty or whitespace-only prompts
     reset({ prompt: "" });
     onSubmit(data);
   });
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLFormElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      submit();
+      e.preventDefault(); 
+      if (isValid) {
+        submit();
+      }
     }
   };
+
+  // Απομονώνουμε το ref του react-hook-form για να το περάσουμε σωστά
+  const { ref, ...rest } = register("prompt");
 
   return (
     <form
       onSubmit={submit}
-      onKeyDown={handleKeyDown}
-      className="flex items-center gap-2 border p-2 rounded-2xl"
+      // Χρησιμοποιούμε items-end ώστε το κουμπί να μένει πάντα χαμηλά όταν το πεδίο ψηλώνει
+      className="flex items-end gap-2 border border-gray-200 p-2 rounded-2xl bg-white focus-within:border-cyan-600 focus-within:ring-1 focus-within:ring-cyan-600 transition-all shadow-sm"
     >
       <textarea
+        {...rest}
+        ref={ref}
+        onKeyDown={handleKeyDown}
         rows={1}
-        {...register("prompt", {
-          required: true,
-          validate: (data) => data.trim().length > 0,
-        })}
-        className="flex-1 resize-none border-0 focus:outline-none leading-tight h-10"
         placeholder="Ask about our services..."
+        className="flex-1 resize-none border-0 bg-transparent focus:outline-none focus:ring-0 py-2 text-sm text-slate-800 min-h-[40px] max-h-32 overflow-y-auto [scrollbar-gutter:stable]"
       />
 
       <Button
         type="submit"
-        disabled={!formState.isValid}
-        className="self-end rounded-full w-9 h-9 bg-cyan-700"
+        disabled={!isValid}
+        className="shrink-0 mb-0.5 rounded-full w-10 h-10 bg-cyan-700 hover:bg-cyan-800 transition-colors cursor-pointer"
+        title="Αποστολή"
       >
-        <ArrowUp className="h-4 w-4" />
+        <ArrowUp className="h-5 w-5 text-white" />
       </Button>
     </form>
   );

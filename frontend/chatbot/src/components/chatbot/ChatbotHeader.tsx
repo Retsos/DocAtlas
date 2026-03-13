@@ -1,20 +1,34 @@
-import { Bot, X } from "lucide-react";
+import { Bot, X, Trash2 } from "lucide-react";
 
 interface Props {
-  setOpen: (value: boolean) => void;
+  onClose: () => void;
+  onClear: () => void;
 }
 
-const ChatbotHeader = ({ setOpen }: Props) => {
+const ChatbotHeader = ({ onClose, onClear }: Props) => {
   return (
-    <div className="flex items-center justify-between px-4 py-3 bg-cyan-700 text-white">
+    <div className="flex shrink-0 items-center justify-between px-4 py-3 bg-cyan-700 text-white rounded-t-2xl">
       <div className="flex items-center gap-2">
         <Bot className="h-5 w-5" />
-        <span className="text-sm font-semibold">DockAtlas Assistant</span>
+        <span className="text-sm font-semibold tracking-wide">DocAtlas Assistant</span>
       </div>
 
-      <button onClick={() => setOpen(false)}>
-        <X className="h-5 w-5" />
-      </button>
+      <div className="flex items-center gap-3">
+        <button 
+          onClick={onClear}
+          title="Εκκαθάριση Συνομιλίας"
+          className="text-cyan-200 hover:text-white transition-colors cursor-pointer"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+        <button 
+          onClick={onClose}
+          title="Κλείσιμο"
+          className="text-cyan-200 hover:text-white transition-colors cursor-pointer"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
     </div>
   );
 };

@@ -165,7 +165,7 @@ export default function InstructionsPage() {
                   "https://chatbot-lac-one-96.vercel.app/widget.js"
                 </span>{" "}
                 <span className="text-white">data-tenant-uid</span>=
-                <span className="text-sky-300">"{tenantUid}"</span>{" "}
+                <span className="text-sky-300">{tenantUid}</span>{" "}
                 <span className="text-pink-400">&gt;&lt;/script&gt;</span>
               </div>
               <div>

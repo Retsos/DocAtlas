@@ -70,7 +70,7 @@ export function MyFilesPage() {
         onPreviousPage={() => setCurrentPage((page) => Math.max(page - 1, 0))}
         onNextPage={() => setCurrentPage((page) => page + 1)}
         isDeletingAll={isDeletingAll}
-        onDeleteAll={deleteAllSources}
+        onDeleteAll={deleteAllSources}
       />
     </div>
   );

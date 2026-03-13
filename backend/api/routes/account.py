@@ -1,9 +1,10 @@
 from urllib.parse import urlparse
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from firebase_admin import auth, firestore
 from core.firebase import get_firestore_client, verify_token
 from models.RegisterRequest import RegisterRequest
 from models.WebsiteUrlUpdateRequest import WebsiteUrlUpdateRequest
+from services.logger import log_account_created, log_error
 
 router = APIRouter(prefix="/api", tags=["account"])
 
@@ -23,7 +24,7 @@ def _normalize_origin(raw_value: str) -> str:
 
 
 @router.post("/auth/register")
-async def register_hospital(payload: RegisterRequest):
+async def register_hospital(payload: RegisterRequest, request: Request):
     try:
         normalized_origin = _normalize_origin(payload.website_url)
         created_user = auth.create_user(email=payload.email, password=payload.password)
@@ -40,6 +41,13 @@ async def register_hospital(payload: RegisterRequest):
             }
         )
 
+        log_account_created(
+            user_id=created_user.uid,
+            email=payload.email,
+            hospital_name=payload.hospital_name.strip(),
+            website_url=normalized_origin,
+        )
+
         return {
             "uid": created_user.uid,
             "email": payload.email,
@@ -47,18 +55,22 @@ async def register_hospital(payload: RegisterRequest):
             "websiteUrl": normalized_origin,
         }
     except auth.EmailAlreadyExistsError:
-        raise HTTPException(status_code=409, detail="This email is already in use.")
-    except HTTPException:
-        raise
+        detail_msg = "This email is already in use."
+        log_error(tenant_id=None, status_code=409, method=request.method, detail=detail_msg)
+        raise HTTPException(status_code=409, detail=detail_msg)
+    except HTTPException as e:
+        log_error(tenant_id=None, status_code=e.status_code, method=request.method, detail=e.detail)
+        raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Register failed: {e}")
 
 
 @router.get("/me")
-async def get_me(admin_data: dict = Depends(verify_token)):
+async def get_me(request: Request, admin_data: dict = Depends(verify_token)):
     try:
         uid = admin_data.get("uid")
         if not uid:
+            log_error(tenant_id=None, status_code=401, method=request.method, detail="Unauthorized.")
             raise HTTPException(status_code=401, detail="Unauthorized.")
 
         firestore_client = get_firestore_client()
@@ -79,10 +91,11 @@ async def get_me(admin_data: dict = Depends(verify_token)):
 
 
 @router.get("/website-url")
-async def get_website_url(admin_data: dict = Depends(verify_token)):
+async def get_website_url(request: Request,admin_data: dict = Depends(verify_token)):
     try:
         uid = admin_data.get("uid")
         if not uid:
+            log_error(tenant_id=None, status_code=401, method=request.method, detail="Unauthorized.")
             raise HTTPException(status_code=401, detail="Unauthorized.")
 
         firestore_client = get_firestore_client()
@@ -93,20 +106,23 @@ async def get_website_url(admin_data: dict = Depends(verify_token)):
         data = snapshot.to_dict() or {}
         website_url = data.get("websiteUrl")
         return {"websiteUrl": website_url if isinstance(website_url, str) else None}
-    except HTTPException:
-        raise
+    except HTTPException as e:
+        log_error(tenant_id=None, status_code=e.status_code, method=request.method, detail=e.detail)
+        raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to load website URL: {e}")
 
 
 @router.put("/website-url")
 async def update_website_url(
+    request: Request,
     payload: WebsiteUrlUpdateRequest,
     admin_data: dict = Depends(verify_token),
 ):
     try:
         uid = admin_data.get("uid")
         if not uid:
+            log_error(tenant_id=None, status_code=401, method=request.method, detail="Unauthorized.")
             raise HTTPException(status_code=401, detail="Unauthorized.")
 
         normalized_origin = _normalize_origin(payload.website_url)

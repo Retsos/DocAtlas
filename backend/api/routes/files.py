@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from urllib.parse import quote
 from uuid import uuid4
 from chromadb.api.models.Collection import Collection
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, Request
 from fastapi.concurrency import run_in_threadpool
 from firebase_admin import firestore, storage
 from google.api_core.exceptions import FailedPrecondition
@@ -14,6 +14,7 @@ from core.firebase import (
     verify_token,
 )
 from services.documentProcessing import prepare_document_for_chroma
+from services.logger import log_document_deleted, log_document_uploaded, log_error
 
 router = APIRouter(prefix="/api", tags=["files"])
 
@@ -54,6 +55,7 @@ def _build_storage_download_url(bucket_name: str, full_path: str, token: str) ->
 
 @router.post("/upload-file")
 async def upload_file(
+    request: Request,
     file: UploadFile = File(...),
     tenant_id: str = Form(...),
     admin_data: dict = Depends(verify_token),
@@ -61,32 +63,34 @@ async def upload_file(
     # Canonical upload flow: Storage + Firestore + Chroma, fully server-side.
     try:
         if admin_data.get("uid") != tenant_id:
+            log_error(tenant_id=tenant_id, status_code=403, method=request.method, detail="No permission.")
             raise HTTPException(status_code=403, detail="No permission.")
 
         filename = file.filename or ""
         if not filename.strip():
+            log_error(tenant_id=tenant_id, status_code=400, method=request.method, detail="Missing filename.")
             raise HTTPException(status_code=400, detail="Missing filename.")
 
         extension = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
         if extension not in ALLOWED_EXTENSIONS:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Unsupported file type: {extension or 'unknown'}",
-            )
+            detail_msg = f"Unsupported file type: {extension or 'unknown'}"
+            log_error(tenant_id=tenant_id, status_code=400, method=request.method, detail=detail_msg)
+            raise HTTPException(status_code=400, detail=detail_msg)
 
         file_content = await file.read()
         if not file_content:
+            log_error(tenant_id=tenant_id, status_code=400, method=request.method, detail="Uploaded file is empty.")
             raise HTTPException(status_code=400, detail="Uploaded file is empty.")
 
         if len(file_content) > MAX_FILE_SIZE:
+            log_error(tenant_id=tenant_id, status_code=413, method=request.method, detail="File too large.")
             raise HTTPException(status_code=413, detail="File too large.")
 
         ids, documents, metadatas = prepare_document_for_chroma(filename, file_content)
         if not ids:
-            raise HTTPException(
-                status_code=422,
-                detail=f"No extractable text found in '{filename}'.",
-            )
+            detail_msg = f"No extractable text found in '{filename}'."
+            log_error(tenant_id=tenant_id, status_code=422, method=request.method, detail=detail_msg)
+            raise HTTPException(status_code=422, detail=detail_msg)
         metadatas = [{**metadata, "tenant_id": tenant_id} for metadata in metadatas]
 
         firestore_client = get_firestore_client()
@@ -117,15 +121,14 @@ async def upload_file(
 
         resolved_bucket_name = bucket.name or bucket_name
         if not resolved_bucket_name:
-            raise HTTPException(
-                status_code=500,
-                detail="Unable to resolve Firebase Storage bucket.",
-            )
+            detail_msg = "Unable to resolve Firebase Storage bucket."
+            log_error(tenant_id=tenant_id, status_code=500, method=request.method, detail=detail_msg)
+            raise HTTPException(status_code=500, detail=detail_msg)
         download_url = _build_storage_download_url(
             resolved_bucket_name, storage_path, download_token
         )
 
-        firestore_client.collection("documents").add(
+        _, doc_ref = firestore_client.collection("documents").add(
             {
                 "ownerId": tenant_id,
                 "hospitalName": hospital_name,
@@ -136,6 +139,16 @@ async def upload_file(
                 "sizeBytes": len(file_content),
                 "createdAt": firestore.SERVER_TIMESTAMP,
             }
+        )
+
+        log_document_uploaded(
+            user_id=tenant_id,
+            document_id=doc_ref.id if doc_ref else None,
+            name=filename,
+            size_bytes=len(file_content),
+            storage_path=storage_path,
+            download_url=download_url,
+            hospital_name=hospital_name,
         )
 
         col: Collection = get_chroma_collection()
@@ -155,6 +168,7 @@ async def upload_file(
 
 @router.get("/documents")
 async def list_documents(
+    request: Request,
     page: int = Query(default=1),
     page_size: int = Query(default=5),
     search: str = Query(default=""),
@@ -163,6 +177,7 @@ async def list_documents(
     try:
         admin_uid = admin_data.get("uid")
         if not admin_uid:
+            log_error(tenant_id=None, status_code=401, method=request.method, detail="Unauthorized.")
             raise HTTPException(status_code=401, detail="Unauthorized.")
 
         safe_page = _normalize_page(page)
@@ -236,6 +251,7 @@ async def delete_source(
     try:
         admin_uid = admin_data.get("uid")
         if not admin_uid:
+            log_error(tenant_id=None, status_code=401, method=request.method, detail="Unauthorized.")
             raise HTTPException(status_code=401, detail="Unauthorized.")
 
         firestore_client = get_firestore_client()
@@ -243,11 +259,13 @@ async def delete_source(
         source_snapshot = source_ref.get()
 
         if not source_snapshot.exists:
+            log_error(tenant_id=admin_uid, status_code=404, method=request.method, detail="Source not found.")
             raise HTTPException(status_code=404, detail="Source not found.")
 
         source_data = source_snapshot.to_dict() or {}
         source_owner_id = source_data.get("ownerId")
         if source_owner_id != admin_uid:
+            log_error(tenant_id=admin_uid, status_code=403, method=request.method, detail="No permission.")
             raise HTTPException(status_code=403, detail="No permission.")
 
         storage_path = source_data.get("storagePath")
@@ -275,6 +293,13 @@ async def delete_source(
             warnings.append(
                 "Chroma delete skipped: missing source name in Firestore doc."
             )
+
+        log_document_deleted(
+            user_id=admin_uid,
+            document_id=source_id,
+            name=source_name if isinstance(source_name, str) else None,
+            storage_path=storage_path if isinstance(storage_path, str) else None,
+        )
 
         return {
             "message": "Source deleted.",

@@ -88,7 +88,7 @@ async def query(
                 Knn(
                     query=clean_prompt, 
                     return_rank=True, 
-                    limit=25
+                    limit=35
                 ),
                 Knn(
                     query=clean_prompt,

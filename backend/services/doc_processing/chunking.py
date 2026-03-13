@@ -1,11 +1,8 @@
 import io
-import re
-
 import pandas as pd
 
-
 def chunk_text(text: str, chunk_size: int = 600) -> list[str]:
-    """Prose chunker (PDF, DOCX, TXT) — unchanged from your original."""
+    """Prose chunker (PDF, DOCX, TXT) — unchanged."""
     lines = text.split("\n")
     chunks: list[str] = []
     current_chunk = ""
@@ -36,34 +33,8 @@ def chunk_text(text: str, chunk_size: int = 600) -> list[str]:
 
 
 # ──────────────────────────────────────────────
-# STRUCTURED CHUNKING FOR TABULAR FILES
+# STRUCTURED CHUNKING FOR TABULAR FILES (THE RIGHT WAY)
 # ──────────────────────────────────────────────
-
-def _read_dataframe(file_name: str, file_content: bytes) -> pd.DataFrame:
-    extension = file_name.split(".")[-1].lower()
-    if extension == "csv":
-        return pd.read_csv(io.BytesIO(file_content), header=None).fillna("")
-    return pd.read_excel(io.BytesIO(file_content), header=None).fillna("")
-
-
-def _positional_label(doc_title: str, values: list[str]) -> str:
-    """Heuristic column labels when no header row is detected."""
-    title_lower = doc_title.lower()
-
-    if any(kw in title_lower for kw in ["εφημερι", "βαρδι", "on-call", "schedule"]):
-        labels = ["Ημερομηνία", "Ημέρα", "Εφημερεύων 1", "Εφημερεύων 2", "Εφημερεύων 3"]
-        return " | ".join(
-            f"{labels[j]}: {values[j]}" for j in range(min(len(values), len(labels)))
-        )
-
-    if any(kw in title_lower for kw in ["χειρουργ", "επεμβ", "operat"]):
-        labels = ["Ημερομηνία Επέμβασης", "Είδος Χειρουργείου"]
-        return " | ".join(
-            f"{labels[j]}: {values[j]}" for j in range(min(len(values), len(labels)))
-        )
-
-    return " | ".join(values)
-
 
 def chunk_tabular_file(
     file_name: str,
@@ -71,58 +42,50 @@ def chunk_tabular_file(
     document_title: str = "",
 ) -> list[str]:
     """
-    Converts CSV/Excel rows into self-contained natural-language chunks.
-
-    Each chunk includes the document title + column labels + values so the
-    retriever has full context without needing surrounding rows.
-
-    Example output:
-        "Πρόγραμμα Εφημεριών Μαρτίου 2026 – ΑΧΕΠΑ Παθολογική |
-         Ημερομηνία: 04/03/2026 | Ημέρα: ΤΕΤΑΡΤΗ |
-         Εφημερεύων 1: ΑΝΤΩΝΗΣ ΜΙΧΑΛΟΣ | Εφημερεύων 2: ΜΙΧΑΛΗΣ ΠΑΠΑΓΕΩΡΓΙΟΥ"
+    Διαβάζει οποιοδήποτε Excel/CSV δυναμικά, χωρίς hardcoded μαντεψιές.
+    Κάθε γραμμή γίνεται ένα αυτόνομο chunk που ξέρει από ποιο αρχείο προήλθε
+    και ποια είναι η κεφαλίδα κάθε κελιού της.
     """
-    df = _read_dataframe(file_name, file_content)
-    if df.empty:
+    extension = file_name.split(".")[-1].lower()
+    
+    try:
+        # Αφήνουμε το Pandas να βρει τις κεφαλίδες στην 1η γραμμή (default συμπεριφορά)
+        if extension == "csv":
+            df = pd.read_csv(io.BytesIO(file_content))
+        else:
+            df = pd.read_excel(io.BytesIO(file_content))
+    except Exception as e:
+        print(f"Σφάλμα ανάγνωσης του αρχείου {file_name}: {e}")
         return []
 
-    # ── Collect title from leading sparse rows ──
-    title_rows: list[str] = []
-    first_data_row_idx = 0
-    for i, row in df.iterrows():
-        vals = [str(v).strip() for v in row.values if str(v).strip()]
-        if len(vals) <= 2 or int(str(i)) < 3:
-            title_rows.append(" ".join(vals))
-            first_data_row_idx = int(str(i)) + 1
-        else:
-            break
+    # 1. Καθαρίζουμε τα σκουπίδια (εντελώς κενές γραμμές ή στήλες)
+    df.dropna(how="all", inplace=True)
+    df.dropna(axis=1, how="all", inplace=True)
+    df = df.fillna("")
 
-    doc_title = document_title or " ".join(title_rows).strip()
-
-    # ── Detect header row ──
-    header: list[str] = []
-    for i in range(first_data_row_idx, len(df)):
-        row_vals = [str(v).strip() for v in df.iloc[i].values if str(v).strip()]
-        has_no_dates = not any(re.match(r"\d{1,2}/\d{1,2}/\d{4}", v) for v in row_vals)
-        if row_vals and has_no_dates:
-            header = row_vals
-            first_data_row_idx = i + 1
-            break
-
-    # ── Emit one chunk per data row ──
+    # 2. Παίρνουμε τις δυναμικές κεφαλίδες του αρχείου
+    headers = df.columns.tolist()
     chunks: list[str] = []
-    for i in range(first_data_row_idx, len(df)):
-        row_vals = [
-            str(v).strip() for v in df.iloc[i].values
-            if str(v).strip() and str(v).strip().lower() not in ["nan", "unnamed"]
-        ]
-        if not row_vals:
-            continue
 
-        if header and len(header) >= len(row_vals):
-            pairs = " | ".join(f"{header[j]}: {row_vals[j]}" for j in range(len(row_vals)))
-        else:
-            pairs = _positional_label(doc_title, row_vals)
+    # 3. Ορίζουμε την ταυτότητα (Πηγή) μία φορά
+    source_identity = f"Πηγή: {file_name}"
+    if document_title:
+        source_identity += f" ({document_title})"
 
-        chunks.append(f"{doc_title} | {pairs}" if doc_title else pairs)
+    # 4. Χτίζουμε τα chunks
+    for _, row in df.iterrows():
+        row_parts = []
+        for header in headers:
+            val = str(row[header]).strip()
+            
+            # Κρατάμε μόνο τα κελιά που έχουν δεδομένα. 
+            # Αγνοούμε τις "Unnamed" στήλες που φτιάχνει το Pandas αν βρει κενά headers.
+            if val and "unnamed" not in str(header).lower():
+                row_parts.append(f"{header}: {val}")
+        
+        # Αν η γραμμή έχει έστω και ένα δεδομένο, την κάνουμε chunk
+        if row_parts:
+            chunk_text = f"{source_identity} | " + " - ".join(row_parts)
+            chunks.append(chunk_text)
 
     return chunks

@@ -55,7 +55,7 @@ const ChatBot = ({ uid, onClose }: ChatBotProps) => {
       role: msg.role,
       content: msg.content
     }));
-    
+
     setMessages((prev) => [...prev, { content: cleanPrompt, role: "user" }]);
 
     sendMessageMutation.mutate(
@@ -77,8 +77,7 @@ const ChatBot = ({ uid, onClose }: ChatBotProps) => {
   return (
     <div className="flex flex-col h-full bg-white">
       <ChatbotHeader onClose={onClose} onClear={handleClearChat} />
-      <div className="flex-1 overflow-y-auto p-4 [scrollbar-gutter:stable]">
-        <ChatMessages messages={messages} />
+      <div className="flex-1 overflow-y-auto p-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">        <ChatMessages messages={messages} />
         {sendMessageMutation.isPending && (
           <div className="mt-4">
             <TypingIndicator />

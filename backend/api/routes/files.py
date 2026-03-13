@@ -284,3 +284,77 @@ async def delete_source(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/delete-all-sources")
+async def delete_all_sources(
+    ownerId: str = Query(...),
+    admin_data: dict = Depends(verify_token),
+):
+    # Canonical bulk delete flow: Firestore docs, Storage objects, and Chroma index.
+    try:
+        admin_uid = admin_data.get("uid")
+        if not admin_uid:
+            raise HTTPException(status_code=401, detail="Unauthorized.")
+
+        # Security check: Ensure they are only deleting their own files
+        if ownerId != admin_uid:
+            raise HTTPException(status_code=403, detail="No permission.")
+
+        firestore_client = get_firestore_client()
+        docs_query = firestore_client.collection("documents").where(
+            "ownerId", "==", admin_uid
+        )
+        
+        docs = list(docs_query.stream())
+        if not docs:
+            return {
+                "message": "No sources found to delete.",
+                "warnings": [],
+            }
+
+        warnings = []
+        deleted_count = 0
+
+        # Loop through and delete exactly the way the single delete does
+        col: Collection = get_chroma_collection()
+        
+        for doc in docs:
+            source_data = doc.to_dict() or {}
+            storage_path = source_data.get("storagePath")
+            source_name = source_data.get("name")
+            
+            # 1. Delete from Storage
+            if isinstance(storage_path, str) and storage_path:
+                storage_delete_error = delete_storage_object(storage_path)
+                if storage_delete_error:
+                    warnings.append(f"Storage delete failed for {storage_path}: {storage_delete_error}")
+            
+            # 2. Delete from Firestore
+            doc.reference.delete()
+            
+            # 3. Delete from Chroma (Exact match to previous dev's logic)
+            if isinstance(source_name, str) and source_name:
+                col.delete(
+                    where={
+                        "$and": [
+                            {"source": source_name},
+                            {"tenant_id": admin_uid},
+                        ]
+                    }
+                )
+            else:
+                warnings.append(
+                    f"Chroma delete skipped for doc {doc.id}: missing source name."
+                )
+
+            deleted_count += 1
+
+        return {
+            "message": f"Successfully deleted {deleted_count} sources.",
+            "warnings": warnings,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

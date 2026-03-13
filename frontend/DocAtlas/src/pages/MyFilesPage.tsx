@@ -25,6 +25,8 @@ export function MyFilesPage() {
     isQueryActive,
     setCurrentPage,
     deleteSource,
+    isDeletingAll,
+    deleteAllSources,
   } = useKnowledgeBaseDocuments({
     ownerId: user?.id,
     searchTerm,
@@ -67,6 +69,8 @@ export function MyFilesPage() {
         onDelete={deleteSource}
         onPreviousPage={() => setCurrentPage((page) => Math.max(page - 1, 0))}
         onNextPage={() => setCurrentPage((page) => page + 1)}
+        isDeletingAll={isDeletingAll}
+        onDeleteAll={deleteAllSources}
       />
     </div>
   );

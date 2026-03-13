@@ -1,5 +1,15 @@
 import { ChevronLeft, ChevronRight, ExternalLink, Loader2, Trash2 } from "lucide-react";
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { KnowledgeFilesSearch } from "@/components/knowledge-base/KnowledgeFilesSearch";
 import type { DocumentTypeFilter } from "@/hooks/useKnowledgeBaseDocuments";
@@ -23,6 +33,8 @@ type KnowledgeDocumentsSectionProps = {
   onDelete: (source: KnowledgeSource) => Promise<void>;
   onPreviousPage: () => void;
   onNextPage: () => void;
+  isDeletingAll?: boolean;
+  onDeleteAll?: () => Promise<void>;
 };
 
 function formatDate(date?: Date) {
@@ -67,6 +79,8 @@ export function KnowledgeDocumentsSection({
   onDelete,
   onPreviousPage,
   onNextPage,
+  isDeletingAll,
+  onDeleteAll,
 }: KnowledgeDocumentsSectionProps) {
   return (
     <section className="space-y-4">
@@ -115,6 +129,53 @@ export function KnowledgeDocumentsSection({
         </div>
       ) : (
         <div className="space-y-4">
+          {onDeleteAll && (
+            <div className="flex justify-end">
+              <AlertDialog>
+                <AlertDialogTrigger
+                  render={
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="cursor-pointer border-red-200 bg-red-50/30 text-red-700 hover:bg-red-50 hover:text-red-800"
+                      disabled={isDeletingAll || isLoading || isPageLoading || deletingId !== ""}
+                    />
+                  }
+                >
+                  {isDeletingAll ? (
+                    <span className="inline-flex items-center gap-2">
+                      <Loader2 className="size-4 animate-spin" />
+                      Deleting...
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-2">
+                      <Trash2 className="size-4" />
+                      {isQueryActive ? `Delete ${sources.length} Results` : "Delete All Files"}
+                    </span>
+                  )}
+                </AlertDialogTrigger>
+                <AlertDialogContent className="border-red-100">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-red-700">Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription className="text-slate-600">
+                      This action cannot be undone. This will permanently delete <strong>all {totalAvailableSources} uploaded files</strong> from your DocAtlas assistant and remove their data from our servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="border-slate-200 hover:bg-slate-50">Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                    onClick={() => {
+                      onDeleteAll(); 
+                    }}
+                    className="bg-red-600 text-white hover:bg-red-700"
+                  >
+                    Yes, delete everything
+                  </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          )}
           <div className="grid gap-3">
             {sources.map((source) => {
               const isDeleting = deletingId === source.id;
@@ -153,7 +214,7 @@ export function KnowledgeDocumentsSection({
                       variant="outline"
                       className="shrink-0 cursor-pointer border-red-200 bg-red-50/30 text-red-700 hover:bg-red-50 hover:text-red-800"
                       onClick={() => void onDelete(source)}
-                      disabled={isDeleting}
+                      disabled={isDeleting || isDeletingAll}
                     >
                       {isDeleting ? (
                         <span className="inline-flex items-center gap-2">

@@ -96,3 +96,9 @@ export async function getDocumentSourcesPage(input: {
 export async function deleteDocumentSource(input: { documentId: string }) {
   await apiClient.delete(`/api/delete-source/${input.documentId}`);
 }
+
+export async function deleteAllDocumentSources(input: { ownerId: string }) {
+  await apiClient.delete('/api/delete-all-sources', {
+    params: { ownerId: input.ownerId },
+  });
+}

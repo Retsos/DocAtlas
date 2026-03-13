@@ -67,7 +67,6 @@ async def query(
         # Το intent classification παίρνει τη σωστή, ξεκάθαρη ερώτηση πλέον
         intent = await run_in_threadpool(classify_intent, search_prompt)
 
-
         if intent == "MEDICAL":
             #Immediately returns the safety guardrail, no database search needed
             return {
@@ -88,7 +87,7 @@ async def query(
                 Knn(
                     query=clean_prompt, 
                     return_rank=True, 
-                    limit=35
+                    limit=25
                 ),
                 Knn(
                     query=clean_prompt,
@@ -120,7 +119,6 @@ async def query(
             "answer": answer,
             "sources": retrieved_docs,  # Returned for optional UI citations.
         }
-
     except HTTPException:
         raise
     except Exception as e:

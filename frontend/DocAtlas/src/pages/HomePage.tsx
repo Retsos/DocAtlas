@@ -25,7 +25,7 @@ export default function Home() {
                 Get Started
               </Link>
               <Link
-                to="/about"
+                to="/instructions"
                 className="rounded-md border border-sky-900 bg-white px-5 py-3 font-barlow-bold text-center text-sm text-sky-900 transition hover:border-sky-800 hover:text-sky-800"
               >
                 Learn More

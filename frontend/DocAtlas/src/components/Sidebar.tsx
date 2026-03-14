@@ -21,7 +21,7 @@ const navItems = [
     end: false,
   },
   {
-    to: "/instructions",
+    to: "/widget-setup",
     label: "Widget Setup",
     description: "Install the DocAtlas widget on your website securely.",
     icon: Settings,

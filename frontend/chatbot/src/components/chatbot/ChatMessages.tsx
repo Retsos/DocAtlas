@@ -53,7 +53,7 @@ const ChatMessages = ({ messages }: Props) => {
                     href={source.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-xs text-cyan-700 bg-white border border-cyan-100 px-2.5 py-1.5 rounded-md hover:bg-cyan-50 hover:border-cyan-200 transition-all w-fit shadow-sm"
+                    className="flex max-w-full items-center gap-2 text-xs text-cyan-700 bg-white border border-cyan-100 px-2.5 py-1.5 rounded-md hover:bg-cyan-50 hover:border-cyan-200 transition-all shadow-sm"
                     title={source.name}
                   >
                     <svg
@@ -69,7 +69,7 @@ const ChatMessages = ({ messages }: Props) => {
                         d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.586a6 6 0 108.486 8.486L20.5 13"
                       ></path>
                     </svg>
-                    <span className="truncate max-w-[220px] font-medium">{source.name}</span>
+                    <span className="min-w-0 flex-1 truncate font-medium">{source.name}</span>
                   </a>
                 ))}
               </div>

@@ -96,6 +96,7 @@ async def query(
         results = col.search(search_query)
 
         retrieved_docs = results.get("documents", [[]])[0] if results else []
+        retrieved_metadatas = results.get("metadatas", [[]])[0] if results else []
 
         if len(retrieved_docs) > 0:
             cross_inp = [[clean_prompt, doc] for doc in retrieved_docs]
@@ -114,19 +115,29 @@ async def query(
                 else:
                     processed_scores.append(float(score))
 
-            doc_score_pairs = list(zip(retrieved_docs, processed_scores))
+            combined = list(zip(retrieved_docs, retrieved_metadatas, processed_scores))
+            combined.sort(key=lambda x: x[2], reverse=True)
+            combined = combined[:body.top_k]
+            
 
-            # Sort will work perfectly because it's comparing standard Python floats
-            doc_score_pairs.sort(key=lambda x: x[1], reverse=True)
-
-            reranked_docs = [doc for doc, score in doc_score_pairs][:body.top_k]
+            reranked_docs = [doc for doc, meta, score in combined]
+            reranked_metadatas = [meta for doc, meta, score in combined]
         else:
             reranked_docs = []
+            reranked_metadatas = []
 
+        sources_list = build_citations(
+            db=db,
+            tenant_id=body.tenant_id,
+            retrieved_metadatas=reranked_metadatas,
+            max_items=10,
+        )
+        
         answer = await run_in_threadpool(generate_answer, body.prompt, reranked_docs, body.history)
+
         return {
             "answer": answer,
-            "sources": reranked_docs,  # Returned for optional UI citations.
+            "sources": sources_list,  # Returned for optional UI citations.
         }
     except HTTPException:
         raise

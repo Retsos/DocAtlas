@@ -1,11 +1,9 @@
 from datetime import datetime
 from uuid import uuid4
-
 from chromadb.api.models.Collection import Collection
 from fastapi import Depends, File, Form, HTTPException, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from firebase_admin import firestore, storage
-
 from api.routes.files_routes.router import router
 from api.routes.files_routes.shared import (
     ALLOWED_EXTENSIONS,
@@ -13,7 +11,12 @@ from api.routes.files_routes.shared import (
     build_storage_download_url,
 )
 from config.chromaClient import get_chroma_collection
-from core.firebase import get_configured_bucket_name, get_firestore_client, verify_token
+from core.firebase import (
+    delete_storage_object,
+    get_configured_bucket_name,
+    get_firestore_client,
+    verify_token,
+)
 from services.doc_processing import prepare_document_for_chroma
 
 
@@ -24,6 +27,32 @@ async def upload_file(
     admin_data: dict = Depends(verify_token),
 ):
     # Canonical upload flow: validate -> process -> persist -> index.
+    storage_path: str | None = None
+    doc_ref = None
+    chroma_attempted = False
+    col: Collection | None = None
+    ids: list[str] | None = None
+
+    async def rollback_upload() -> None:
+        # Best-effort cleanup for partial writes.
+        if doc_ref is not None:
+            try:
+                doc_ref.delete()
+            except Exception:
+                pass
+
+        if chroma_attempted and col is not None and ids:
+            try:
+                await run_in_threadpool(col.delete, ids=ids)
+            except Exception:
+                pass
+
+        if storage_path:
+            try:
+                delete_storage_object(storage_path)
+            except Exception:
+                pass
+
     try:
         if admin_data.get("uid") != tenant_id:
             raise HTTPException(status_code=403, detail="No permission.")
@@ -54,6 +83,7 @@ async def upload_file(
                 detail=f"No extractable text found in '{filename}'.",
             )
         metadatas = [{**metadata, "tenant_id": tenant_id} for metadata in metadatas]
+        doc_id = metadatas[0].get("doc_id") if metadatas else None
 
         firestore_client = get_firestore_client()
         user_snapshot = firestore_client.collection("users").document(tenant_id).get()
@@ -91,7 +121,14 @@ async def upload_file(
             resolved_bucket_name, storage_path, download_token
         )
 
-        firestore_client.collection("documents").add(
+        col = get_chroma_collection()
+        chroma_attempted = True
+        await run_in_threadpool(
+            col.add, ids=ids, documents=documents, metadatas=metadatas
+        )
+
+        doc_ref = firestore_client.collection("documents").document()
+        doc_ref.set(
             {
                 "ownerId": tenant_id,
                 "hospitalName": hospital_name,
@@ -101,6 +138,7 @@ async def upload_file(
                 "storagePath": storage_path,
                 "sizeBytes": len(file_content),
                 "createdAt": firestore.SERVER_TIMESTAMP,
+                "docId": doc_id,
             }
         )
         firestore_client.collection("users").document(tenant_id).set(
@@ -108,16 +146,13 @@ async def upload_file(
             merge=True,
         )
 
-        col: Collection = get_chroma_collection()
-        await run_in_threadpool(
-            col.add, ids=ids, documents=documents, metadatas=metadatas
-        )
-
         return {
             "message": f"File {filename} uploaded.",
             "chunks_inserted": len(ids),
         }
     except HTTPException:
+        await rollback_upload()
         raise
     except Exception as exc:
+        await rollback_upload()
         raise HTTPException(status_code=500, detail=str(exc))

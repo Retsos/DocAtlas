@@ -1,8 +1,10 @@
 const capabilities = [
-  "Document ingestion from PDF, Word, Excel, and internal files",
-  "Vector search to retrieve the most relevant passages",
-  "RAG responses tailored to each institution process",
-  "Source citations for transparency and verification",
+  "Secure document ingestion (PDF, Word, Excel, intranet)",
+  "High‑quality vector search for precise passage retrieval",
+  "RAG answers grounded in your institution's sources",
+  "Automatic source citations for traceability",
+  "Role-based access and permissions",
+  "Simple embed snippet for any website or portal",
 ] as const;
 
 export default function Features() {
@@ -17,25 +19,21 @@ export default function Features() {
 
         <section className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm sm:p-7 lg:px-10 lg:py-9">
           <h2 className="text-2xl font-semibold tracking-tight text-sky-950 sm:text-3xl">
-            What the idea is
+            Purpose
           </h2>
           <div className="mt-4 space-y-4 text-sm leading-6 text-slate-700 sm:text-base sm:leading-7">
             <p>
-              Each organization uploads its own documents, guidelines, and
-              procedures, and the system answers based on those sources instead
-              of generic web responses or a general LLM memory. The core
-              combines document ingestion, vector search, and RAG: files become
-              structured knowledge chunks, the most relevant passages are
-              retrieved, and grounded answers are generated with source
-              references. The widget turns that content into a searchable
-              assistant so staff and users get consistent answers quickly.
+              DocAtlas turns your institution's policies, guides, and internal
+              knowledge into an assistant that provides fast, consistent, and
+              auditable answers—so clinicians, staff and patients find the right
+              information without hunting through folders or inboxes.
             </p>
           </div>
         </section>
 
         <section className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm sm:p-7 lg:px-10 lg:py-9">
           <h2 className="text-2xl font-semibold tracking-tight text-sky-950 sm:text-3xl">
-            Core capabilities
+            Core Capabilities
           </h2>
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {capabilities.map((capability) => (

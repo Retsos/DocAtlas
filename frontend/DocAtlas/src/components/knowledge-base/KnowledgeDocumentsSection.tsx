@@ -1,4 +1,9 @@
-import { ChevronLeft, ChevronRight, ExternalLink, Loader2, Trash2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight, Loader2,
+  Trash2
+} from "lucide-react";
+import { useCallback, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { KnowledgeFilesSearch } from "@/components/knowledge-base/KnowledgeFilesSearch";
 import type { DocumentTypeFilter } from "@/hooks/useKnowledgeBaseDocuments";
 import type { KnowledgeSource } from "@/types/knowledgeSource";
+import { DocumentRow } from "./KnowledgeDocumentRow";
 
 type KnowledgeDocumentsSectionProps = {
   sources: KnowledgeSource[];
@@ -29,37 +35,14 @@ type KnowledgeDocumentsSectionProps = {
   fileTypeFilter: DocumentTypeFilter;
   onSearchChange: (value: string) => void;
   onFileTypeFilterChange: (value: DocumentTypeFilter) => void;
-  deletingId: string;
   onDelete: (source: KnowledgeSource) => Promise<void>;
   onPreviousPage: () => void;
   onNextPage: () => void;
   isDeletingAll?: boolean;
-  onDeleteAll?: () => Promise<void>;
+  onDeleteAll?: () => Promise<void>;
 };
 
-function formatDate(date?: Date) {
-  if (!date) {
-    return "Unknown date";
-  }
 
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date);
-}
-
-function formatSize(sizeBytes?: number) {
-  if (!sizeBytes) {
-    return "-";
-  }
-
-  const kb = sizeBytes / 1024;
-  if (kb < 1024) {
-    return `${kb.toFixed(1)} KB`;
-  }
-
-  return `${(kb / 1024).toFixed(1)} MB`;
-}
 
 export function KnowledgeDocumentsSection({
   sources,
@@ -75,13 +58,25 @@ export function KnowledgeDocumentsSection({
   fileTypeFilter,
   onSearchChange,
   onFileTypeFilterChange,
-  deletingId,
   onDelete,
   onPreviousPage,
   onNextPage,
   isDeletingAll,
-  onDeleteAll,
+  onDeleteAll,
 }: KnowledgeDocumentsSectionProps) {
+  const [localDeletingIds, setLocalDeletingIds] = useState<string[]>([]);
+
+  const onLocalDeletingChange = useCallback((id: string, deleting: boolean) => {
+    setLocalDeletingIds((prev) => {
+      const next = new Set(prev);
+      if (deleting) next.add(id);
+      else next.delete(id);
+      return Array.from(next);
+    });
+  }, []);
+
+  // Rely on per-row cleanup to remove ids from the registry when rows unmount.
+
   return (
     <section className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -90,7 +85,8 @@ export function KnowledgeDocumentsSection({
             My Files
           </h2>
           <p className="mt-1 text-sm text-slate-600">
-            Search, filter, and manage uploaded files used by your DocAtlas assistant.
+            Search, filter, and manage uploaded files used by your DocAtlas
+            assistant.
           </p>
         </div>
         <p className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-900">
@@ -138,7 +134,12 @@ export function KnowledgeDocumentsSection({
                       type="button"
                       variant="outline"
                       className="cursor-pointer border-red-200 bg-red-50/30 text-red-700 hover:bg-red-50 hover:text-red-800"
-                      disabled={isDeletingAll || isLoading || isPageLoading || deletingId !== ""}
+                      disabled={
+                        isDeletingAll ||
+                        isLoading ||
+                        isPageLoading ||
+                        localDeletingIds.length > 0
+                      }
                     />
                   }
                 >
@@ -150,88 +151,53 @@ export function KnowledgeDocumentsSection({
                   ) : (
                     <span className="inline-flex items-center gap-2">
                       <Trash2 className="size-4" />
-                      {isQueryActive ? `Delete ${sources.length} Results` : "Delete All Files"}
+                      {isQueryActive
+                        ? `Delete ${sources.length} Results`
+                        : "Delete All Files"}
                     </span>
                   )}
                 </AlertDialogTrigger>
                 <AlertDialogContent className="border-red-100">
                   <AlertDialogHeader>
-                    <AlertDialogTitle className="text-red-700">Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogTitle className="text-red-700">
+                      Are you absolutely sure?
+                    </AlertDialogTitle>
                     <AlertDialogDescription className="text-slate-600">
-                      This action cannot be undone. This will permanently delete <strong>all {totalAvailableSources} uploaded files</strong> from your DocAtlas assistant and remove their data from our servers.
+                      This action cannot be undone. This will permanently delete{" "}
+                      <strong>
+                        all {totalAvailableSources} uploaded files
+                      </strong>{" "}
+                      from your DocAtlas assistant and remove their data from
+                      our servers.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel className="border-slate-200 hover:bg-slate-50">Cancel</AlertDialogCancel>
+                    <AlertDialogCancel className="border-slate-200 hover:bg-slate-50">
+                      Cancel
+                    </AlertDialogCancel>
                     <AlertDialogAction
-                    onClick={() => {
-                      onDeleteAll(); 
-                    }}
-                    className="bg-red-600 text-white hover:bg-red-700"
-                  >
-                    Yes, delete everything
-                  </AlertDialogAction>
+                      onClick={() => {
+                        onDeleteAll();
+                      }}
+                      className="bg-red-600 text-white hover:bg-red-700"
+                    >
+                      Yes, delete everything
+                    </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
             </div>
           )}
           <div className="grid gap-3">
-            {sources.map((source) => {
-              const isDeleting = deletingId === source.id;
-
-              return (
-                <article
-                  key={source.id}
-                  className="rounded-xl border border-sky-100 bg-white p-4 shadow-sm transition hover:border-sky-200 hover:shadow-md"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 space-y-2">
-                      <p className="break-all text-sm font-semibold text-slate-900">
-                        {source.name}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                        <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5">
-                          Uploaded: {formatDate(source.createdAt)}
-                        </span>
-                        <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5">
-                          Size: {formatSize(source.sizeBytes)}
-                        </span>
-                      </div>
-                      <a
-                        href={source.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-xs font-medium text-sky-800 underline-offset-2 transition hover:text-sky-700 hover:underline"
-                      >
-                        Open source file
-                        <ExternalLink className="size-3.5" />
-                      </a>
-                    </div>
-
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="shrink-0 cursor-pointer border-red-200 bg-red-50/30 text-red-700 hover:bg-red-50 hover:text-red-800"
-                      onClick={() => void onDelete(source)}
-                      disabled={isDeleting || isDeletingAll}
-                    >
-                      {isDeleting ? (
-                        <span className="inline-flex items-center gap-2">
-                          <Loader2 className="size-4 animate-spin" />
-                          Deleting...
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-2">
-                          <Trash2 className="size-4" />
-                          Delete
-                        </span>
-                      )}
-                    </Button>
-                  </div>
-                </article>
-              );
-            })}
+            {sources.map((source) => (
+              <DocumentRow
+                key={source.id}
+                source={source}
+                onDelete={onDelete}
+                isDeletingAll={isDeletingAll}
+                onLocalDeletingChange={onLocalDeletingChange}
+              />
+            ))}
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm">

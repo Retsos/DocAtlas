@@ -10,13 +10,13 @@ import { useAuth } from "@/providers/AuthProvider";
 export function MyFilesPage() {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
-  const [fileTypeFilter, setFileTypeFilter] = useState<DocumentTypeFilter>("all");
+  const [fileTypeFilter, setFileTypeFilter] =
+    useState<DocumentTypeFilter>("all");
 
   const {
     sources,
     isLoading,
     isPageLoading,
-    deletingId,
     currentPage,
     totalSources,
     totalAvailableSources,
@@ -47,7 +47,8 @@ export function MyFilesPage() {
           Browse and manage all indexed files.
         </h1>
         <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-600 sm:text-base">
-          Use search, pagination, and file type filters to quickly find PDFs, Excel sheets, and other uploaded sources.
+          Use search, pagination, and file type filters to quickly find PDFs,
+          Excel sheets, and other uploaded sources.
         </p>
       </section>
 
@@ -65,7 +66,6 @@ export function MyFilesPage() {
         fileTypeFilter={fileTypeFilter}
         onSearchChange={setSearchTerm}
         onFileTypeFilterChange={setFileTypeFilter}
-        deletingId={deletingId}
         onDelete={deleteSource}
         onPreviousPage={() => setCurrentPage((page) => Math.max(page - 1, 0))}
         onNextPage={() => setCurrentPage((page) => page + 1)}

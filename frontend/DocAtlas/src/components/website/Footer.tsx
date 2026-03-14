@@ -30,10 +30,10 @@ export function Footer() {
             </li>
             <li>
               <Link
-                to="/about"
+                to="/instructions"
                 className="text-sky-600 transition hover:text-sky-650"
               >
-                About
+                Instructions
               </Link>
             </li>
           </ul>
@@ -41,7 +41,7 @@ export function Footer() {
 
         <div className="space-y-3">
           <p className="font-barlow-bold text-sky-950">Contact</p>
-          <p className="text-sky-600">Docatlas@gmail.com</p>
+          <p className="text-sky-600">docatlas@gmail.com</p>
           <p className="max-w-sm text-sky-600">
             Copyright (c) {currentYear} DocAtlas. All rights reserved.
           </p>

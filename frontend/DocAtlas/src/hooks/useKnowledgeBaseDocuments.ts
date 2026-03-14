@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { apiClient } from "@/lib/api";
-
+import { toast } from "sonner";
 import {
   DOCUMENTS_PAGE_SIZE,
   getAllDocumentSourcesByOwner,
@@ -49,6 +49,7 @@ export function useKnowledgeBaseDocuments({
   const [isLoading, setIsLoading] = useState(true);
   const [isPageLoading, setIsPageLoading] = useState(false);
   const [deletingId, setDeletingId] = useState("");
+  const [isDeletingAll, setIsDeletingAll] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [totalSources, setTotalSources] = useState(0);
@@ -116,8 +117,6 @@ export function useKnowledgeBaseDocuments({
       hasLoadedOnceRef.current = false;
       return;
     }
-    const resolvedOwnerId = ownerId;
-
     const isInitialLoad = !hasLoadedOnceRef.current;
     if (isInitialLoad) {
       setIsLoading(true);
@@ -134,7 +133,10 @@ export function useKnowledgeBaseDocuments({
     async function loadDocumentsPage() {
       try {
         if (isQueryActive) {
-          const allSources = await getAllDocumentSourcesByOwner(resolvedOwnerId);
+          const [allSources, total] = await Promise.all([
+            getAllDocumentSourcesByOwner(),
+            getDocumentSourcesCount(),
+          ]);
           if (cancelled) {
             return;
           }
@@ -161,7 +163,7 @@ export function useKnowledgeBaseDocuments({
 
           setSources(filteredSources.slice(startIndex, endIndex));
           setTotalSources(filteredSources.length);
-          setTotalAvailableSources(allSources.length);
+          setTotalAvailableSources(total);
           setHasNextPage(endIndex < filteredSources.length);
           hasLoadedOnceRef.current = true;
           setIsLoading(false);
@@ -172,11 +174,10 @@ export function useKnowledgeBaseDocuments({
         const cursor = pageCursors[currentPage] ?? null;
         const [pageResult, total] = await Promise.all([
           getDocumentSourcesPage({
-            ownerId: resolvedOwnerId,
             pageSize: DOCUMENTS_PAGE_SIZE,
             startAfterCursor: cursor,
           }),
-          getDocumentSourcesCount(resolvedOwnerId),
+          getDocumentSourcesCount(),
         ]);
 
         if (cancelled) {
@@ -240,6 +241,8 @@ export function useKnowledgeBaseDocuments({
       // Backend orchestrates canonical source delete.
       await apiClient.delete(`/api/delete-source/${source.id}`);
 
+      toast.success(`${source.name} deleted successfully`);
+
       if (sources.length === 1 && currentPage > 0) {
         setCurrentPage((page) => Math.max(page - 1, 0));
       } else {
@@ -247,10 +250,39 @@ export function useKnowledgeBaseDocuments({
       }
     } catch (error) {
       setErrorMessage("Delete failed. Please try again.");
+
+      toast.error(`Failed to delete ${source.name}`);
     } finally {
       setDeletingId("");
     }
   }
+
+  async function deleteAllSources() {
+    if (!ownerId) {
+      return;
+    }
+
+    setIsDeletingAll(true);
+    setErrorMessage("");
+
+    try {
+      // Backend orchestrates bulk bucket and canonical source wipe
+      await apiClient.delete('/api/delete-all-sources', {
+        params: { ownerId },
+      });
+
+      toast.success("All documents cleared successfully");
+
+      // The previous dev already wrote this perfect reset function! 
+      resetPaginationAndRefresh();
+    } catch (error) {
+      setErrorMessage("Bulk delete failed. Please try again.");
+
+      toast.error("Failed to delete all documents");  
+    } finally {
+      setIsDeletingAll(false);
+    }
+  }
 
   return {
     sources,
@@ -268,5 +300,7 @@ export function useKnowledgeBaseDocuments({
     setErrorMessage,
     deleteSource,
     resetPaginationAndRefresh,
+    isDeletingAll,
+    deleteAllSources,
   };
 }

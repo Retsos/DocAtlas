@@ -1,5 +1,6 @@
-import { Outlet } from "react-router-dom";
+﻿import { Outlet } from "react-router-dom";
 import { Sidebar } from "../components/Sidebar";
+import { Toaster } from "sonner";
 
 export function DashboardLayout() {
   return (
@@ -11,6 +12,7 @@ export function DashboardLayout() {
           <Outlet />
         </div>
       </main>
+      <Toaster richColors position="bottom-right" closeButton />
     </div>
   );
 }

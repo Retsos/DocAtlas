@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient, getApiErrorMessage } from "@/lib/api";
+import { toast } from "sonner";
 
 type UploadInput = {
   ownerId: string;
@@ -44,9 +45,16 @@ export const useUploadFiles = () => {
         throw error instanceof Error ? error : new Error("Upload failed.");
       }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+
+      const fileCount = data.length;
+      toast.success(`Successfully uploaded ${fileCount} ${fileCount === 1 ? 'file' : 'files'}`);
       // Any UI list that depends on document data can refresh after upload.
       queryClient.invalidateQueries({ queryKey: ["documents"] });
+    },
+    onError: (error) => {
+      // Show the specific error from the catch block
+      toast.error(error.message);
     },
   });
 };

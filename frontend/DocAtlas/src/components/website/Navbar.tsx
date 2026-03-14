@@ -6,7 +6,7 @@ import docAtlasLogoWithTitle from "@/assets/DocAtlasLogoWithTitle.png";
 const navLinks = [
   { label: "Home", to: "/", end: true },
   { label: "Features", to: "/features" },
-  { label: "About", to: "/about" },
+  { label: "Instructions", to: "/instructions" },
 ];
 
 export function Navbar() {

@@ -8,8 +8,10 @@ from services.doc_processing import normalize_greek_text
 from services.llmService import generate_answer, classify_intent, rewrite_query
 from fastapi.concurrency import run_in_threadpool
 from core.firebase import get_firestore_client
+from sentence_transformers import CrossEncoder
 
 router = APIRouter(prefix="/api", tags=["query"])
+reranker = CrossEncoder('amberoad/bert-multilingual-passage-reranking-msmarco')
 
 
 @router.post("/query")
@@ -107,17 +109,44 @@ async def query(
             Search()
             .where({"tenant_id": body.tenant_id})
             .rank(hybrid_rank)
-            .limit(body.top_k)
+            .limit(50)#body.top_k
             .select(K.DOCUMENT, K.METADATA, K.ID)
         )
 
         results = col.search(search_query)
 
         retrieved_docs = results.get("documents", [[]])[0] if results else []
-        answer = await run_in_threadpool(generate_answer, body.prompt, retrieved_docs, body.history)
+
+        if len(retrieved_docs) > 0:
+            cross_inp = [[clean_prompt, doc] for doc in retrieved_docs]
+            scores = reranker.predict(cross_inp)
+            
+            #Safely extract the actual scalar float score, no matter the array shape
+            processed_scores = []
+            for score in scores:
+                # If the model returns a 2D array like [negative_prob, positive_prob]
+                if hasattr(score, '__len__') and len(score) > 1:
+                    processed_scores.append(float(score[1])) # Take the positive class score
+                # If the model returns a 1D array with a single element like [score]
+                elif hasattr(score, '__len__') and len(score) == 1:
+                    processed_scores.append(float(score[0]))
+                # If it's already a standard scalar float
+                else:
+                    processed_scores.append(float(score))
+
+            doc_score_pairs = list(zip(retrieved_docs, processed_scores))
+
+            # Sort will work perfectly because it's comparing standard Python floats
+            doc_score_pairs.sort(key=lambda x: x[1], reverse=True)
+
+            reranked_docs = [doc for doc, score in doc_score_pairs][:body.top_k]
+        else:
+            reranked_docs = []
+
+        answer = await run_in_threadpool(generate_answer, body.prompt, reranked_docs, body.history)
         return {
             "answer": answer,
-            "sources": retrieved_docs,  # Returned for optional UI citations.
+            "sources": reranked_docs,  # Returned for optional UI citations.
         }
     except HTTPException:
         raise

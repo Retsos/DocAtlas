@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect, useRef } from "react";
 import ChatInput, { type ChatFormData } from "./ChatInput";
 import ChatMessages, { type Message } from "./ChatMessages";
 import TypingIndicator from "./TypingIndicator";
@@ -6,7 +6,7 @@ import ChatbotHeader from "./ChatbotHeader";
 import { useSendMessage } from "./api-client";
 
 const INITIAL_MESSAGE: Message = {
-  content: "👋 Γεια σας! Είμαι ο Ψηφιακός Βοηθός. Ρωτήστε με για διαδικασίες, έγγραφα ή τοποθεσίες.",
+  content: "👋 Γεια σας! Είμαι ο Ψηφιακός Βοηθός. Ρωτήστε με για διαδικασίες, έγγραφα ή τοποθεσίες",
   role: "bot",
 };
 
@@ -19,6 +19,7 @@ const ChatBot = ({ uid, onClose }: ChatBotProps) => {
   const [error, setError] = useState("");
   const sendMessageMutation = useSendMessage();
   const STORAGE_KEY = `docatlas_chat_${uid}`;
+  const hasHandledResponse = useRef(false);
 
   const [messages, setMessages] = useState<Message[]>(() => {
     const saved = sessionStorage.getItem(STORAGE_KEY);
@@ -36,7 +37,23 @@ const ChatBot = ({ uid, onClose }: ChatBotProps) => {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
   }, [messages, STORAGE_KEY]);
 
-  // delete chat history from session storage and reset messages to initial state
+  useEffect(() => {
+    if (sendMessageMutation.isSuccess && sendMessageMutation.data && !hasHandledResponse.current) {
+      hasHandledResponse.current = true;
+      const data = sendMessageMutation.data;
+      setMessages((prev) => [
+        ...prev,
+        { content: data.answer, role: "bot", sources: data.sources },
+      ]);
+    }
+  }, [sendMessageMutation.isSuccess, sendMessageMutation.data]);
+
+  useEffect(() => {
+    if (sendMessageMutation.isError) {
+      setError("Υπήρξε ένα πρόβλημα στην επικοινωνία. Δοκιμάστε ξανά.");
+    }
+  }, [sendMessageMutation.isError]);
+
   const handleClearChat = () => {
     sessionStorage.removeItem(STORAGE_KEY);
     setMessages([INITIAL_MESSAGE]);
@@ -53,32 +70,20 @@ const ChatBot = ({ uid, onClose }: ChatBotProps) => {
 
     const recentHistory = messages.slice(-4).map(msg => ({
       role: msg.role,
-      content: msg.content
+      content: msg.content,
     }));
-    
-    setMessages((prev) => [...prev, { content: cleanPrompt, role: "user" }]);
 
-    sendMessageMutation.mutate(
-      { prompt: cleanPrompt, tenant_id: uid, history: recentHistory },
-      {
-        onSuccess: (data) => {
-          setMessages((prev) => [
-            ...prev,
-            { content: data.answer, role: "bot" },
-          ]);
-        },
-        onError: () => {
-          setError("Υπήρξε ένα πρόβλημα στην επικοινωνία. Δοκιμάστε ξανά.");
-        },
-      },
-    );
+    hasHandledResponse.current = false;
+    setMessages((prev) => [...prev, { content: cleanPrompt, role: "user" }]);
+    sendMessageMutation.mutate({ prompt: cleanPrompt, tenant_id: uid, history: recentHistory });
   };
 
   return (
     <div className="flex flex-col h-full bg-white">
       <ChatbotHeader onClose={onClose} onClear={handleClearChat} />
-      <div className="flex-1 overflow-y-auto p-4 [scrollbar-gutter:stable]">
+      <div className="flex-1 overflow-y-auto p-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         <ChatMessages messages={messages} />
+
         {sendMessageMutation.isPending && (
           <div className="mt-4">
             <TypingIndicator />

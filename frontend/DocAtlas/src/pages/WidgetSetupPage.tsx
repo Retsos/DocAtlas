@@ -19,7 +19,7 @@ export default function WidgetSetupPage() {
     saveWebsiteUrl,
   } = useWebsiteUrlSettings(user?.id);
 
-  const embedSnippet = `<script src="https://doc-atlas-s2zi.vercel.app/widget.js" data-tenant-uid=${tenantUid} ></script>`;
+  const embedSnippet = `<script src="https://chatbot-lac-one-96.vercel.app/widget.js" data-tenant-uid=${tenantUid} ></script>`;
 
   async function handleCopySnippet() {
     await navigator.clipboard.writeText(embedSnippet);

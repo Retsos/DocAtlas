@@ -9,6 +9,7 @@ from services.llmService import generate_answer, classify_intent, rewrite_query
 from fastapi.concurrency import run_in_threadpool
 from core.firebase import get_firestore_client
 from sentence_transformers import CrossEncoder
+from services.logger import log_chat_message, log_chat_response, log_error
 
 router = APIRouter(prefix="/api", tags=["query"])
 reranker = CrossEncoder('amberoad/bert-multilingual-passage-reranking-msmarco')
@@ -21,6 +22,7 @@ async def query(
     body: RequestBody,
 ):
     try:
+        log_id = None
         # Dynamic tenant origin check:
         # We read the browser Origin header and compare it to the tenant's
         # allowlisted websiteUrl stored in Firestore. This complements global
@@ -32,7 +34,9 @@ async def query(
         tenant_doc = tenant_ref.get()
 
         if not tenant_doc.exists:
-            raise HTTPException(status_code=403, detail="Unknown tenant_id.")
+            detail_msg = "Unknown tenant_id."
+            log_error(tenant_id=body.tenant_id, status_code=403, method=request.method, detail=detail_msg)
+            raise HTTPException(status_code=403, detail=detail_msg)
 
         tenant_data = tenant_doc.to_dict()
         allowed_origin = tenant_data.get("websiteUrl")
@@ -42,14 +46,15 @@ async def query(
         # does not match exactly, we reject the call. This prevents one tenant
         # from querying another tenant's index by spoofing tenant_id values.
         if not allowed_origin or request_origin != allowed_origin:
-            print(
-                f"[SECURITY] Rejected origin: {request_origin}. "
-                f"Expected: {allowed_origin}"
-            )
-            raise HTTPException(
-                status_code=403,
-                detail="Origin is not allowed for this tenant.",
-            )
+            detail_msg = "Origin is not allowed for this tenant."
+            log_error(tenant_id=body.tenant_id, status_code=403, method=request.method, detail=detail_msg)
+            raise HTTPException(status_code=403, detail=detail_msg)
+
+        log_id = log_chat_message(
+            tenant_id=body.tenant_id,
+            prompt=body.prompt,
+            origin=request_origin,
+        )
 
         # Hybrid retrieval pipeline:
         # Dense KNN captures semantic similarity, sparse KNN captures lexical
@@ -71,14 +76,18 @@ async def query(
 
         if intent == "MEDICAL":
             #Immediately returns the safety guardrail, no database search needed
+            response_text = "Δεν είμαι εξουσιοδοτημένος να παρέχω ιατρική διάγνωση, παρακαλώ μιλήστε με έναν γιατρό."
+            log_chat_response(log_id=log_id, response=response_text, intent=intent)
             return {
-                "answer": "Δεν είμαι εξουσιοδοτημένος να παρέχω ιατρική διάγνωση, παρακαλώ μιλήστε με έναν γιατρό.",
+                "answer": response_text,
                 "sources": []
             }
         
         elif intent == "GENERAL":
+
             #Passes an empty context list, the LLM will handle the small talk without retrieval
             answer = await run_in_threadpool(generate_answer, body.prompt, [], body.history)
+            log_chat_response(log_id=log_id, response=answer, intent=intent)
             return {
                 "answer": answer,
                 "sources": []
@@ -144,6 +153,7 @@ async def query(
             reranked_docs = []
 
         answer = await run_in_threadpool(generate_answer, body.prompt, reranked_docs, body.history)
+        log_chat_response(log_id=log_id, response=answer, intent=intent)
         return {
             "answer": answer,
             "sources": reranked_docs,  # Returned for optional UI citations.

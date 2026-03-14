@@ -1,6 +1,5 @@
 from datetime import datetime
 from uuid import uuid4
-from chromadb.api.models.Collection import Collection
 from fastapi import Depends, File, Form, HTTPException, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from firebase_admin import firestore, storage
@@ -12,13 +11,12 @@ from api.routes.files_routes.shared import (
 )
 from config.chromaClient import get_chroma_collection
 from core.firebase import (
-    delete_storage_object,
     get_configured_bucket_name,
     get_firestore_client,
     verify_token,
 )
 from services.doc_processing import prepare_document_for_chroma
-
+from models.UploadRollbackContext import UploadRollbackContext, rollback_upload
 
 @router.post("/upload-file")
 async def upload_file(
@@ -27,31 +25,7 @@ async def upload_file(
     admin_data: dict = Depends(verify_token),
 ):
     # Canonical upload flow: validate -> process -> persist -> index.
-    storage_path: str | None = None
-    doc_ref = None
-    chroma_attempted = False
-    col: Collection | None = None
-    ids: list[str] | None = None
-
-    async def rollback_upload() -> None:
-        # Best-effort cleanup for partial writes.
-        if doc_ref is not None:
-            try:
-                doc_ref.delete()
-            except Exception:
-                pass
-
-        if chroma_attempted and col is not None and ids:
-            try:
-                await run_in_threadpool(col.delete, ids=ids)
-            except Exception:
-                pass
-
-        if storage_path:
-            try:
-                delete_storage_object(storage_path)
-            except Exception:
-                pass
+    rollback_context = UploadRollbackContext()
 
     try:
         if admin_data.get("uid") != tenant_id:
@@ -77,6 +51,7 @@ async def upload_file(
 
         # Main doc-processing call.
         ids, documents, metadatas = prepare_document_for_chroma(filename, file_content)
+        rollback_context.ids = ids
         if not ids:
             raise HTTPException(
                 status_code=422,
@@ -103,6 +78,7 @@ async def upload_file(
             f"knowledge-sources/{tenant_id}/"
             f"{int(datetime.now().timestamp() * 1000)}-{safe_file_name}"
         )
+        rollback_context.storage_path = storage_path
         download_token = str(uuid4())
         blob = bucket.blob(storage_path)
         blob.metadata = {"firebaseStorageDownloadTokens": download_token}
@@ -122,12 +98,14 @@ async def upload_file(
         )
 
         col = get_chroma_collection()
-        chroma_attempted = True
+        rollback_context.col = col
+        rollback_context.chroma_attempted = True
         await run_in_threadpool(
             col.add, ids=ids, documents=documents, metadatas=metadatas
         )
 
         doc_ref = firestore_client.collection("documents").document()
+        rollback_context.doc_ref = doc_ref
         doc_ref.set(
             {
                 "ownerId": tenant_id,
@@ -141,6 +119,7 @@ async def upload_file(
                 "docId": doc_id,
             }
         )
+
         firestore_client.collection("users").document(tenant_id).set(
             {"uploadedDocsCount": firestore.Increment(1)},
             merge=True,
@@ -151,8 +130,8 @@ async def upload_file(
             "chunks_inserted": len(ids),
         }
     except HTTPException:
-        await rollback_upload()
+        await rollback_upload(rollback_context)
         raise
     except Exception as exc:
-        await rollback_upload()
+        await rollback_upload(rollback_context)
         raise HTTPException(status_code=500, detail=str(exc))

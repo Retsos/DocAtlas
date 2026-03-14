@@ -60,3 +60,38 @@ def classify_intent(user_prompt: str):
         max_tokens=10
     )
     return response.choices[0].message.content.strip().upper()
+
+
+def rewrite_query(current_question: str, chat_history: list[dict] = None) -> str:
+
+    # Expands the user's query to improve search recall, while preserving the original phrasing.
+    history_text = ""
+    if chat_history:
+        history_text = "\n".join([
+            f"{'Χρήστης' if msg.get('role') == 'user' else 'Βοηθός'}: {msg.get('content')}" 
+            for msg in chat_history[-3:]
+        ])
+    
+    rewrite_prompt = (
+        "You are a search query optimizer for a Greek hospital database. "
+        "Your task is to EXPAND (not replace) the user's query to maximize retrieval in a Hybrid Search system.\n"
+        "Rules:\n"
+        "1. KEEP the user's original phrasing exactly as is, especially natural dates like '4 Μαρτίου'.\n"
+        "2. APPEND the exact numeric format of the date in parentheses. If no year is provided, output BOTH the padded and unpadded Day/Month formats to ensure a match (e.g., '1 Δεκεμβρίου' -> '(01/12) (1/12)'). DO NOT assume or hallucinate a year (like 2026) unless the user explicitly states it. Avoid spamming multiple consecutive dates.\n"        "3. APPEND formal synonyms for colloquial words in parentheses (e.g., if the user says 'βάρδια', append '(εφημερία)').\n"
+        "4. Resolve any missing context from the Chat History.\n\n"
+        "5. Convert all names, roles, or medical entities from Genitive/Accusative case back to their base Nominative case (Ονομαστική πτώση) to ensure exact keyword matching in the database (e.g., 'του Ρέτσα' -> 'Ρέτσας', 'του Καρδιολόγου' -> 'Καρδιολόγος').\n\n"
+        f"Chat History:\n{history_text}\n\n"
+        f"Latest User Query: {current_question}\n\n"
+        "Output ONLY the expanded query in Greek, without quotes or explanations. "
+        "Example Output: Ποιοι γιατροί είναι βάρδια στις 4 Μαρτίου 2026 (εφημερία) (04/03/2026)"
+)
+
+    response = client.chat.completions.create(
+        model="gpt-4.1", 
+        messages=[{"role": "user", "content": rewrite_prompt}],
+        temperature=0.0, 
+    )
+
+    rewritten = response.choices[0].message.content.strip()
+    print(f"[REWRITER] Αρχικό: '{current_question}' -> Νέο: '{rewritten}'")
+    return rewritten

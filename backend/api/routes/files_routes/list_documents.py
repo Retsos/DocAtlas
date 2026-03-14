@@ -1,14 +1,15 @@
-from fastapi import Depends, HTTPException, Query
+from fastapi import Depends, HTTPException, Query, Request
 from firebase_admin import firestore
 from google.api_core.exceptions import FailedPrecondition
-
 from api.routes.files_routes.router import router
 from api.routes.files_routes.shared import normalize_page, normalize_page_size, timestamp_to_iso
 from core.firebase import get_firestore_client, verify_token
+from services.logger import log_error
 
 
 @router.get("/documents")
 async def list_documents(
+    request: Request,
     page: int = Query(default=1),
     page_size: int = Query(default=5),
     search: str = Query(default=""),
@@ -18,6 +19,7 @@ async def list_documents(
     try:
         admin_uid = admin_data.get("uid")
         if not admin_uid:
+            log_error(tenant_id=None, status_code=401, method=request.method, detail="Unauthorized.")
             raise HTTPException(status_code=401, detail="Unauthorized.")
 
         safe_page = normalize_page(page)

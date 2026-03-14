@@ -4,6 +4,7 @@ import { Files, LayoutDashboard, Logs, Settings } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import docAtlasLogoWithTitle from "@/assets/DocAtlasLogoWithTitle.png";
+import { cn } from "@/lib/utils";
 
 const navItems = [
   {
@@ -36,20 +37,72 @@ const navItems = [
   },
 ];
 
-export function Sidebar() {
+type SidebarProps = {
+  className?: string;
+  isDrawer?: boolean;
+  onNavigate?: () => void;
+  onClose?: () => void;
+};
+
+export function Sidebar({
+  className,
+  isDrawer = false,
+  onNavigate,
+  onClose,
+}: SidebarProps) {
   const { user, logout } = useAuth();
 
   return (
-    <aside className="flex h-full min-h-0 w-20 shrink-0 flex-col overflow-hidden border-r border-sky-800/50 bg-gradient-to-b from-sky-950 via-sky-900 to-sky-900 px-2 pb-4 pt-2 text-sky-50 md:w-72 md:px-4">
-      <div className="mb-5 rounded-xl bg-white/5 backdrop-blur-sm">
-        <img
-          src={docAtlasLogoWithTitle}
-          alt="DocAtlas"
-          className="h-14 w-full object-contain object-left md:h-30"
-        />
-      </div>
+    <aside
+      className={cn(
+        "flex h-full min-h-0 w-20 shrink-0 flex-col overflow-hidden border-r border-sky-800/50 bg-gradient-to-b from-sky-950 via-sky-900 to-sky-900 px-2 pb-4 pt-2 text-sky-50 md:w-72 md:px-4",
+        className,
+      )}
+    >
+      {isDrawer ? (
+        <div className="mb-5 flex items-center justify-between gap-3 rounded-xl bg-white/5 px-2 py-1 backdrop-blur-sm">
+          <img
+            src={docAtlasLogoWithTitle}
+            alt="DocAtlas"
+            className="h-24 w-auto object-contain"
+          />
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close sidebar"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/20 text-white/90 transition hover:bg-white/10"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="h-4 w-4"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M6 6l12 12M18 6l-12 12"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        </div>
+      ) : (
+        <div className="mb-5 flex items-center justify-center rounded-xl bg-white/5 backdrop-blur-sm">
+          <img
+            src={docAtlasLogoWithTitle}
+            alt="DocAtlas"
+            className="h-14 w-full object-contain object-center md:h-30"
+          />
+        </div>
+      )}
 
-      <div className="mb-6 hidden rounded-xl border border-white/10 bg-white/5 p-3 md:block">
+      <div
+        className={cn(
+          "mb-6 rounded-xl border border-white/10 bg-white/5 p-3",
+          isDrawer ? "block" : "hidden md:block",
+        )}
+      >
         <p className="text-sm font-semibold tracking-wide text-sky-50/95">
           Admin Workspace
         </p>
@@ -67,9 +120,13 @@ export function Sidebar() {
             key={to}
             to={to}
             end={end}
+            onClick={() => onNavigate?.()}
             className={({ isActive }) =>
               [
-                "group flex items-center justify-center gap-3 rounded-xl border px-2 py-3 text-sm transition-all md:items-start md:justify-start md:px-3",
+                "group flex items-center gap-3 rounded-xl border px-3 py-3 text-sm transition-all",
+                isDrawer
+                  ? "justify-start"
+                  : "justify-center md:items-start md:justify-start md:px-3",
                 isActive
                   ? "border-white/20 bg-white/15 text-white shadow-[0_12px_28px_rgba(0,0,0,0.16)]"
                   : "border-white/10 text-sky-50/85 hover:border-white/20 hover:bg-white/10 hover:text-white",
@@ -77,7 +134,7 @@ export function Sidebar() {
             }
           >
             <Icon className="size-4 shrink-0 md:mt-0.5" />
-            <div className="hidden md:block">
+            <div className={isDrawer ? "block" : "hidden md:block"}>
               <p className="font-medium">{label}</p>
               <p className="mt-0.5 text-xs leading-4 text-sky-100/70 group-hover:text-sky-50/90">
                 {description}
@@ -88,16 +145,26 @@ export function Sidebar() {
       </nav>
 
       <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-2 md:p-3">
-        <p className="mb-3 hidden text-xs text-sky-100/80 md:block">
+        <p
+          className={cn(
+            "mb-3 text-xs text-sky-100/80",
+            isDrawer ? "block" : "hidden md:block",
+          )}
+        >
           {user?.email}
         </p>
         <Button
           variant="outline"
           className="h-10 w-full border-white/15 bg-white/10 px-2 text-xs text-sky-50 transition hover:border-white/30 hover:bg-white/20 hover:text-white md:px-3 md:text-sm"
-          onClick={logout}
+          onClick={async () => {
+            await logout();
+            onNavigate?.();
+          }}
         >
-          <span className="md:hidden">Out</span>
-          <span className="hidden md:inline">Sign out</span>
+          <span className={isDrawer ? "hidden" : "md:hidden"}>Out</span>
+          <span className={isDrawer ? "inline" : "hidden md:inline"}>
+            Log out
+          </span>
         </Button>
       </div>
     </aside>

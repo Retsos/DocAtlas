@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+﻿import { useForm } from "react-hook-form";
 import { ArrowUp } from "lucide-react";
 import { Button } from "../ui/button";
 
@@ -16,32 +16,30 @@ const ChatInput = ({ onSubmit }: Props) => {
     defaultValues: { prompt: "" },
   });
 
-  // watch to get the current value of the prompt for validation
+  // Παρακολουθούμε την τρέχουσα τιμή για να αποτρέπουμε κενά μηνύματα.
   const promptValue = watch("prompt");
   const isValid = promptValue.trim().length > 0;
 
   const submit = handleSubmit((data) => {
-    if (!isValid) return; // we dont want to submit empty or whitespace-only prompts
+    if (!isValid) return;
     reset({ prompt: "" });
     onSubmit(data);
   });
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault(); 
+      e.preventDefault();
       if (isValid) {
         submit();
       }
     }
   };
 
-  // Απομονώνουμε το ref του react-hook-form για να το περάσουμε σωστά
   const { ref, ...rest } = register("prompt");
 
   return (
     <form
       onSubmit={submit}
-      // Χρησιμοποιούμε items-end ώστε το κουμπί να μένει πάντα χαμηλά όταν το πεδίο ψηλώνει
       className="flex items-end gap-2 border border-gray-200 p-2 rounded-2xl bg-white focus-within:border-cyan-600 focus-within:ring-1 focus-within:ring-cyan-600 transition-all shadow-sm"
     >
       <textarea
@@ -49,7 +47,7 @@ const ChatInput = ({ onSubmit }: Props) => {
         ref={ref}
         onKeyDown={handleKeyDown}
         rows={1}
-        placeholder="Ask about our services..."
+        placeholder="Ρωτήστε για τις υπηρεσίες μας..."
         className="flex-1 resize-none border-0 bg-transparent focus:outline-none focus:ring-0 py-2 text-sm text-slate-800 min-h-[40px] max-h-32 overflow-y-auto [scrollbar-gutter:stable]"
       />
 

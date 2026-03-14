@@ -6,6 +6,7 @@ from core.rate_limit import limiter
 from models.RequestBody import RequestBody
 from services.doc_processing import normalize_greek_text
 from services.llmService import generate_answer, classify_intent, rewrite_query
+from services.citations import build_citations
 from fastapi.concurrency import run_in_threadpool
 from core.firebase import get_firestore_client
 
@@ -19,10 +20,6 @@ async def query(
     body: RequestBody,
 ):
     try:
-        # Dynamic tenant origin check:
-        # We read the browser Origin header and compare it to the tenant's
-        # allowlisted websiteUrl stored in Firestore. This complements global
-        # CORS by enforcing per-tenant isolation for widget requests.
         request_origin = request.headers.get("origin")
 
         db = get_firestore_client()
@@ -35,10 +32,6 @@ async def query(
         tenant_data = tenant_doc.to_dict()
         allowed_origin = tenant_data.get("websiteUrl")
 
-        # Strict origin validation:
-        # If the tenant has no allowlisted origin or the current request origin
-        # does not match exactly, we reject the call. This prevents one tenant
-        # from querying another tenant's index by spoofing tenant_id values.
         if not allowed_origin or request_origin != allowed_origin:
             print(
                 f"[SECURITY] Rejected origin: {request_origin}. "
@@ -49,33 +42,23 @@ async def query(
                 detail="Origin is not allowed for this tenant.",
             )
 
-        # Hybrid retrieval pipeline:
-        # Dense KNN captures semantic similarity, sparse KNN captures lexical
-        # keyword relevance, and RRF merges both rank lists into a balanced
-        # result set for higher-quality retrieval before generation.
-
         col: Collection = get_chroma_collection()
-
-        # --- QUERY REWRITING  ---
 
         search_prompt = await run_in_threadpool(rewrite_query, body.prompt, body.history)
         print(f"[REWRITER] Τελικό Prompt στη Βάση: '{search_prompt}'")
-            
-        clean_prompt = normalize_greek_text(search_prompt)
-        # ------------------------------------------------
 
-        # Το intent classification παίρνει τη σωστή, ξεκάθαρη ερώτηση πλέον
+        clean_prompt = normalize_greek_text(search_prompt)
+
         intent = await run_in_threadpool(classify_intent, search_prompt)
+        print(f"[INTENT] Κατηγοριοποίηση πρόθεσης: '{intent}'")
 
         if intent == "MEDICAL":
-            #Immediately returns the safety guardrail, no database search needed
             return {
                 "answer": "Δεν είμαι εξουσιοδοτημένος να παρέχω ιατρική διάγνωση, παρακαλώ μιλήστε με έναν γιατρό.",
                 "sources": []
             }
-        
+
         elif intent == "GENERAL":
-            #Passes an empty context list, the LLM will handle the small talk without retrieval
             answer = await run_in_threadpool(generate_answer, body.prompt, [], body.history)
             return {
                 "answer": answer,
@@ -85,8 +68,8 @@ async def query(
         hybrid_rank = Rrf(
             ranks=[
                 Knn(
-                    query=clean_prompt, 
-                    return_rank=True, 
+                    query=clean_prompt,
+                    return_rank=True,
                     limit=25
                 ),
                 Knn(
@@ -100,9 +83,6 @@ async def query(
             k=60,
         )
 
-        # Tenant scoping is enforced in the vector query filter.
-        # Even with valid retrieval, only documents tagged with the caller's
-        # tenant_id are eligible to reach the LLM context window.
         search_query = (
             Search()
             .where({"tenant_id": body.tenant_id})
@@ -114,10 +94,20 @@ async def query(
         results = col.search(search_query)
 
         retrieved_docs = results.get("documents", [[]])[0] if results else []
+        retrieved_metadatas = results.get("metadatas", [[]])[0] if results else []
+
+        sources_list = build_citations(
+            db=db,
+            tenant_id=body.tenant_id,
+            retrieved_metadatas=retrieved_metadatas,
+            max_items=10,
+        )
+
         answer = await run_in_threadpool(generate_answer, body.prompt, retrieved_docs, body.history)
+
         return {
             "answer": answer,
-            "sources": retrieved_docs,  # Returned for optional UI citations.
+            "sources": sources_list,
         }
     except HTTPException:
         raise

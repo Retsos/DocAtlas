@@ -23,7 +23,7 @@ def log_account_created(
     _safe_write_log(
         {
             "event": "account_created",
-            "actorId": user_id,
+            "tenantId": user_id,
             "actorEmail": email,
             "hospitalName": hospital_name,
             "websiteUrl": website_url,
@@ -44,7 +44,7 @@ def log_document_uploaded(
 ) -> None:
     payload: dict[str, Any] = {
         "event": "document_uploaded",
-        "actorId": user_id,
+        "tenantId": user_id,
         "documentId": document_id,
         "name": name,
         "sizeBytes": size_bytes,
@@ -67,7 +67,7 @@ def log_document_deleted(
 ) -> None:
     payload: dict[str, Any] = {
         "event": "document_deleted",
-        "actorId": user_id,
+        "tenantId": user_id,
         "documentId": document_id,
         "createdAt": firestore.SERVER_TIMESTAMP,
     }

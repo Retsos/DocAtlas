@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import APIRouter, HTTPException, Request
 from chromadb import K, Knn, Rrf, Search
 from chromadb.api.models.Collection import Collection
@@ -13,6 +14,8 @@ from services.logger import log_chat_message, log_chat_response, log_error
 
 router = APIRouter(prefix="/api", tags=["query"])
 reranker = CrossEncoder('amberoad/bert-multilingual-passage-reranking-msmarco')
+rerank_semaphore = asyncio.Semaphore(4)
+reranker_num_labels = getattr(reranker.model.config, "num_labels", 1)
 
 
 @router.post("/query")
@@ -124,26 +127,40 @@ async def query(
 
         results = col.search(search_query)
 
-        retrieved_docs = results.get("documents", [[]])[0] if results else []
+        retrieved_docs_raw = results.get("documents", [[]])[0] if results else []
+        # Filter out None/empty docs to avoid odd inputs to the reranker
+        retrieved_docs = [
+            doc for doc in retrieved_docs_raw
+            if isinstance(doc, str) and doc.strip()
+        ]
 
-        if len(retrieved_docs) > 0:
-            cross_inp = [[clean_prompt, doc] for doc in retrieved_docs]
-            scores = reranker.predict(cross_inp)
+        # Pre-trim candidates to reduce reranker latency
+        rerank_candidates = retrieved_docs[:20]
+
+        if len(rerank_candidates) > 0:
+            cross_inp = [[clean_prompt, doc] for doc in rerank_candidates]
+            async with rerank_semaphore:
+                scores = await run_in_threadpool(reranker.predict, cross_inp)
             
-            #Safely extract the actual scalar float score, no matter the array shape
+            # Safely extract scalar float scores based on the model's label count
             processed_scores = []
             for score in scores:
-                # If the model returns a 2D array like [negative_prob, positive_prob]
-                if hasattr(score, '__len__') and len(score) > 1:
-                    processed_scores.append(float(score[1])) # Take the positive class score
-                # If the model returns a 1D array with a single element like [score]
-                elif hasattr(score, '__len__') and len(score) == 1:
+                # Binary/multi-class: prefer the positive class score if available
+                if reranker_num_labels and reranker_num_labels > 1:
+                    if hasattr(score, "__len__") and len(score) > 1:
+                        processed_scores.append(float(score[1]))
+                    elif hasattr(score, "__len__") and len(score) == 1 and hasattr(score[0], "__len__"):
+                        inner = score[0]
+                        processed_scores.append(float(inner[1] if len(inner) > 1 else inner[0]))
+                    else:
+                        processed_scores.append(float(score))
+                # Regression: use the single score
+                elif hasattr(score, "__len__") and len(score) >= 1:
                     processed_scores.append(float(score[0]))
-                # If it's already a standard scalar float
                 else:
                     processed_scores.append(float(score))
 
-            doc_score_pairs = list(zip(retrieved_docs, processed_scores))
+            doc_score_pairs = list(zip(rerank_candidates, processed_scores))
 
             # Sort will work perfectly because it's comparing standard Python floats
             doc_score_pairs.sort(key=lambda x: x[1], reverse=True)

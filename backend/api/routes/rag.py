@@ -4,8 +4,8 @@ from chromadb.api.models.Collection import Collection
 from config.chromaClient import get_chroma_collection
 from core.rate_limit import limiter
 from models.RequestBody import RequestBody
-from services.documentProcessing import normalize_greek_text
-from services.llmService import generate_answer, classify_intent
+from services.doc_processing import normalize_greek_text
+from services.llmService import generate_answer, classify_intent, rewrite_query
 from fastapi.concurrency import run_in_threadpool
 from core.firebase import get_firestore_client
 
@@ -53,10 +53,19 @@ async def query(
         # Dense KNN captures semantic similarity, sparse KNN captures lexical
         # keyword relevance, and RRF merges both rank lists into a balanced
         # result set for higher-quality retrieval before generation.
-        col: Collection = get_chroma_collection()
-        clean_prompt = normalize_greek_text(body.prompt)
 
-        intent = await run_in_threadpool(classify_intent, body.prompt)
+        col: Collection = get_chroma_collection()
+
+        # --- QUERY REWRITING  ---
+
+        search_prompt = await run_in_threadpool(rewrite_query, body.prompt, body.history)
+        print(f"[REWRITER] Τελικό Prompt στη Βάση: '{search_prompt}'")
+            
+        clean_prompt = normalize_greek_text(search_prompt)
+        # ------------------------------------------------
+
+        # Το intent classification παίρνει τη σωστή, ξεκάθαρη ερώτηση πλέον
+        intent = await run_in_threadpool(classify_intent, search_prompt)
 
         if intent == "MEDICAL":
             #Immediately returns the safety guardrail, no database search needed
@@ -78,13 +87,13 @@ async def query(
                 Knn(
                     query=clean_prompt, 
                     return_rank=True, 
-                    limit=15
+                    limit=25
                 ),
                 Knn(
                     query=clean_prompt,
                     key="sparse_embedding",
                     return_rank=True,
-                    limit=15,
+                    limit=25,
                 ),
             ],
             weights=[1.0, 1.0],
@@ -110,8 +119,9 @@ async def query(
             "answer": answer,
             "sources": retrieved_docs,  # Returned for optional UI citations.
         }
-
     except HTTPException:
         raise
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Query pipeline failed: {e}")

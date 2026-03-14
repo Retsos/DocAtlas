@@ -4,6 +4,10 @@ import type { KnowledgeSource } from "@/types/knowledgeSource";
 export const DOCUMENTS_PAGE_SIZE = 5;
 export type DocumentsPageCursor = number | null;
 
+type BackendProfileResponse = {
+  uploadedDocsCount?: number;
+};
+
 type BackendDocumentsResponse = {
   items: Array<{
     id: string;
@@ -51,12 +55,15 @@ async function fetchDocuments(input: {
   return response.data;
 }
 
-export async function getDocumentSourcesCount(_ownerId: string): Promise<number> {
-  const data = await fetchDocuments({ page: 1, pageSize: 1 });
-  return data.total;
+export async function getDocumentSourcesCount(_ownerId?: string): Promise<number> {
+  const response = await apiClient.get<BackendProfileResponse>("/api/me");
+  const count = response.data.uploadedDocsCount;
+  return typeof count === "number" && count >= 0 ? count : 0;
 }
 
-export async function getAllDocumentSourcesByOwner(_ownerId: string): Promise<KnowledgeSource[]> {
+export async function getAllDocumentSourcesByOwner(
+  _ownerId?: string,
+): Promise<KnowledgeSource[]> {
   const allSources: KnowledgeSource[] = [];
   let page = 1;
   let hasNext = true;
@@ -72,7 +79,7 @@ export async function getAllDocumentSourcesByOwner(_ownerId: string): Promise<Kn
 }
 
 export async function getDocumentSourcesPage(input: {
-  ownerId: string;
+  ownerId?: string;
   pageSize?: number;
   startAfterCursor?: DocumentsPageCursor;
 }): Promise<{

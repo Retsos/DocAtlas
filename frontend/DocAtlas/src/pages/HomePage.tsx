@@ -8,7 +8,7 @@ export default function Home() {
       <section className="scroll-mt-24 px-4 pb-14 pt-10 sm:px-5 sm:pb-16 sm:pt-12 md:pb-20 md:pt-16 lg:px-10 xl:px-14">
         <div className="mx-auto grid w-full max-w-6xl items-center gap-8 md:grid-cols-[1.2fr_0.8fr] md:gap-10 lg:gap-14">
           <div className="pt-10 space-y-5 sm:space-y-6">
-            <h1 className="text-4xl font-dm-serif-display font-semibold leading-20 tracking-tight text-sky-950 sm:text-5xl md:text-7xl">
+            <h1 className="text-4xl font-dm-serif-display font-semibold leading-[1.05] tracking-tight text-sky-950 sm:text-5xl md:text-7xl">
               Bring every hospital document into one{" "}
               <span className="text-sky-600">reliable AI assistant.</span>
             </h1>

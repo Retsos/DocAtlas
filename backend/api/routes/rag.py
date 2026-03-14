@@ -154,6 +154,7 @@ async def query(
 
         answer = await run_in_threadpool(generate_answer, body.prompt, reranked_docs, body.history)
         log_chat_response(log_id=log_id, response=answer, intent=intent)
+        
         return {
             "answer": answer,
             "sources": reranked_docs,  # Returned for optional UI citations.

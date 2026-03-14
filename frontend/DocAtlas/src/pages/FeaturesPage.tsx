@@ -23,13 +23,12 @@ export default function Features() {
             <p>
               Each organization uploads its own documents, guidelines, and
               procedures, and the system answers based on those sources instead
-              of generic web responses or a general LLM memory.
-            </p>
-            <p>
-              The core combines document ingestion, vector search, and RAG:
-              files become structured knowledge chunks, the most relevant
-              passages are retrieved, and grounded answers are generated with
-              source references.
+              of generic web responses or a general LLM memory. The core
+              combines document ingestion, vector search, and RAG: files become
+              structured knowledge chunks, the most relevant passages are
+              retrieved, and grounded answers are generated with source
+              references. The widget turns that content into a searchable
+              assistant so staff and users get consistent answers quickly.
             </p>
           </div>
         </section>
